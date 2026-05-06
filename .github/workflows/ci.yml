@@ -1,0 +1,34 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: uitnodigingsregel-benchmark
+
+      - uses: actions/checkout@v4
+        with:
+          repository: cedanl/student-signal
+          path: student-signal
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv sync
+        working-directory: uitnodigingsregel-benchmark
+
+      - name: Lint
+        run: uv run ruff check .
+        working-directory: uitnodigingsregel-benchmark
+
+      - name: Format check
+        run: uv run ruff format --check .
+        working-directory: uitnodigingsregel-benchmark
+
+      - name: Test
+        run: uv run pytest
+        working-directory: uitnodigingsregel-benchmark

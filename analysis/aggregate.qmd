@@ -1,0 +1,224 @@
+---
+title: "Benchmark Aggregatie — Uitnodigingsregel"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+execute:
+  echo: false
+  warning: false
+---
+
+```{python}
+import json
+from pathlib import Path
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np
+
+results_dir = Path("../results")
+result_files = sorted(results_dir.glob("benchmark_*.json"))
+
+if not result_files:
+    raise FileNotFoundError(f"Geen benchmark JSON bestanden gevonden in {results_dir}")
+
+results = []
+for f in result_files:
+    with open(f) as fh:
+        results.append(json.load(fh))
+
+def fmt(val, fmt_str=".1f"):
+    """Format a value, return '?' if None."""
+    if val is None:
+        return "?"
+    return format(val, fmt_str)
+
+def meta_get(m, *keys, default="?"):
+    """Get first matching key from metadata dict (supports old and new key names)."""
+    for k in keys:
+        if k in m:
+            return m[k]
+    return default
+
+print(f"{len(results)} resultaten geladen")
+```
+
+## Overzicht
+
+```{python}
+rows = []
+for r in results:
+    m = r["metadata"]
+    rec = r["recommendation"]
+    rows.append({
+        "Instelling": meta_get(m, "instelling_id", "instelling"),
+        "Uitvaljaar": meta_get(m, "dropout_year"),
+        "Trainingsjaren": str(meta_get(m, "training_years")),
+        "Uitgevoerd": meta_get(m, "run_date", "date"),
+        "N train": m["n_train"],
+        "Uitvalpercentage": f"{m['dropout_rate_train'] * 100:.1f}%",
+        "Aanbevolen model": rec["model"],
+        "Precisie@20%": fmt(rec["precision_at_20"]) + "%",
+        "Recall@20%": fmt(rec["recall_at_20"]) + "%",
+        "Status": rec["status"],
+    })
+
+pd.DataFrame(rows)
+```
+
+## Cross-sectioneel — vergelijking per uitvaljaar
+
+Instellingen met hetzelfde uitvaljaar naast elkaar.
+
+```{python}
+rows = []
+for r in results:
+    m = r["metadata"]
+    for model_name, model_data in r["models"].items():
+        ev = model_data["evaluation"]
+        rows.append({
+            "Instelling": meta_get(m, "instelling_id", "instelling"),
+            "Uitvaljaar": meta_get(m, "dropout_year"),
+            "Model": model_name,
+            "Precisie@20%": ev["precision"],
+            "Recall@20%": ev["recall"],
+            "Status": ev["status"],
+        })
+
+df_cross = pd.DataFrame(rows)
+dropout_years = sorted(df_cross["Uitvaljaar"].dropna().unique(), key=str)
+
+for year in dropout_years:
+    print(f"\n### Uitvaljaar {year}\n")
+    display(
+        df_cross[df_cross["Uitvaljaar"] == year]
+        .sort_values(["Model", "Instelling"])
+        .reset_index(drop=True)
+    )
+```
+
+```{python}
+# Precisie@20% per model per uitvaljaar — gestapeld per instelling
+all_models = sorted({m for r in results for m in r["models"]})
+colors = cm.tab10(np.linspace(0, 1, len(results)))
+
+for model_name in all_models:
+    fig, ax = plt.subplots(figsize=(8, 4))
+    subset = df_cross[df_cross["Model"] == model_name].copy()
+    for i, (instelling, grp) in enumerate(subset.groupby("Instelling")):
+        ax.scatter(grp["Uitvaljaar"], grp["Precisie@20%"], label=instelling, color=colors[i], s=80, zorder=3)
+    ax.axhline(40, color="green", linestyle="--", alpha=0.4, label="Groen (40%)")
+    ax.axhline(30, color="orange", linestyle="--", alpha=0.4, label="Geel (30%)")
+    ax.set_title(f"{model_name} — precisie@20% per uitvaljaar")
+    ax.set_xlabel("Uitvaljaar")
+    ax.set_ylabel("Precisie (%)")
+    ax.set_ylim(0, 105)
+    ax.legend(fontsize=8)
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+```
+
+## Longitudinaal — verloop per instelling over jaren
+
+```{python}
+instellingen = sorted({meta_get(r["metadata"], "instelling_id", "instelling") for r in results})
+
+for instelling in instellingen:
+    inst_results = [r for r in results if meta_get(r["metadata"], "instelling_id", "instelling") == instelling]
+    if len(inst_results) < 2:
+        continue
+
+    inst_results = sorted(inst_results, key=lambda r: r["metadata"].get("dropout_year", 0))
+    years = [r["metadata"].get("dropout_year") for r in inst_results]
+
+    fig, ax = plt.subplots(figsize=(8, 4))
+    for model_name in all_models:
+        precs = []
+        for r in inst_results:
+            ev = r["models"].get(model_name, {}).get("evaluation", {})
+            precs.append(ev.get("precision"))
+        ax.plot(years, precs, marker="o", label=model_name)
+
+    ax.axhline(40, color="green", linestyle="--", alpha=0.4)
+    ax.axhline(30, color="orange", linestyle="--", alpha=0.4)
+    ax.set_title(f"{instelling} — precisie@20% over jaren")
+    ax.set_xlabel("Uitvaljaar")
+    ax.set_ylabel("Precisie (%)")
+    ax.set_ylim(0, 105)
+    ax.legend(fontsize=8)
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+```
+
+## Feature importance — frequentieanalyse
+
+Hoe vaak verschijnt elke feature in de **top 10** van een model, over alle resultaten?
+Gemiddelde rank en genormaliseerde importance geven meer context dan frequentie alleen.
+
+```{python}
+TOP_N = 10
+
+def build_freq_table(feature_lists: list[list[dict]]) -> pd.DataFrame:
+    """Aggregate top-N feature lists into frequency, avg rank, and avg importance."""
+    agg: dict[str, dict] = {}
+    for features in feature_lists:
+        max_imp = max((e["importance"] for e in features), default=1) or 1
+        for rank, entry in enumerate(features[:TOP_N], start=1):
+            f = entry["feature"]
+            if f not in agg:
+                agg[f] = {"count": 0, "ranks": [], "importances": []}
+            agg[f]["count"] += 1
+            agg[f]["ranks"].append(rank)
+            agg[f]["importances"].append(entry["importance"] / max_imp)
+
+    rows = [
+        {
+            "Feature": f,
+            "Top 10 resultaten": d["count"],
+            "Gem. rank": round(sum(d["ranks"]) / len(d["ranks"]), 1),
+            "Gem. importance (genorm.)": round(sum(d["importances"]) / len(d["importances"]), 3),
+        }
+        for f, d in agg.items()
+    ]
+    return (
+        pd.DataFrame(rows)
+        .sort_values(["Top 10 resultaten", "Gem. rank"], ascending=[False, True])
+        .reset_index(drop=True)
+        .head(20)
+    )
+
+freq_by_model: dict[str, list[list[dict]]] = {}
+for r in results:
+    for model_name, model_data in r["models"].items():
+        freq_by_model.setdefault(model_name, []).append(model_data["feature_importance"])
+
+for model_name, feature_lists in freq_by_model.items():
+    print(f"\n### {model_name}\n")
+    display(build_freq_table(feature_lists))
+```
+
+## Minimale featureset aanbeveling
+
+Features die in **meer dan de helft** van de resultaten in de top 10 staan van het aanbevolen model:
+
+```{python}
+n_results = len(results)
+threshold = n_results / 2
+
+best_model_features: list[list[dict]] = []
+for r in results:
+    best_model = r["recommendation"]["model"]
+    if best_model not in r["models"]:
+        continue
+    best_model_features.append(r["models"][best_model]["feature_importance"])
+
+df_min = build_freq_table(best_model_features)
+df_min = df_min[df_min["Top 10 resultaten"] > threshold].reset_index(drop=True)
+
+print(f"Drempel: >{threshold:.0f} van {n_results} resultaten\n")
+df_min
+```

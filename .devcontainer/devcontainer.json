@@ -1,0 +1,21 @@
+{
+  "name": "uitnodigingsregel-benchmark",
+  "image": "mcr.microsoft.com/devcontainers/python:3.13",
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "anthropic.claude-code",
+        "quarto.quarto"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "python.testing.pytestEnabled": true
+      }
+    }
+  },
+  "postCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && uv sync",
+  "remoteUser": "vscode"
+}

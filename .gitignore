@@ -1,0 +1,13 @@
+__pycache__/
+.venv/
+.uv_cache/
+.ruff_cache/
+*.pyc
+*.pyo
+.DS_Store
+data/01-raw/*
+data/02-prepared/*
+data/03-output/*
+!data/*/demo/
+!data/*/demo/**
+analysis/*.html

@@ -1,0 +1,10 @@
+# Benchmark configuratie — eenmalig invullen per instelling
+#
+# instelling_id: korte stabiele code voor jouw instelling (geen spaties)
+#                wordt gebruikt in de bestandsnaam en voor longitudinale analyse
+# dropout_year:  het jaar waarop de Dropout-kolom betrekking heeft
+# training_years: de jaren die zijn gebruikt als trainingsdata
+
+instelling_id: "anoniem"
+dropout_year: 2023
+training_years: [2021, 2022]
