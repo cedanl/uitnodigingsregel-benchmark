@@ -34,6 +34,13 @@ def prepared():
     )
 
 
+def test_id_column_is_not_a_feature(prepared):
+    assert ID_COL not in prepared.X_train.columns
+    assert ID_COL not in prepared.pred_df.columns
+    assert len(prepared.train_ids) == len(prepared.X_train)
+    assert len(prepared.pred_ids) == len(prepared.X_pred)
+
+
 def test_feature_importance_tree(prepared):
     model = RandomForestClassifier(n_estimators=10, random_state=42)
     model.fit(prepared.X_train, prepared.y_train)

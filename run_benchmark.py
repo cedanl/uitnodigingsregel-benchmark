@@ -2,6 +2,7 @@
 
 import argparse
 from datetime import datetime
+from importlib.metadata import version
 from pathlib import Path
 from typing import Any
 
@@ -133,6 +134,7 @@ def main() -> None:
         "dropout_rate_test": round(float(prepared.pred_df[DROPOUT_COL].mean()), 3),
         "features_available": list(prepared.X_train.columns),
         "run_date": datetime.now().strftime("%Y-%m-%d"),
+        "student_signal_version": version("student_signal"),
         "cv_folds": CV_FOLDS,
         "n_iter_search": N_ITER,
     }
