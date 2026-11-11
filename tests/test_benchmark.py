@@ -20,6 +20,7 @@ from uitnodigingsregel_benchmark.dataset import (
 )
 from uitnodigingsregel_benchmark.export import build_result, write_result
 from uitnodigingsregel_benchmark.features import extract_feature_importance
+from uitnodigingsregel_benchmark.impact import resolve_variables
 from uitnodigingsregel_benchmark.runner import select_models
 from uitnodigingsregel_benchmark.settings import DEFAULTS, SettingsError, load_config
 from uitnodigingsregel_benchmark.split import split_train_test
@@ -243,3 +244,71 @@ def test_cli_reports_missing_file_without_traceback(tmp_path, capsys):
     exit_code = main(["--train", str(tmp_path / "geen.csv"), "--results-dir", str(tmp_path)])
     assert exit_code == 1
     assert "bestaat niet" in capsys.readouterr().err
+
+
+def test_resolve_variables_joins_groups():
+    columns = ["Leeftijd", "Niveau_HAVO", "Niveau_MBO", "Techniek", "Zorg"]
+    groups = {"Vooropleiding": ["Niveau_*"], "Richting": ["Techniek", "Zorg"]}
+    assert resolve_variables(columns, groups) == {
+        "Vooropleiding": ["Niveau_HAVO", "Niveau_MBO"],
+        "Richting": ["Techniek", "Zorg"],
+        "Leeftijd": ["Leeftijd"],
+    }
+    assert resolve_variables(columns, groups, ["Leeftijd", "Vooropleiding"]) == {
+        "Leeftijd": ["Leeftijd"],
+        "Vooropleiding": ["Niveau_HAVO", "Niveau_MBO"],
+    }
+    assert list(resolve_variables(columns)) == columns
+
+
+@pytest.mark.parametrize(
+    ("groups", "variables", "message"),
+    [
+        ({"Vooropleiding": ["Bestaat_niet_*"]}, None, "past op geen enkele kolom"),
+        ({"A": ["Niveau_*"], "B": ["Niveau_MBO"]}, None, "staat in twee groepen"),
+        (None, ["Bestaat niet"], "Onbekende variabele"),
+    ],
+)
+def test_resolve_variables_rejects_wrong_settings(groups, variables, message):
+    with pytest.raises(SettingsError, match=message):
+        resolve_variables(["Leeftijd", "Niveau_HAVO", "Niveau_MBO"], groups, variables)
+
+
+def test_cli_measures_impact_per_variable(tmp_path, monkeypatch):
+    if not DEMO_TRAIN.exists():
+        pytest.skip("Demo data niet aanwezig")
+    monkeypatch.chdir(DEMO_TRAIN.parents[3])
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text(
+        "n_jobs: 1\n"
+        "impact_variables: [StudentAge, Vooropleiding]\n"
+        "variable_groups:\n  Vooropleiding: ['VooroplNiveau_*']\n",
+        encoding="utf-8",
+    )
+    args = ["--demo", "--quick", "--impact", "--config", str(config_file)]
+    assert main([*args, "--results-dir", str(tmp_path)]) == 0
+    with open(tmp_path / "benchmark_demo_onbekend.json", encoding="utf-8") as f:
+        result = json.load(f)
+    assert result["metadata"]["impact_measured"] is True
+    for model in result["models"].values():
+        impact = {e["variable"]: e for e in model["variable_impact"]}
+        assert set(impact) == {"StudentAge", "Vooropleiding"}
+        assert len(impact["Vooropleiding"]["columns"]) > 1
+        entry = impact["StudentAge"]
+        assert entry["precision_diff"] == pytest.approx(
+            model["evaluation"]["precision"] - entry["precision_without"]
+        )
+
+
+def test_cli_without_impact_leaves_it_out(tmp_path, monkeypatch):
+    if not DEMO_TRAIN.exists():
+        pytest.skip("Demo data niet aanwezig")
+    monkeypatch.chdir(DEMO_TRAIN.parents[3])
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text("n_jobs: 1\nmodels: [Lasso]\n", encoding="utf-8")
+    args = ["--demo", "--config", str(config_file), "--results-dir", str(tmp_path)]
+    assert main(args) == 0
+    with open(tmp_path / "benchmark_demo_onbekend.json", encoding="utf-8") as f:
+        result = json.load(f)
+    assert result["metadata"]["impact_measured"] is False
+    assert "variable_impact" not in result["models"]["Lasso"]

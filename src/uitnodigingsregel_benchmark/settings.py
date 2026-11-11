@@ -16,6 +16,9 @@ DEFAULTS: dict = {
     "cv_folds": 5,
     "test_size": 0.2,
     "n_jobs": -1,
+    "impact": False,
+    "impact_variables": None,
+    "variable_groups": None,
 }
 
 # Fewer models and fewer search rounds: a result in seconds instead of minutes.
