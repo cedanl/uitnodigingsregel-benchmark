@@ -1,18 +1,36 @@
-# Benchmark configuratie — eenmalig invullen per instelling
-#
-# instelling_id: korte stabiele code voor jouw instelling (geen spaties)
-#                wordt gebruikt in de bestandsnaam en voor longitudinale analyse
-# dropout_year:  het jaar waarop de Dropout-kolom betrekking heeft
-# training_years: de jaren die zijn gebruikt als trainingsdata
+# Instellingen van de benchmark. Alles is optioneel: een regel die ontbreekt of
+# op null staat, krijgt de standaardwaarde.
 
-#
-# cohort_column: naam van de kolom met het cohort (bijvoorbeeld het startjaar).
-#                Optioneel. Staat de kolom in de data met minstens twee cohorten, dan
-#                traint de benchmark op de eerdere cohorten en toetst op het laatste.
-#                dropout_year en training_years volgen dan uit de data.
-#                Zonder deze kolom wordt de data willekeurig gesplitst (80/20).
-
+# Korte, vaste code voor je instelling (geen spaties). Komt in de bestandsnaam.
 instelling_id: "anoniem"
+
+# Het jaar waarop de Dropout-kolom betrekking heeft, en de jaren in de data.
 dropout_year: 2023
 training_years: [2021, 2022]
+
+# Kolomnamen in je bestand.
+dropout_column: "Dropout"        # 1 = uitgevallen, 0 = niet uitgevallen
+id_column: "Studentnummer"       # mag ontbreken; de benchmark gebruikt hem niet
+
+# Kolom met het cohort (bijvoorbeeld het startjaar). Staat de kolom in de data met
+# minstens twee cohorten, dan traint de benchmark op de eerdere cohorten en toetst
+# op het laatste; dropout_year en training_years volgen dan uit de data.
+# Zonder deze kolom wordt de data willekeurig gesplitst.
 cohort_column: null
+
+# Modellen om te draaien. null = alle beschikbare modellen. Kies uit:
+# Random Forest, Lasso, Logistic Regression, SVM, Gradient Boosting,
+# Hist Gradient Boosting, XGBoost
+models: null
+
+# Zoeken naar de beste modelinstellingen: aantal pogingen per model en aantal
+# delen waarin de trainingsdata daarbij wordt opgesplitst. Lager is sneller.
+n_iter: 20
+cv_folds: 5
+
+# Aandeel van de data waarop de modellen worden getoetst bij een willekeurige splitsing.
+test_size: 0.2
+
+# Aantal processen tegelijk. -1 = alle processorkernen. Zet lager (bijvoorbeeld 2)
+# als de computer vastloopt of het geheugen volraakt.
+n_jobs: -1

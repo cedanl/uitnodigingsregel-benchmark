@@ -12,8 +12,16 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Lasso
 from sklearn.model_selection import train_test_split
 
+from uitnodigingsregel_benchmark.cli import main
+from uitnodigingsregel_benchmark.dataset import (
+    DataValidationError,
+    ensure_id_column,
+    validate_student_data,
+)
 from uitnodigingsregel_benchmark.export import build_result, write_result
 from uitnodigingsregel_benchmark.features import extract_feature_importance
+from uitnodigingsregel_benchmark.runner import select_models
+from uitnodigingsregel_benchmark.settings import DEFAULTS, SettingsError, load_config
 from uitnodigingsregel_benchmark.split import split_train_test
 
 DEMO_TRAIN = Path(__file__).parent.parent / "data/01-raw/demo/synth_data_train.csv"
@@ -97,7 +105,7 @@ def test_write_result(tmp_path):
 
 
 def test_models_without_xgboost(monkeypatch, capsys):
-    import models
+    from uitnodigingsregel_benchmark import models
 
     monkeypatch.setitem(sys.modules, "xgboost", None)
     try:
@@ -160,3 +168,78 @@ def test_split_leaves_out_rows_without_cohort():
 def test_write_result_with_cohort_in_file_name(tmp_path):
     result = {"metadata": {"instelling_id": "test", "dropout_year": "2023/2024"}}
     assert write_result(result, tmp_path).name == "benchmark_test_2023-2024.json"
+
+
+def test_load_config_fills_defaults(tmp_path):
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text("instelling_id: abc\nn_iter: 3\nmodels: null\n", encoding="utf-8")
+    config = load_config(config_file)
+    assert config["instelling_id"] == "abc"
+    assert config["n_iter"] == 3
+    assert config["models"] is None
+    assert config["dropout_column"] == DEFAULTS["dropout_column"]
+    assert load_config(tmp_path / "ontbreekt.yaml") == DEFAULTS
+
+
+def test_load_config_rejects_unknown_setting(tmp_path):
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text("n_iterr: 3\n", encoding="utf-8")
+    with pytest.raises(SettingsError, match="n_iterr"):
+        load_config(config_file)
+
+
+def test_select_models_rejects_unknown_model():
+    assert list(select_models(["Lasso"])) == ["Lasso"]
+    with pytest.raises(SettingsError, match="Beschikbare modellen"):
+        select_models(["Lasso", "Bestaat niet"])
+
+
+@pytest.mark.parametrize(
+    ("change", "message"),
+    [
+        (lambda d: d.drop(columns="Dropout"), "ontbreekt de kolom 'Dropout'"),
+        (lambda d: d.assign(Dropout=2), "alleen 0 en 1"),
+        (lambda d: d.assign(Dropout=0), "0 uitvallers"),
+        (lambda d: d.assign(Dropout=[1] * 3 + [0] * 37), "3 uitvallers"),
+        (lambda d: d.assign(Leeftijd="onbekend"), "geen kolommen met getallen"),
+        (lambda d: d.iloc[0:0], "geen rijen"),
+    ],
+)
+def test_validate_student_data_names_the_problem(change, message):
+    data = change(_students([2021] * 40).drop(columns="Cohort"))
+    with pytest.raises(DataValidationError, match=message):
+        validate_student_data(data)
+
+
+def test_validate_student_data_accepts_usable_data():
+    validate_student_data(_students([2021] * 40))
+
+
+def test_ensure_id_column_adds_row_numbers():
+    data = _students([2021] * 4)
+    assert ensure_id_column(data)[1] == "Studentnummer"
+    without_id, id_column = ensure_id_column(data.drop(columns="Studentnummer"))
+    assert id_column in without_id.columns
+    assert list(without_id[id_column]) == [0, 1, 2, 3]
+
+
+def test_cli_quick_run_on_demo_data(tmp_path, monkeypatch):
+    if not DEMO_TRAIN.exists():
+        pytest.skip("Demo data niet aanwezig")
+    monkeypatch.chdir(DEMO_TRAIN.parents[3])
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text("n_jobs: 1\n", encoding="utf-8")
+    args = ["--demo", "--quick", "--config", str(config_file), "--results-dir", str(tmp_path)]
+    assert main(args) == 0
+    with open(tmp_path / "benchmark_demo_onbekend.json", encoding="utf-8") as f:
+        result = json.load(f)
+    assert result["metadata"]["quick_mode"] is True
+    assert result["metadata"]["instelling_id"] == "demo"
+    assert result["metadata"]["split"]["type"] == "random"
+    assert set(result["models"]) == {"Random Forest", "Lasso", "Logistic Regression"}
+
+
+def test_cli_reports_missing_file_without_traceback(tmp_path, capsys):
+    exit_code = main(["--train", str(tmp_path / "geen.csv"), "--results-dir", str(tmp_path)])
+    assert exit_code == 1
+    assert "bestaat niet" in capsys.readouterr().err

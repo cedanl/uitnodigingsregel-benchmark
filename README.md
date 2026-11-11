@@ -20,24 +20,50 @@ brew install libomp
 
 ## Usage
 
-1. Place your CSV in `data/01-raw/user_data/` — one file with a `Dropout` column and any student features
-2. Configure `config.yaml` with your `instelling_id` and `dropout_year`
-3. Configure algorithms in `models.py` (defaults: Random Forest, Lasso, Logistic Regression, SVM, Gradient Boosting, Hist Gradient Boosting, XGBoost)
-4. Run:
+First try the benchmark on the synthetic demo data. This needs no data of your own and takes a few seconds:
 
 ```bash
-uv run python run_benchmark.py --train data/01-raw/user_data/data.csv
+uv run uitnodigingsregel-benchmark --demo --quick
 ```
 
-Output: `results/benchmark_{instelling_id}_{dropout_year}.json`
+Then run it on your own data:
 
-The tool splits your data 80/20 internally and trains all configured models. Share the resulting JSON with CEDA to contribute to the collective benchmark.
-
-To try the tool without your own data, run it on the synthetic demo data:
+1. Place your CSV in `data/01-raw/user_data/`: one file with a `Dropout` column (1 = dropped out, 0 = not) and the student features. A column with student numbers is not needed.
+2. Set your `instelling_id` and `dropout_year` in `config.yaml`.
+3. Run:
 
 ```bash
-uv run python run_benchmark.py --train data/01-raw/demo/synth_data_train.csv
+uv run uitnodigingsregel-benchmark --train data/01-raw/user_data/data.csv
 ```
+
+Output: `results/benchmark_{instelling_id}_{dropout_year}.json`. Share this file with CEDA to contribute to the collective benchmark. `results/voorbeeld/` holds an example of the file, made on the demo data.
+
+Before training, the benchmark checks the data. If something is missing or wrong, it stops and states what to change.
+
+| Option | What it does |
+|---|---|
+| `--train PATH` | Run on your own CSV |
+| `--demo` | Run on the synthetic demo data; writes `results/benchmark_demo_*.json` |
+| `--quick` | Three models and fewer search rounds, for a first check. The result file states `quick_mode: true`; do not share a quick result |
+| `--cohort-column NAME` | Test on a later cohort (see below) |
+| `--config PATH` | Use another settings file than `config.yaml` |
+| `--results-dir PATH` | Write the result to another folder |
+
+## Settings
+
+All settings are in `config.yaml`; each one is explained there. No Python files need to be changed.
+
+| Setting | Meaning | Default |
+|---|---|---|
+| `instelling_id` | Short code for your institution, used in the file name | `anoniem` |
+| `dropout_year`, `training_years` | Years the data covers | none |
+| `dropout_column` | Name of the dropout column | `Dropout` |
+| `id_column` | Name of the student number column; may be absent | `Studentnummer` |
+| `cohort_column` | Name of the cohort column (see below) | none |
+| `models` | Models to run | all |
+| `n_iter`, `cv_folds` | Search rounds per model and folds per round; lower is faster | 20, 5 |
+| `test_size` | Share of the data used for testing in a random split | 0.2 |
+| `n_jobs` | Processes to run at once; set to 2 if the computer runs out of memory | all cores |
 
 ## Testing on a later cohort
 
@@ -59,11 +85,9 @@ Since `student_signal` 0.2.0 the student number (`Studentnummer`) is no longer u
 
 ## Adding algorithms
 
-Edit `models.py` — any sklearn-compatible estimator works:
+The available models are listed in `src/uitnodigingsregel_benchmark/models.py`. Any sklearn-compatible estimator can be added there:
 
 ```python
-from sklearn.ensemble import GradientBoostingClassifier
-
 MODELS = {
     ...
     "Gradient Boosting": {
@@ -76,6 +100,8 @@ MODELS = {
     },
 }
 ```
+
+Results with other models than the standard ones are for local use; the collective benchmark compares the standard models.
 
 ## Development
 
