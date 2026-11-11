@@ -634,7 +634,8 @@ wheels = [
 
 [[package]]
 name = "student-signal"
-source = { editable = "../student-signal" }
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "joblib" },
     { name = "matplotlib" },
@@ -643,27 +644,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "scikit-learn" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "joblib", specifier = ">=1.4.2" },
-    { name = "matplotlib", specifier = ">=3.8.0" },
-    { name = "numpy", specifier = ">=2.2.2" },
-    { name = "pandas", specifier = ">=2.2.3" },
-    { name = "pyyaml", specifier = ">=6.0.2" },
-    { name = "scikit-learn", specifier = ">=1.6.1" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pytest", specifier = ">=9.0.2" },
-    { name = "ruff", specifier = ">=0.15.6" },
-]
-docs = [
-    { name = "mkdocs", specifier = ">=1.6.0" },
-    { name = "mkdocs-material", specifier = ">=9.5.0" },
-    { name = "mkdocstrings", extras = ["python"], specifier = ">=0.26.0" },
-    { name = "pymdown-extensions", specifier = ">=10.0" },
+sdist = { url = "https://files.pythonhosted.org/packages/0f/80/d6dc2f433c64346b59f0a6da175834defe833ef78f72ee792b871244af28/student_signal-0.2.0.tar.gz", hash = "sha256:89b2282dccabb719927f67bd729c11c8b0f59e38667e85862fe1929c09fa4045", size = 64309, upload-time = "2026-11-10T19:46:43.058Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/50/79/9c6768c04882fac2017f34a97a41f036ad98cbe27d20f9f656d46e3aa87f/student_signal-0.2.0-py3-none-any.whl", hash = "sha256:fdf0f8cd7af752a8a6f4d6e1d524b43455b863df953cc975eea02afe1a664aee", size = 23635, upload-time = "2026-11-10T19:46:41.857Z" },
 ]
 
 [[package]]
@@ -711,7 +694,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
-    { name = "student-signal", editable = "../student-signal" },
+    { name = "student-signal", specifier = ">=0.2.0" },
     { name = "xgboost", specifier = ">=3.2.0" },
 ]
 
