@@ -2,6 +2,7 @@
 
 import json
 import math
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -106,7 +107,9 @@ def write_result(result: dict, results_dir: str | Path = "results") -> Path:
     meta = result["metadata"]
     instelling_id = meta.get("instelling_id", "anoniem")
     dropout_year = meta.get("dropout_year", "onbekend")
-    path = results_dir / f"benchmark_{instelling_id}_{dropout_year}.json"
+    # A cohort such as "2023/2024" must not end up as a folder in the file name
+    name = re.sub(r"[^\w.-]+", "-", f"benchmark_{instelling_id}_{dropout_year}")
+    path = results_dir / f"{name}.json"
     with open(path, "w", encoding="utf-8") as f:
         json.dump(_sanitize(result), f, indent=2, ensure_ascii=False)
     return path

@@ -14,6 +14,7 @@ from sklearn.model_selection import train_test_split
 
 from uitnodigingsregel_benchmark.export import build_result, write_result
 from uitnodigingsregel_benchmark.features import extract_feature_importance
+from uitnodigingsregel_benchmark.split import split_train_test
 
 DEMO_TRAIN = Path(__file__).parent.parent / "data/01-raw/demo/synth_data_train.csv"
 DROPOUT_COL = "Dropout"
@@ -107,3 +108,55 @@ def test_models_without_xgboost(monkeypatch, capsys):
     finally:
         monkeypatch.undo()
         importlib.reload(models)
+
+
+def _students(cohorts: list) -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "Studentnummer": range(len(cohorts)),
+            "Cohort": cohorts,
+            "Leeftijd": [16 + i % 5 for i in range(len(cohorts))],
+            "Dropout": [i % 2 for i in range(len(cohorts))],
+        }
+    )
+
+
+def test_split_on_cohort_tests_on_last_cohort():
+    data = _students([2021] * 10 + [2023] * 6 + [2022] * 10)
+    train, test, info = split_train_test(data, "Dropout", "Cohort")
+    assert info == {"type": "cohort", "train_cohorts": [2021, 2022], "test_cohort": 2023}
+    assert len(train) == 20
+    assert len(test) == 6
+    assert "Cohort" not in train.columns
+    assert "Cohort" not in test.columns
+    json.dumps(info)
+
+
+def test_split_without_cohort_column_is_random():
+    data = _students([2021] * 20).drop(columns="Cohort")
+    train, test, info = split_train_test(data, "Dropout")
+    assert info["type"] == "random"
+    assert len(train) == 16
+    assert len(test) == 4
+
+
+@pytest.mark.parametrize("cohorts", [[2021] * 20, None])
+def test_split_falls_back_to_random(cohorts, capsys):
+    data = _students(cohorts or [2021] * 20)
+    cohort_col = "Cohort" if cohorts else "Startjaar"
+    train, test, info = split_train_test(data, "Dropout", cohort_col)
+    assert info["type"] == "random"
+    assert len(train) + len(test) == 20
+    assert "willekeurig gesplitst" in capsys.readouterr().out
+
+
+def test_split_leaves_out_rows_without_cohort():
+    data = _students([2021] * 10 + [2022] * 6 + [None] * 4)
+    train, test, info = split_train_test(data, "Dropout", "Cohort")
+    assert info["type"] == "cohort"
+    assert len(train) + len(test) == 16
+
+
+def test_write_result_with_cohort_in_file_name(tmp_path):
+    result = {"metadata": {"instelling_id": "test", "dropout_year": "2023/2024"}}
+    assert write_result(result, tmp_path).name == "benchmark_test_2023-2024.json"
