@@ -13,7 +13,17 @@ from typing import Any
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import Lasso, LogisticRegression
 from sklearn.svm import SVC
-from xgboost import XGBClassifier
+
+try:
+    from xgboost import XGBClassifier
+except Exception as error:  # noqa: BLE001 - xgboost raises its own error when its library fails to load
+    XGBClassifier = None
+    print(
+        "XGBoost kan niet worden geladen en wordt overgeslagen. "
+        "De andere modellen draaien wel.\n"
+        "Op een Mac ontbreekt meestal OpenMP. Installeer het met: brew install libomp\n"
+        f"Melding van XGBoost: {str(error).strip().splitlines()[0]}"
+    )
 
 # fmt: off
 MODELS: dict[str, dict[str, Any]] = {
@@ -67,7 +77,10 @@ MODELS: dict[str, dict[str, Any]] = {
             "subsample":     [0.8, 1.0],
         },
     },
-    "XGBoost": {
+}
+
+if XGBClassifier is not None:
+    MODELS["XGBoost"] = {
         "estimator": XGBClassifier(random_state=42, eval_metric="logloss", verbosity=0),
         "use_scaled": False,
         "param_grid": {
@@ -77,6 +90,5 @@ MODELS: dict[str, dict[str, Any]] = {
             "subsample":         [0.8, 1.0],
             "colsample_bytree":  [0.8, 1.0],
         },
-    },
-}
+    }
 # fmt: on

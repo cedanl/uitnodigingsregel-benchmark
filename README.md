@@ -12,6 +12,12 @@ cd uitnodigingsregel-benchmark
 uv sync
 ```
 
+On a Mac, XGBoost needs OpenMP, which `uv sync` does not install. Without it the benchmark skips XGBoost and runs the other models. To include XGBoost:
+
+```bash
+brew install libomp
+```
+
 ## Usage
 
 1. Place your CSV in `data/01-raw/user_data/` — one file with a `Dropout` column and any student features

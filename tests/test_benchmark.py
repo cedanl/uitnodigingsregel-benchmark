@@ -1,6 +1,8 @@
 """Basic smoke tests for the benchmark package."""
 
+import importlib
 import json
+import sys
 from pathlib import Path
 
 import pandas as pd
@@ -91,3 +93,17 @@ def test_write_result(tmp_path):
     assert loaded["recommendation"]["model"] == "Test Model"
     assert loaded["recommendation"]["lift_over_baseline"] == 2.5
     assert loaded["metadata"]["instelling_id"] == "test"
+
+
+def test_models_without_xgboost(monkeypatch, capsys):
+    import models
+
+    monkeypatch.setitem(sys.modules, "xgboost", None)
+    try:
+        reloaded = importlib.reload(models)
+        assert "XGBoost" not in reloaded.MODELS
+        assert "Random Forest" in reloaded.MODELS
+        assert "brew install libomp" in capsys.readouterr().out
+    finally:
+        monkeypatch.undo()
+        importlib.reload(models)
