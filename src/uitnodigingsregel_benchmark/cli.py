@@ -36,12 +36,19 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Fewer models and fewer search rounds, for a first check",
     )
+    parser.add_argument(
+        "--impact",
+        action="store_true",
+        help="Measure the impact of each variable by training again without it",
+    )
     args = parser.parse_args(argv)
 
     try:
         config = load_config(args.config)
         if args.cohort_column:
             config["cohort_column"] = args.cohort_column
+        if args.impact:
+            config["impact"] = True
         if args.quick:
             config.update(QUICK_SETTINGS)
             print("Snelle modus: minder modellen en minder zoekrondes.")

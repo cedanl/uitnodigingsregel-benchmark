@@ -23,6 +23,7 @@ from uitnodigingsregel_benchmark.export import (
     write_result,
 )
 from uitnodigingsregel_benchmark.features import extract_feature_importance
+from uitnodigingsregel_benchmark.impact import measure_variable_impact, resolve_variables
 from uitnodigingsregel_benchmark.models import MODELS
 from uitnodigingsregel_benchmark.settings import SettingsError
 from uitnodigingsregel_benchmark.split import SPLIT_COHORT, split_train_test
@@ -156,6 +157,13 @@ def run_benchmark(
         training_years = config["training_years"]
         print(f"Willekeurige splitsing ({round((1 - test_size) * 100)}/{round(test_size * 100)}).")
 
+    variables = None
+    if config["impact"]:
+        feature_columns = [c for c in train_split.columns if c not in (dropout_col, id_col)]
+        variables = resolve_variables(
+            feature_columns, config["variable_groups"], config["impact_variables"]
+        )
+
     print("Data voorbereiden...")
     prepared = student_signal.prepare(
         train_split,
@@ -170,6 +178,7 @@ def run_benchmark(
         "training_years": training_years,
         "split": split_info,
         "quick_mode": quick_mode,
+        "impact_measured": bool(config["impact"]),
         "n_train": len(prepared.X_train),
         "n_test": len(prepared.X_pred),
         "dropout_rate_train": round(float(prepared.y_train.mean()), 3),
@@ -193,6 +202,7 @@ def run_benchmark(
     dropout_rate_pct = metadata["dropout_rate_train"] * 100
 
     model_results = {}
+    fitted_models = {}
     for name, model_cfg in models.items():
         estimator = model_cfg["estimator"]
         use_scaled = model_cfg["use_scaled"]
@@ -238,7 +248,22 @@ def run_benchmark(
             },
             **metrics,
         }
+        fitted_models[name] = (best_estimator, use_scaled)
         print(f"  Precisie@20%: {prec20:.1f}% | Recall@20%: {rec20:.1f}% | {status}")
+
+    if variables:
+        print(
+            f"Impact meten: elk model opnieuw trainen zonder één van {len(variables)} variabelen."
+        )
+        baseline = {
+            name: (r["evaluation"]["precision"], r["evaluation"]["recall"])
+            for name, r in model_results.items()
+        }
+        impact = measure_variable_impact(
+            train_split, test_split, variables, fitted_models, baseline, dropout_col, id_col
+        )
+        for name, entries in impact.items():
+            model_results[name]["variable_impact"] = entries
 
     result = build_result(metadata, model_results)
     path = write_result(result, results_dir)

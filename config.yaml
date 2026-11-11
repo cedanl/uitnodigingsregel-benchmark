@@ -34,3 +34,19 @@ test_size: 0.2
 # Aantal processen tegelijk. -1 = alle processorkernen. Zet lager (bijvoorbeeld 2)
 # als de computer vastloopt of het geheugen volraakt.
 n_jobs: -1
+
+# Impact per variabele meten: elk model wordt opnieuw getraind zonder één variabele,
+# en het verschil in precisie en recall bij 20% uitgenodigde studenten wordt opgeslagen.
+# De run duurt hierdoor langer. Ook aan te zetten met --impact.
+impact: false
+
+# Variabelen om te toetsen. null = alle variabelen.
+# Voorbeeld: impact_variables: [StudentAge, Vooropleiding]
+impact_variables: null
+
+# Kolommen die samen één variabele vormen, bijvoorbeeld een kolom per niveau van de
+# vooropleiding. Een * staat voor een willekeurig stuk tekst. Voorbeeld:
+# variable_groups:
+#   Vooropleiding: ["VooroplNiveau_*"]
+#   Richting: [Economie, Landbouw, Techniek]
+variable_groups: null

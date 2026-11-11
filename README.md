@@ -46,6 +46,7 @@ Before training, the benchmark checks the data. If something is missing or wrong
 | `--demo` | Run on the synthetic demo data; writes `results/benchmark_demo_*.json` |
 | `--quick` | Three models and fewer search rounds, for a first check. The result file states `quick_mode: true`; do not share a quick result |
 | `--cohort-column NAME` | Test on a later cohort (see below) |
+| `--impact` | Measure the impact of each variable (see below) |
 | `--config PATH` | Use another settings file than `config.yaml` |
 | `--results-dir PATH` | Write the result to another folder |
 
@@ -64,6 +65,7 @@ All settings are in `config.yaml`; each one is explained there. No Python files 
 | `n_iter`, `cv_folds` | Search rounds per model and folds per round; lower is faster | 20, 5 |
 | `test_size` | Share of the data used for testing in a random split | 0.2 |
 | `n_jobs` | Processes to run at once; set to 2 if the computer runs out of memory | all cores |
+| `impact`, `impact_variables`, `variable_groups` | Impact per variable (see below) | off |
 
 ## Testing on a later cohort
 
@@ -78,6 +80,37 @@ cohort_column: "Startjaar"
 or pass it on the command line with `--cohort-column Startjaar`. The cohort column is not used as a predictor, and `dropout_year` and `training_years` in the result then follow from the data.
 
 This is optional. Without a cohort column, or with only one cohort in the data, the benchmark uses the random split. The result file states which split was used in `metadata.split`, and the aggregation only compares results with the same kind of split.
+
+## Measuring the impact of a variable
+
+With `--impact` the benchmark trains each model again without one variable at a time, and stores the difference in precision and recall at 20% invited students. This shows what a variable adds, which a ranking of variables does not.
+
+```bash
+uv run uitnodigingsregel-benchmark --train data/01-raw/user_data/data.csv --impact
+```
+
+The result holds per model a list `variable_impact` with for each variable:
+
+| Field | Meaning |
+|---|---|
+| `precision_without`, `recall_without` | Precision and recall at 20% (in %) of the model trained without the variable |
+| `precision_diff`, `recall_diff` | Result with the variable minus result without, in percentage points. Positive: the model does better with the variable. Around zero or negative: the variable adds nothing in this data |
+
+The run takes longer: one extra training per model for each variable. The models keep the settings found in the search. To test only some variables, list them in `config.yaml`:
+
+```yaml
+impact_variables: [StudentAge, Vooropleiding]
+```
+
+A variable that is spread over several columns, such as one column per level of prior education, counts as one variable when the columns are joined in a group. A `*` stands for any text:
+
+```yaml
+variable_groups:
+  Vooropleiding: ["VooroplNiveau_*"]
+  Richting: [Economie, Landbouw, Techniek]
+```
+
+Read the differences with care. On a small test set a difference of a few percentage points can be chance, and two variables that carry the same information can each look unimportant because the other one takes over.
 
 ## Comparing results across versions
 

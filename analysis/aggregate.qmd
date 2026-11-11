@@ -219,6 +219,43 @@ for model_name, feature_lists in freq_by_model.items():
     display(build_freq_table(feature_lists))
 ```
 
+## Impact per variabele
+
+Voor resultaten die met `--impact` zijn gemaakt: het verschil in precisie en recall bij 20% uitgenodigde studenten tussen een model met en zonder de variabele, in procentpunten. Een positief getal betekent dat het model beter voorspelt met de variabele. Het gemiddelde loopt over alle modellen en resultaten waarin de variabele is getoetst. Een verschil van enkele procentpunten in één resultaat kan toeval zijn.
+
+```{python}
+impact_rows = []
+for r in results:
+    instelling = meta_get(r["metadata"], "instelling_id", "instelling")
+    for model_name, model_data in r["models"].items():
+        for entry in model_data.get("variable_impact", []):
+            if "precision_diff" not in entry:
+                continue
+            impact_rows.append({
+                "Variabele": entry["variable"],
+                "Instelling": instelling,
+                "precisie": entry["precision_diff"],
+                "recall": entry["recall_diff"],
+            })
+
+if impact_rows:
+    df_impact = pd.DataFrame(impact_rows)
+    display(
+        df_impact.groupby("Variabele")
+        .agg(**{
+            "Instellingen": ("Instelling", "nunique"),
+            "Metingen": ("precisie", "size"),
+            "Gem. verschil precisie": ("precisie", "mean"),
+            "Gem. verschil recall": ("recall", "mean"),
+        })
+        .round(1)
+        .sort_values("Gem. verschil precisie", ascending=False)
+        .reset_index()
+    )
+else:
+    print("Geen resultaten met een impactmeting.")
+```
+
 ## Minimale featureset aanbeveling
 
 Features die in **meer dan de helft** van de resultaten in de top 10 staan van het aanbevolen model:

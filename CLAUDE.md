@@ -21,6 +21,7 @@ Python 3.13, student-signal, scikit-learn, pandas.
 │   ├── models.py                    ← algorithm registry
 │   ├── runner.py                    ← trains the models and assembles the result
 │   ├── features.py                  ← full feature importance extraction
+│   ├── impact.py                    ← impact per variable: retrain without it and compare (--impact)
 │   └── export.py                    ← builds standardized JSON output
 ├── analysis/aggregate.qmd           ← CEDA-side Quarto aggregation doc
 ├── results/                         ← JSON results files land here
