@@ -10,7 +10,11 @@ Additional models can be added for local experimentation.
 
 from typing import Any
 
-from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
+from sklearn.ensemble import (
+    GradientBoostingClassifier,
+    HistGradientBoostingClassifier,
+    RandomForestClassifier,
+)
 from sklearn.linear_model import Lasso, LogisticRegression
 from sklearn.svm import SVC
 
@@ -75,6 +79,17 @@ MODELS: dict[str, dict[str, Any]] = {
             "learning_rate": [0.05, 0.1, 0.2],
             "max_depth":     [3, 5, 7],
             "subsample":     [0.8, 1.0],
+        },
+    },
+    # Same kind of model as XGBoost, part of scikit-learn: runs without extra installation.
+    "Hist Gradient Boosting": {
+        "estimator": HistGradientBoostingClassifier(random_state=42),
+        "use_scaled": False,
+        "param_grid": {
+            "max_iter":          [100, 200],
+            "learning_rate":     [0.05, 0.1, 0.2],
+            "max_depth":         [3, 5, 7],
+            "min_samples_leaf":  [10, 20],
         },
     },
 }

@@ -12,7 +12,7 @@ cd uitnodigingsregel-benchmark
 uv sync
 ```
 
-On a Mac, XGBoost needs OpenMP, which `uv sync` does not install. Without it the benchmark skips XGBoost and runs the other models. To include XGBoost:
+On a Mac, XGBoost needs OpenMP, which `uv sync` does not install. Without it the benchmark skips XGBoost and runs the other models, including Hist Gradient Boosting: the same kind of model, from scikit-learn. To include XGBoost:
 
 ```bash
 brew install libomp
@@ -22,7 +22,7 @@ brew install libomp
 
 1. Place your CSV in `data/01-raw/user_data/` — one file with a `Dropout` column and any student features
 2. Configure `config.yaml` with your `instelling_id` and `dropout_year`
-3. Configure algorithms in `models.py` (defaults: Random Forest, Lasso, SVM, Gradient Boosting, XGBoost)
+3. Configure algorithms in `models.py` (defaults: Random Forest, Lasso, Logistic Regression, SVM, Gradient Boosting, Hist Gradient Boosting, XGBoost)
 4. Run:
 
 ```bash
