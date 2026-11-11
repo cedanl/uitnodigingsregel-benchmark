@@ -6,6 +6,10 @@
       2021,
       2022
     ],
+    "split": {
+      "type": "random",
+      "test_size": 0.2
+    },
     "n_train": 800,
     "n_test": 200,
     "dropout_rate_train": 0.161,
@@ -441,73 +445,73 @@
       "feature_importance": [
         {
           "feature": "ROCMondriaan",
-          "importance": 0.929068,
-          "coefficient": 0.929068
+          "importance": 0.929074,
+          "coefficient": 0.929074
         },
         {
           "feature": "VooroplNiveau_prak",
-          "importance": 0.853436,
-          "coefficient": -0.853436
+          "importance": 0.853381,
+          "coefficient": -0.853381
         },
         {
           "feature": "VooroplNiveau_other",
-          "importance": 0.769986,
-          "coefficient": -0.769986
+          "importance": 0.769974,
+          "coefficient": -0.769974
         },
         {
           "feature": "Aanmel_aantal",
-          "importance": 0.618596,
-          "coefficient": -0.618596
+          "importance": 0.618611,
+          "coefficient": -0.618611
         },
         {
           "feature": "VooroplNiveau_VMBO_GL",
-          "importance": 0.551214,
-          "coefficient": 0.551214
+          "importance": 0.551218,
+          "coefficient": 0.551218
         },
         {
           "feature": "absence_unauthorized",
-          "importance": 0.370287,
-          "coefficient": 0.370287
+          "importance": 0.370308,
+          "coefficient": 0.370308
         },
         {
           "feature": "Landbouw",
-          "importance": 0.343737,
-          "coefficient": 0.343737
+          "importance": 0.34391,
+          "coefficient": 0.34391
         },
         {
           "feature": "max1studie",
-          "importance": 0.33019,
-          "coefficient": -0.33019
+          "importance": 0.330186,
+          "coefficient": -0.330186
         },
         {
           "feature": "Richting_nan",
-          "importance": 0.285412,
-          "coefficient": -0.285412
+          "importance": 0.285296,
+          "coefficient": -0.285296
         },
         {
           "feature": "Zorgenwelzijn",
-          "importance": 0.230916,
-          "coefficient": 0.230916
+          "importance": 0.231024,
+          "coefficient": 0.231024
         },
         {
           "feature": "VooroplNiveau_VMBO_TL",
-          "importance": 0.173596,
-          "coefficient": 0.173596
+          "importance": 0.1736,
+          "coefficient": 0.1736
         },
         {
           "feature": "Economie",
-          "importance": 0.127627,
-          "coefficient": -0.127627
+          "importance": 0.127526,
+          "coefficient": -0.127526
         },
         {
           "feature": "VooroplNiveau_MBO",
-          "importance": 0.092348,
-          "coefficient": -0.092348
+          "importance": 0.092359,
+          "coefficient": -0.092359
         },
         {
           "feature": "StudentGender",
-          "importance": 0.084614,
-          "coefficient": -0.084614
+          "importance": 0.084624,
+          "coefficient": -0.084624
         },
         {
           "feature": "VooroplNiveau_VMBO_KB",
@@ -516,13 +520,13 @@
         },
         {
           "feature": "VooroplNiveau_nan",
-          "importance": 0.037098,
-          "coefficient": 0.037098
+          "importance": 0.037122,
+          "coefficient": 0.037122
         },
         {
           "feature": "VooroplNiveau_HAVO",
-          "importance": 0.020617,
-          "coefficient": -0.020617
+          "importance": 0.020618,
+          "coefficient": -0.020618
         },
         {
           "feature": "Anders",

@@ -5,6 +5,14 @@
 # dropout_year:  het jaar waarop de Dropout-kolom betrekking heeft
 # training_years: de jaren die zijn gebruikt als trainingsdata
 
+#
+# cohort_column: naam van de kolom met het cohort (bijvoorbeeld het startjaar).
+#                Optioneel. Staat de kolom in de data met minstens twee cohorten, dan
+#                traint de benchmark op de eerdere cohorten en toetst op het laatste.
+#                dropout_year en training_years volgen dan uit de data.
+#                Zonder deze kolom wordt de data willekeurig gesplitst (80/20).
+
 instelling_id: "anoniem"
 dropout_year: 2023
 training_years: [2021, 2022]
+cohort_column: null

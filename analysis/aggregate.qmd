@@ -42,6 +42,12 @@ def meta_get(m, *keys, default="?"):
             return m[k]
     return default
 
+SPLIT_LABELS = {"cohort": "Later cohort", "random": "Willekeurig"}
+
+def split_label(m):
+    """Describe how the data was split. Results without the field used a random split."""
+    return SPLIT_LABELS.get(m.get("split", {}).get("type", "random"), "Onbekend")
+
 print(f"{len(results)} resultaten geladen")
 ```
 
@@ -56,6 +62,7 @@ for r in results:
         "Instelling": meta_get(m, "instelling_id", "instelling"),
         "Uitvaljaar": meta_get(m, "dropout_year"),
         "Trainingsjaren": str(meta_get(m, "training_years")),
+        "Splitsing": split_label(m),
         "Uitgevoerd": meta_get(m, "run_date", "date"),
         "N train": m["n_train"],
         "Uitvalpercentage": f"{m['dropout_rate_train'] * 100:.1f}%",
@@ -70,7 +77,7 @@ pd.DataFrame(rows)
 
 ## Cross-sectioneel — vergelijking per uitvaljaar
 
-Instellingen met hetzelfde uitvaljaar naast elkaar.
+Instellingen met hetzelfde uitvaljaar en dezelfde splitsing naast elkaar. Bij "Later cohort" is getraind op eerdere cohorten en getoetst op het laatste. Bij "Willekeurig" zijn train- en testdata willekeurig getrokken uit dezelfde cohorten; die uitkomst valt vaak gunstiger uit. De twee soorten worden daarom niet met elkaar vergeleken.
 
 ```{python}
 rows = []
@@ -81,6 +88,7 @@ for r in results:
         rows.append({
             "Instelling": meta_get(m, "instelling_id", "instelling"),
             "Uitvaljaar": meta_get(m, "dropout_year"),
+            "Splitsing": split_label(m),
             "Model": model_name,
             "Precisie@20%": ev["precision"],
             "Recall@20%": ev["recall"],
@@ -88,15 +96,17 @@ for r in results:
         })
 
 df_cross = pd.DataFrame(rows)
-dropout_years = sorted(df_cross["Uitvaljaar"].dropna().unique(), key=str)
+split_types = sorted(df_cross["Splitsing"].unique())
 
-for year in dropout_years:
-    print(f"\n### Uitvaljaar {year}\n")
-    display(
-        df_cross[df_cross["Uitvaljaar"] == year]
-        .sort_values(["Model", "Instelling"])
-        .reset_index(drop=True)
-    )
+for split_type in split_types:
+    df_split = df_cross[df_cross["Splitsing"] == split_type]
+    for year in sorted(df_split["Uitvaljaar"].dropna().unique(), key=str):
+        print(f"\n### Uitvaljaar {year}, splitsing: {split_type}\n")
+        display(
+            df_split[df_split["Uitvaljaar"] == year]
+            .sort_values(["Model", "Instelling"])
+            .reset_index(drop=True)
+        )
 ```
 
 ```{python}
@@ -104,21 +114,24 @@ for year in dropout_years:
 all_models = sorted({m for r in results for m in r["models"]})
 colors = cm.tab10(np.linspace(0, 1, len(results)))
 
-for model_name in all_models:
-    fig, ax = plt.subplots(figsize=(8, 4))
-    subset = df_cross[df_cross["Model"] == model_name].copy()
-    for i, (instelling, grp) in enumerate(subset.groupby("Instelling")):
-        ax.scatter(grp["Uitvaljaar"], grp["Precisie@20%"], label=instelling, color=colors[i], s=80, zorder=3)
-    ax.axhline(40, color="green", linestyle="--", alpha=0.4, label="Groen (40%)")
-    ax.axhline(30, color="orange", linestyle="--", alpha=0.4, label="Geel (30%)")
-    ax.set_title(f"{model_name} — precisie@20% per uitvaljaar")
-    ax.set_xlabel("Uitvaljaar")
-    ax.set_ylabel("Precisie (%)")
-    ax.set_ylim(0, 105)
-    ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.show()
+for split_type in split_types:
+    for model_name in all_models:
+        subset = df_cross[(df_cross["Model"] == model_name) & (df_cross["Splitsing"] == split_type)]
+        if subset.empty:
+            continue
+        fig, ax = plt.subplots(figsize=(8, 4))
+        for i, (instelling, grp) in enumerate(subset.groupby("Instelling")):
+            ax.scatter(grp["Uitvaljaar"].astype(str), grp["Precisie@20%"], label=instelling, color=colors[i], s=80, zorder=3)
+        ax.axhline(40, color="green", linestyle="--", alpha=0.4, label="Groen (40%)")
+        ax.axhline(30, color="orange", linestyle="--", alpha=0.4, label="Geel (30%)")
+        ax.set_title(f"{model_name} — precisie@20% per uitvaljaar (splitsing: {split_type})")
+        ax.set_xlabel("Uitvaljaar")
+        ax.set_ylabel("Precisie (%)")
+        ax.set_ylim(0, 105)
+        ax.legend(fontsize=8)
+        ax.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.show()
 ```
 
 ## Longitudinaal — verloop per instelling over jaren
@@ -127,31 +140,36 @@ for model_name in all_models:
 instellingen = sorted({meta_get(r["metadata"], "instelling_id", "instelling") for r in results})
 
 for instelling in instellingen:
-    inst_results = [r for r in results if meta_get(r["metadata"], "instelling_id", "instelling") == instelling]
-    if len(inst_results) < 2:
-        continue
+    for split_type in split_types:
+        inst_results = [
+            r for r in results
+            if meta_get(r["metadata"], "instelling_id", "instelling") == instelling
+            and split_label(r["metadata"]) == split_type
+        ]
+        if len(inst_results) < 2:
+            continue
 
-    inst_results = sorted(inst_results, key=lambda r: r["metadata"].get("dropout_year", 0))
-    years = [r["metadata"].get("dropout_year") for r in inst_results]
+        inst_results = sorted(inst_results, key=lambda r: str(r["metadata"].get("dropout_year", "")))
+        years = [str(r["metadata"].get("dropout_year")) for r in inst_results]
 
-    fig, ax = plt.subplots(figsize=(8, 4))
-    for model_name in all_models:
-        precs = []
-        for r in inst_results:
-            ev = r["models"].get(model_name, {}).get("evaluation", {})
-            precs.append(ev.get("precision"))
-        ax.plot(years, precs, marker="o", label=model_name)
+        fig, ax = plt.subplots(figsize=(8, 4))
+        for model_name in all_models:
+            precs = []
+            for r in inst_results:
+                ev = r["models"].get(model_name, {}).get("evaluation", {})
+                precs.append(ev.get("precision"))
+            ax.plot(years, precs, marker="o", label=model_name)
 
-    ax.axhline(40, color="green", linestyle="--", alpha=0.4)
-    ax.axhline(30, color="orange", linestyle="--", alpha=0.4)
-    ax.set_title(f"{instelling} — precisie@20% over jaren")
-    ax.set_xlabel("Uitvaljaar")
-    ax.set_ylabel("Precisie (%)")
-    ax.set_ylim(0, 105)
-    ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.show()
+        ax.axhline(40, color="green", linestyle="--", alpha=0.4)
+        ax.axhline(30, color="orange", linestyle="--", alpha=0.4)
+        ax.set_title(f"{instelling} — precisie@20% over jaren (splitsing: {split_type})")
+        ax.set_xlabel("Uitvaljaar")
+        ax.set_ylabel("Precisie (%)")
+        ax.set_ylim(0, 105)
+        ax.legend(fontsize=8)
+        ax.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.show()
 ```
 
 ## Feature importance — frequentieanalyse

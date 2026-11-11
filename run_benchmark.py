@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import student_signal
 import yaml
-from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, train_test_split
+from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
 from student_signal.evaluate import get_stoplight_evaluation, prepare_model_predictions
 
 from models import MODELS
@@ -21,6 +21,7 @@ from uitnodigingsregel_benchmark.export import (
     write_result,
 )
 from uitnodigingsregel_benchmark.features import extract_feature_importance
+from uitnodigingsregel_benchmark.split import SPLIT_COHORT, split_train_test
 
 DROPOUT_COL = "Dropout"
 ID_COL = "Studentnummer"
@@ -101,6 +102,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run uitnodigingsregel benchmark")
     parser.add_argument("--train", required=True, help="Path to training CSV (with known outcomes)")
     parser.add_argument("--results-dir", default="results", help="Output directory")
+    parser.add_argument(
+        "--cohort-column",
+        help="Column with the cohort; train on earlier cohorts, test on the last one",
+    )
     args = parser.parse_args()
 
     config = _load_config()
@@ -108,26 +113,32 @@ def main() -> None:
     print(f"Laden van data: {args.train}")
     train_df = pd.read_csv(args.train, sep=None, engine="python")
 
-    print(f"Train/test split ({int((1 - TEST_SIZE) * 100)}/{int(TEST_SIZE * 100)})...")
-    train_split, test_split = train_test_split(
-        train_df,
-        test_size=TEST_SIZE,
-        random_state=RANDOM_STATE,
-        stratify=train_df[DROPOUT_COL],
+    cohort_col = args.cohort_column or config.get("cohort_column")
+    train_split, test_split, split_info = split_train_test(
+        train_df, DROPOUT_COL, cohort_col, TEST_SIZE, RANDOM_STATE
     )
+    if split_info["type"] == SPLIT_COHORT:
+        dropout_year = split_info["test_cohort"]
+        training_years = split_info["train_cohorts"]
+        print(f"Splitsing op cohort: trainen op {training_years}, toetsen op {dropout_year}.")
+    else:
+        dropout_year = config.get("dropout_year")
+        training_years = config.get("training_years")
+        print(f"Willekeurige splitsing ({int((1 - TEST_SIZE) * 100)}/{int(TEST_SIZE * 100)}).")
 
     print("Data voorbereiden...")
     prepared = student_signal.prepare(
-        train_split.reset_index(drop=True),
-        test_split.reset_index(drop=True),
+        train_split,
+        test_split,
         target_col=DROPOUT_COL,
         id_col=ID_COL,
     )
 
     metadata = {
         "instelling_id": config.get("instelling_id", "anoniem"),
-        "dropout_year": config.get("dropout_year"),
-        "training_years": config.get("training_years"),
+        "dropout_year": dropout_year,
+        "training_years": training_years,
+        "split": split_info,
         "n_train": len(prepared.X_train),
         "n_test": len(prepared.X_pred),
         "dropout_rate_train": round(float(prepared.y_train.mean()), 3),

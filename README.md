@@ -39,6 +39,20 @@ To try the tool without your own data, run it on the synthetic demo data:
 uv run python run_benchmark.py --train data/01-raw/demo/synth_data_train.csv
 ```
 
+## Testing on a later cohort
+
+By default the data is split at random: 80% to train the models, 20% to test them. In practice an institution trains on earlier cohorts and predicts the next one, and a random split often gives a more favourable result than that.
+
+If your data has a column with the cohort (for example the start year) and holds at least two cohorts, the benchmark can train on the earlier cohorts and test on the last one. Set the column name in `config.yaml`:
+
+```yaml
+cohort_column: "Startjaar"
+```
+
+or pass it on the command line with `--cohort-column Startjaar`. The cohort column is not used as a predictor, and `dropout_year` and `training_years` in the result then follow from the data.
+
+This is optional. Without a cohort column, or with only one cohort in the data, the benchmark uses the random split. The result file states which split was used in `metadata.split`, and the aggregation only compares results with the same kind of split.
+
 ## Comparing results across versions
 
 Since `student_signal` 0.2.0 the student number (`Studentnummer`) is no longer used as a predictor. Results made with an earlier version are not comparable with results made with 0.2.0 or later. The JSON file states the version used in `metadata.student_signal_version`; a file without that field was made with an earlier version. Run the benchmark again to compare.
