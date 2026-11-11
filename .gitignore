@@ -11,3 +11,6 @@ data/03-output/*
 !data/*/demo/
 !data/*/demo/**
 analysis/*.html
+
+# Result of a run on the demo data
+results/benchmark_demo_*.json

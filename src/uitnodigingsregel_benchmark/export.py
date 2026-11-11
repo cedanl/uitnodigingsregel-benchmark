@@ -105,8 +105,8 @@ def write_result(result: dict, results_dir: str | Path = "results") -> Path:
     results_dir = Path(results_dir)
     results_dir.mkdir(exist_ok=True)
     meta = result["metadata"]
-    instelling_id = meta.get("instelling_id", "anoniem")
-    dropout_year = meta.get("dropout_year", "onbekend")
+    instelling_id = meta.get("instelling_id") or "anoniem"
+    dropout_year = meta.get("dropout_year") or "onbekend"
     # A cohort such as "2023/2024" must not end up as a folder in the file name
     name = re.sub(r"[^\w.-]+", "-", f"benchmark_{instelling_id}_{dropout_year}")
     path = results_dir / f"{name}.json"

@@ -17,6 +17,9 @@ dependencies = [
     "xgboost>=3.2.0",
 ]
 
+[project.scripts]
+uitnodigingsregel-benchmark = "uitnodigingsregel_benchmark.cli:main"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -37,7 +40,6 @@ ignore = ["N803", "N806"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
 
 [dependency-groups]
 dev = [
