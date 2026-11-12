@@ -18,7 +18,7 @@
       "Aanmel_aantal",
       "max1studie",
       "VooroplNiveau_HAVO",
-      "ROCMondriaan",
+      "eigen_variabele_1",
       "VooroplNiveau_MBO",
       "VooroplNiveau_educatie",
       "VooroplNiveau_prak",
@@ -43,7 +43,8 @@
     "run_date": "2026-11-12",
     "student_signal_version": "0.2.0",
     "cv_folds": 5,
-    "n_iter_search": 20
+    "n_iter_search": 20,
+    "n_own_variables": 1
   },
   "models": {
     "Random Forest": {
@@ -107,7 +108,7 @@
           "importance": 0.15877
         },
         {
-          "feature": "ROCMondriaan",
+          "feature": "eigen_variabele_1",
           "importance": 0.074844
         },
         {
@@ -221,19 +222,9 @@
           "recall_diff": 7.0
         },
         {
-          "variable": "ROCMondriaan",
+          "variable": "eigen_variabele_1",
           "columns": [
-            "ROCMondriaan"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 5.0,
-          "recall_diff": 7.0
-        },
-        {
-          "variable": "Landbouw",
-          "columns": [
-            "Landbouw"
+            "eigen_variabele_1"
           ],
           "precision_without": 10.0,
           "recall_without": 12.0,
@@ -261,136 +252,6 @@
           "recall_diff": 3.0
         },
         {
-          "variable": "VooroplNiveau_HAVO",
-          "columns": [
-            "VooroplNiveau_HAVO"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_MBO",
-          "columns": [
-            "VooroplNiveau_MBO"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_educatie",
-          "columns": [
-            "VooroplNiveau_educatie"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_prak",
-          "columns": [
-            "VooroplNiveau_prak"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_BB",
-          "columns": [
-            "VooroplNiveau_VMBO_BB"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_GL",
-          "columns": [
-            "VooroplNiveau_VMBO_GL"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_KB",
-          "columns": [
-            "VooroplNiveau_VMBO_KB"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_TL",
-          "columns": [
-            "VooroplNiveau_VMBO_TL"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_nan",
-          "columns": [
-            "VooroplNiveau_nan"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_VWOplus",
-          "columns": [
-            "VooroplNiveau_VWOplus"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "Techniek",
-          "columns": [
-            "Techniek"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "Anders",
-          "columns": [
-            "Anders"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "Richting_nan",
-          "columns": [
-            "Richting_nan"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
           "variable": "absence_unauthorized",
           "columns": [
             "absence_unauthorized"
@@ -401,18 +262,19 @@
           "recall_diff": 3.0
         },
         {
-          "variable": "VooroplNiveau_basis",
+          "variable": "Vooropleiding_niveau",
           "columns": [
-            "VooroplNiveau_basis"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_other",
-          "columns": [
+            "VooroplNiveau_HAVO",
+            "VooroplNiveau_MBO",
+            "VooroplNiveau_basis",
+            "VooroplNiveau_educatie",
+            "VooroplNiveau_prak",
+            "VooroplNiveau_VMBO_BB",
+            "VooroplNiveau_VMBO_GL",
+            "VooroplNiveau_VMBO_KB",
+            "VooroplNiveau_VMBO_TL",
+            "VooroplNiveau_nan",
+            "VooroplNiveau_VWOplus",
             "VooroplNiveau_other"
           ],
           "precision_without": 15.0,
@@ -421,29 +283,15 @@
           "recall_diff": 0.0
         },
         {
-          "variable": "Economie",
+          "variable": "Vooropleiding_richting",
           "columns": [
-            "Economie"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "DSV",
-          "columns": [
-            "DSV"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Zorgenwelzijn",
-          "columns": [
-            "Zorgenwelzijn"
+            "Economie",
+            "Landbouw",
+            "Techniek",
+            "DSV",
+            "Zorgenwelzijn",
+            "Anders",
+            "Richting_nan"
           ],
           "precision_without": 15.0,
           "recall_without": 19.0,
@@ -625,7 +473,7 @@
           "coefficient": 0.0
         },
         {
-          "feature": "ROCMondriaan",
+          "feature": "eigen_variabele_1",
           "importance": 0.0,
           "coefficient": 0.0
         },
@@ -657,6 +505,43 @@
       "mse_val": 0.134,
       "variable_impact": [
         {
+          "variable": "Vooropleiding_niveau",
+          "columns": [
+            "VooroplNiveau_HAVO",
+            "VooroplNiveau_MBO",
+            "VooroplNiveau_basis",
+            "VooroplNiveau_educatie",
+            "VooroplNiveau_prak",
+            "VooroplNiveau_VMBO_BB",
+            "VooroplNiveau_VMBO_GL",
+            "VooroplNiveau_VMBO_KB",
+            "VooroplNiveau_VMBO_TL",
+            "VooroplNiveau_nan",
+            "VooroplNiveau_VWOplus",
+            "VooroplNiveau_other"
+          ],
+          "precision_without": 10.0,
+          "recall_without": 12.0,
+          "precision_diff": 0.0,
+          "recall_diff": 0.0
+        },
+        {
+          "variable": "Vooropleiding_richting",
+          "columns": [
+            "Economie",
+            "Landbouw",
+            "Techniek",
+            "DSV",
+            "Zorgenwelzijn",
+            "Anders",
+            "Richting_nan"
+          ],
+          "precision_without": 10.0,
+          "recall_without": 12.0,
+          "precision_diff": 0.0,
+          "recall_diff": 0.0
+        },
+        {
           "variable": "StudentAge",
           "columns": [
             "StudentAge"
@@ -687,199 +572,9 @@
           "recall_diff": 0.0
         },
         {
-          "variable": "VooroplNiveau_HAVO",
+          "variable": "eigen_variabele_1",
           "columns": [
-            "VooroplNiveau_HAVO"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "ROCMondriaan",
-          "columns": [
-            "ROCMondriaan"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_MBO",
-          "columns": [
-            "VooroplNiveau_MBO"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_basis",
-          "columns": [
-            "VooroplNiveau_basis"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_educatie",
-          "columns": [
-            "VooroplNiveau_educatie"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_prak",
-          "columns": [
-            "VooroplNiveau_prak"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_BB",
-          "columns": [
-            "VooroplNiveau_VMBO_BB"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_GL",
-          "columns": [
-            "VooroplNiveau_VMBO_GL"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_KB",
-          "columns": [
-            "VooroplNiveau_VMBO_KB"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_TL",
-          "columns": [
-            "VooroplNiveau_VMBO_TL"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_nan",
-          "columns": [
-            "VooroplNiveau_nan"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VWOplus",
-          "columns": [
-            "VooroplNiveau_VWOplus"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_other",
-          "columns": [
-            "VooroplNiveau_other"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Economie",
-          "columns": [
-            "Economie"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Landbouw",
-          "columns": [
-            "Landbouw"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Techniek",
-          "columns": [
-            "Techniek"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "DSV",
-          "columns": [
-            "DSV"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Zorgenwelzijn",
-          "columns": [
-            "Zorgenwelzijn"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Anders",
-          "columns": [
-            "Anders"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Richting_nan",
-          "columns": [
-            "Richting_nan"
+            "eigen_variabele_1"
           ],
           "precision_without": 10.0,
           "recall_without": 12.0,
@@ -967,84 +662,84 @@
       ],
       "feature_importance": [
         {
-          "feature": "ROCMondriaan",
-          "importance": 0.927307,
-          "coefficient": 0.927307
+          "feature": "eigen_variabele_1",
+          "importance": 0.927348,
+          "coefficient": 0.927348
         },
         {
           "feature": "VooroplNiveau_prak",
-          "importance": 0.853648,
-          "coefficient": -0.853648
+          "importance": 0.854398,
+          "coefficient": -0.854398
         },
         {
           "feature": "VooroplNiveau_other",
-          "importance": 0.758587,
-          "coefficient": -0.758587
+          "importance": 0.758584,
+          "coefficient": -0.758584
         },
         {
           "feature": "Aanmel_aantal",
-          "importance": 0.726764,
-          "coefficient": -0.726764
+          "importance": 0.726786,
+          "coefficient": -0.726786
         },
         {
           "feature": "VooroplNiveau_VMBO_GL",
-          "importance": 0.519977,
-          "coefficient": 0.519977
+          "importance": 0.519988,
+          "coefficient": 0.519988
         },
         {
           "feature": "absence_unauthorized",
-          "importance": 0.442257,
-          "coefficient": 0.442257
+          "importance": 0.442266,
+          "coefficient": 0.442266
         },
         {
           "feature": "Landbouw",
-          "importance": 0.352557,
-          "coefficient": 0.352557
+          "importance": 0.352737,
+          "coefficient": 0.352737
         },
         {
           "feature": "max1studie",
-          "importance": 0.31322,
-          "coefficient": -0.31322
+          "importance": 0.313218,
+          "coefficient": -0.313218
         },
         {
           "feature": "Richting_nan",
-          "importance": 0.28743,
-          "coefficient": -0.28743
+          "importance": 0.287311,
+          "coefficient": -0.287311
         },
         {
           "feature": "Zorgenwelzijn",
-          "importance": 0.247319,
-          "coefficient": 0.247319
+          "importance": 0.247433,
+          "coefficient": 0.247433
         },
         {
           "feature": "VooroplNiveau_VMBO_TL",
-          "importance": 0.187275,
-          "coefficient": 0.187275
+          "importance": 0.187271,
+          "coefficient": 0.187271
         },
         {
           "feature": "Economie",
-          "importance": 0.136907,
-          "coefficient": -0.136907
+          "importance": 0.136798,
+          "coefficient": -0.136798
         },
         {
           "feature": "StudentGender",
-          "importance": 0.081131,
-          "coefficient": -0.081131
+          "importance": 0.081127,
+          "coefficient": -0.081127
         },
         {
           "feature": "VooroplNiveau_MBO",
-          "importance": 0.079065,
-          "coefficient": -0.079065
+          "importance": 0.079062,
+          "coefficient": -0.079062
         },
         {
           "feature": "VooroplNiveau_VMBO_KB",
-          "importance": 0.047805,
-          "coefficient": -0.047805
+          "importance": 0.047794,
+          "coefficient": -0.047794
         },
         {
           "feature": "VooroplNiveau_HAVO",
-          "importance": 0.038212,
-          "coefficient": -0.038212
+          "importance": 0.038206,
+          "coefficient": -0.038206
         },
         {
           "feature": "StudentAge",
@@ -1134,59 +829,9 @@
           "recall_diff": 3.0
         },
         {
-          "variable": "ROCMondriaan",
+          "variable": "eigen_variabele_1",
           "columns": [
-            "ROCMondriaan"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_MBO",
-          "columns": [
-            "VooroplNiveau_MBO"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_other",
-          "columns": [
-            "VooroplNiveau_other"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "Economie",
-          "columns": [
-            "Economie"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "Landbouw",
-          "columns": [
-            "Landbouw"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "Zorgenwelzijn",
-          "columns": [
-            "Zorgenwelzijn"
+            "eigen_variabele_1"
           ],
           "precision_without": 15.0,
           "recall_without": 19.0,
@@ -1197,136 +842,6 @@
           "variable": "StudentAge",
           "columns": [
             "StudentAge"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_HAVO",
-          "columns": [
-            "VooroplNiveau_HAVO"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_basis",
-          "columns": [
-            "VooroplNiveau_basis"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_educatie",
-          "columns": [
-            "VooroplNiveau_educatie"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_prak",
-          "columns": [
-            "VooroplNiveau_prak"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_BB",
-          "columns": [
-            "VooroplNiveau_VMBO_BB"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_KB",
-          "columns": [
-            "VooroplNiveau_VMBO_KB"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_TL",
-          "columns": [
-            "VooroplNiveau_VMBO_TL"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_nan",
-          "columns": [
-            "VooroplNiveau_nan"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VWOplus",
-          "columns": [
-            "VooroplNiveau_VWOplus"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Techniek",
-          "columns": [
-            "Techniek"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "DSV",
-          "columns": [
-            "DSV"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Anders",
-          "columns": [
-            "Anders"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Richting_nan",
-          "columns": [
-            "Richting_nan"
           ],
           "precision_without": 18.0,
           "recall_without": 22.0,
@@ -1354,14 +869,41 @@
           "recall_diff": 0.0
         },
         {
-          "variable": "VooroplNiveau_VMBO_GL",
+          "variable": "Vooropleiding_richting",
           "columns": [
-            "VooroplNiveau_VMBO_GL"
+            "Economie",
+            "Landbouw",
+            "Techniek",
+            "DSV",
+            "Zorgenwelzijn",
+            "Anders",
+            "Richting_nan"
           ],
           "precision_without": 20.0,
           "recall_without": 25.0,
           "precision_diff": -2.0,
           "recall_diff": -3.0
+        },
+        {
+          "variable": "Vooropleiding_niveau",
+          "columns": [
+            "VooroplNiveau_HAVO",
+            "VooroplNiveau_MBO",
+            "VooroplNiveau_basis",
+            "VooroplNiveau_educatie",
+            "VooroplNiveau_prak",
+            "VooroplNiveau_VMBO_BB",
+            "VooroplNiveau_VMBO_GL",
+            "VooroplNiveau_VMBO_KB",
+            "VooroplNiveau_VMBO_TL",
+            "VooroplNiveau_nan",
+            "VooroplNiveau_VWOplus",
+            "VooroplNiveau_other"
+          ],
+          "precision_without": 22.0,
+          "recall_without": 28.0,
+          "precision_diff": -4.0,
+          "recall_diff": -6.0
         }
       ]
     },
@@ -1419,7 +961,7 @@
           "importance": 0.000876
         },
         {
-          "feature": "ROCMondriaan",
+          "feature": "eigen_variabele_1",
           "importance": 0.000781
         },
         {
@@ -1537,26 +1079,6 @@
           "recall_diff": 3.0
         },
         {
-          "variable": "VooroplNiveau_VMBO_TL",
-          "columns": [
-            "VooroplNiveau_VMBO_TL"
-          ],
-          "precision_without": 8.0,
-          "recall_without": 9.0,
-          "precision_diff": 2.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "Zorgenwelzijn",
-          "columns": [
-            "Zorgenwelzijn"
-          ],
-          "precision_without": 8.0,
-          "recall_without": 9.0,
-          "precision_diff": 2.0,
-          "recall_diff": 3.0
-        },
-        {
           "variable": "StudentAge",
           "columns": [
             "StudentAge"
@@ -1567,9 +1089,9 @@
           "recall_diff": 0.0
         },
         {
-          "variable": "ROCMondriaan",
+          "variable": "eigen_variabele_1",
           "columns": [
-            "ROCMondriaan"
+            "eigen_variabele_1"
           ],
           "precision_without": 10.0,
           "recall_without": 12.0,
@@ -1577,48 +1099,19 @@
           "recall_diff": 0.0
         },
         {
-          "variable": "VooroplNiveau_basis",
+          "variable": "Vooropleiding_niveau",
           "columns": [
-            "VooroplNiveau_basis"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_prak",
-          "columns": [
-            "VooroplNiveau_prak"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_MBO",
-          "columns": [
-            "VooroplNiveau_MBO"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": -2.0,
-          "recall_diff": -4.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_KB",
-          "columns": [
-            "VooroplNiveau_VMBO_KB"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": -2.0,
-          "recall_diff": -4.0
-        },
-        {
-          "variable": "VooroplNiveau_other",
-          "columns": [
+            "VooroplNiveau_HAVO",
+            "VooroplNiveau_MBO",
+            "VooroplNiveau_basis",
+            "VooroplNiveau_educatie",
+            "VooroplNiveau_prak",
+            "VooroplNiveau_VMBO_BB",
+            "VooroplNiveau_VMBO_GL",
+            "VooroplNiveau_VMBO_KB",
+            "VooroplNiveau_VMBO_TL",
+            "VooroplNiveau_nan",
+            "VooroplNiveau_VWOplus",
             "VooroplNiveau_other"
           ],
           "precision_without": 12.0,
@@ -1637,6 +1130,22 @@
           "recall_diff": -4.0
         },
         {
+          "variable": "Vooropleiding_richting",
+          "columns": [
+            "Economie",
+            "Landbouw",
+            "Techniek",
+            "DSV",
+            "Zorgenwelzijn",
+            "Anders",
+            "Richting_nan"
+          ],
+          "precision_without": 15.0,
+          "recall_without": 19.0,
+          "precision_diff": -5.0,
+          "recall_diff": -7.0
+        },
+        {
           "variable": "max1studie",
           "columns": [
             "max1studie"
@@ -1645,126 +1154,6 @@
           "recall_without": 19.0,
           "precision_diff": -5.0,
           "recall_diff": -7.0
-        },
-        {
-          "variable": "VooroplNiveau_educatie",
-          "columns": [
-            "VooroplNiveau_educatie"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": -5.0,
-          "recall_diff": -7.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_GL",
-          "columns": [
-            "VooroplNiveau_VMBO_GL"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": -5.0,
-          "recall_diff": -7.0
-        },
-        {
-          "variable": "VooroplNiveau_nan",
-          "columns": [
-            "VooroplNiveau_nan"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": -5.0,
-          "recall_diff": -7.0
-        },
-        {
-          "variable": "Economie",
-          "columns": [
-            "Economie"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": -5.0,
-          "recall_diff": -7.0
-        },
-        {
-          "variable": "Techniek",
-          "columns": [
-            "Techniek"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": -5.0,
-          "recall_diff": -7.0
-        },
-        {
-          "variable": "Anders",
-          "columns": [
-            "Anders"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": -5.0,
-          "recall_diff": -7.0
-        },
-        {
-          "variable": "VooroplNiveau_HAVO",
-          "columns": [
-            "VooroplNiveau_HAVO"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": -8.0,
-          "recall_diff": -10.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_BB",
-          "columns": [
-            "VooroplNiveau_VMBO_BB"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": -8.0,
-          "recall_diff": -10.0
-        },
-        {
-          "variable": "DSV",
-          "columns": [
-            "DSV"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": -8.0,
-          "recall_diff": -10.0
-        },
-        {
-          "variable": "Richting_nan",
-          "columns": [
-            "Richting_nan"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": -8.0,
-          "recall_diff": -10.0
-        },
-        {
-          "variable": "VooroplNiveau_VWOplus",
-          "columns": [
-            "VooroplNiveau_VWOplus"
-          ],
-          "precision_without": 20.0,
-          "recall_without": 25.0,
-          "precision_diff": -10.0,
-          "recall_diff": -13.0
-        },
-        {
-          "variable": "Landbouw",
-          "columns": [
-            "Landbouw"
-          ],
-          "precision_without": 20.0,
-          "recall_without": 25.0,
-          "precision_diff": -10.0,
-          "recall_diff": -13.0
         },
         {
           "variable": "StudentGender",
@@ -1887,7 +1276,7 @@
           "importance": 0.018408
         },
         {
-          "feature": "ROCMondriaan",
+          "feature": "eigen_variabele_1",
           "importance": 0.016295
         },
         {
@@ -1951,14 +1340,20 @@
       "mse_val": 0.15,
       "variable_impact": [
         {
-          "variable": "VooroplNiveau_other",
+          "variable": "Vooropleiding_richting",
           "columns": [
-            "VooroplNiveau_other"
+            "Economie",
+            "Landbouw",
+            "Techniek",
+            "DSV",
+            "Zorgenwelzijn",
+            "Anders",
+            "Richting_nan"
           ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 8.0,
-          "recall_diff": 10.0
+          "precision_without": 12.0,
+          "recall_without": 16.0,
+          "precision_diff": 6.0,
+          "recall_diff": 6.0
         },
         {
           "variable": "StudentAge",
@@ -1991,119 +1386,9 @@
           "recall_diff": 6.0
         },
         {
-          "variable": "VooroplNiveau_MBO",
+          "variable": "eigen_variabele_1",
           "columns": [
-            "VooroplNiveau_MBO"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 6.0,
-          "recall_diff": 6.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_KB",
-          "columns": [
-            "VooroplNiveau_VMBO_KB"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 6.0,
-          "recall_diff": 6.0
-        },
-        {
-          "variable": "Economie",
-          "columns": [
-            "Economie"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 6.0,
-          "recall_diff": 6.0
-        },
-        {
-          "variable": "DSV",
-          "columns": [
-            "DSV"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 6.0,
-          "recall_diff": 6.0
-        },
-        {
-          "variable": "Richting_nan",
-          "columns": [
-            "Richting_nan"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 6.0,
-          "recall_diff": 6.0
-        },
-        {
-          "variable": "ROCMondriaan",
-          "columns": [
-            "ROCMondriaan"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_educatie",
-          "columns": [
-            "VooroplNiveau_educatie"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_prak",
-          "columns": [
-            "VooroplNiveau_prak"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_GL",
-          "columns": [
-            "VooroplNiveau_VMBO_GL"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_nan",
-          "columns": [
-            "VooroplNiveau_nan"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "Landbouw",
-          "columns": [
-            "Landbouw"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "Anders",
-          "columns": [
-            "Anders"
+            "eigen_variabele_1"
           ],
           "precision_without": 15.0,
           "recall_without": 19.0,
@@ -2131,59 +1416,20 @@
           "recall_diff": 3.0
         },
         {
-          "variable": "VooroplNiveau_HAVO",
+          "variable": "Vooropleiding_niveau",
           "columns": [
-            "VooroplNiveau_HAVO"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_basis",
-          "columns": [
-            "VooroplNiveau_basis"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_BB",
-          "columns": [
-            "VooroplNiveau_VMBO_BB"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VWOplus",
-          "columns": [
-            "VooroplNiveau_VWOplus"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Techniek",
-          "columns": [
-            "Techniek"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Zorgenwelzijn",
-          "columns": [
-            "Zorgenwelzijn"
+            "VooroplNiveau_HAVO",
+            "VooroplNiveau_MBO",
+            "VooroplNiveau_basis",
+            "VooroplNiveau_educatie",
+            "VooroplNiveau_prak",
+            "VooroplNiveau_VMBO_BB",
+            "VooroplNiveau_VMBO_GL",
+            "VooroplNiveau_VMBO_KB",
+            "VooroplNiveau_VMBO_TL",
+            "VooroplNiveau_nan",
+            "VooroplNiveau_VWOplus",
+            "VooroplNiveau_other"
           ],
           "precision_without": 18.0,
           "recall_without": 22.0,
@@ -2199,16 +1445,6 @@
           "recall_without": 22.0,
           "precision_diff": 0.0,
           "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_TL",
-          "columns": [
-            "VooroplNiveau_VMBO_TL"
-          ],
-          "precision_without": 20.0,
-          "recall_without": 25.0,
-          "precision_diff": -2.0,
-          "recall_diff": -3.0
         }
       ]
     },
@@ -2287,7 +1523,7 @@
           "importance": 0.0
         },
         {
-          "feature": "ROCMondriaan",
+          "feature": "eigen_variabele_1",
           "importance": 0.0
         },
         {
@@ -2375,24 +1611,20 @@
       "mse_val": 0.181,
       "variable_impact": [
         {
-          "variable": "VooroplNiveau_VMBO_GL",
+          "variable": "Vooropleiding_richting",
           "columns": [
-            "VooroplNiveau_VMBO_GL"
+            "Economie",
+            "Landbouw",
+            "Techniek",
+            "DSV",
+            "Zorgenwelzijn",
+            "Anders",
+            "Richting_nan"
           ],
-          "precision_without": 8.0,
-          "recall_without": 9.0,
-          "precision_diff": 7.0,
-          "recall_diff": 10.0
-        },
-        {
-          "variable": "Zorgenwelzijn",
-          "columns": [
-            "Zorgenwelzijn"
-          ],
-          "precision_without": 8.0,
-          "recall_without": 9.0,
-          "precision_diff": 7.0,
-          "recall_diff": 10.0
+          "precision_without": 10.0,
+          "recall_without": 12.0,
+          "precision_diff": 5.0,
+          "recall_diff": 7.0
         },
         {
           "variable": "StudentAge",
@@ -2405,24 +1637,25 @@
           "recall_diff": 7.0
         },
         {
-          "variable": "VooroplNiveau_HAVO",
+          "variable": "Vooropleiding_niveau",
           "columns": [
-            "VooroplNiveau_HAVO"
+            "VooroplNiveau_HAVO",
+            "VooroplNiveau_MBO",
+            "VooroplNiveau_basis",
+            "VooroplNiveau_educatie",
+            "VooroplNiveau_prak",
+            "VooroplNiveau_VMBO_BB",
+            "VooroplNiveau_VMBO_GL",
+            "VooroplNiveau_VMBO_KB",
+            "VooroplNiveau_VMBO_TL",
+            "VooroplNiveau_nan",
+            "VooroplNiveau_VWOplus",
+            "VooroplNiveau_other"
           ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 5.0,
-          "recall_diff": 7.0
-        },
-        {
-          "variable": "VooroplNiveau_nan",
-          "columns": [
-            "VooroplNiveau_nan"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 5.0,
-          "recall_diff": 7.0
+          "precision_without": 12.0,
+          "recall_without": 16.0,
+          "precision_diff": 3.0,
+          "recall_diff": 3.0
         },
         {
           "variable": "Aanmel_aantal",
@@ -2445,129 +1678,9 @@
           "recall_diff": 3.0
         },
         {
-          "variable": "VooroplNiveau_VMBO_KB",
+          "variable": "eigen_variabele_1",
           "columns": [
-            "VooroplNiveau_VMBO_KB"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_other",
-          "columns": [
-            "VooroplNiveau_other"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "Economie",
-          "columns": [
-            "Economie"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "ROCMondriaan",
-          "columns": [
-            "ROCMondriaan"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_MBO",
-          "columns": [
-            "VooroplNiveau_MBO"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_basis",
-          "columns": [
-            "VooroplNiveau_basis"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_educatie",
-          "columns": [
-            "VooroplNiveau_educatie"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_prak",
-          "columns": [
-            "VooroplNiveau_prak"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_BB",
-          "columns": [
-            "VooroplNiveau_VMBO_BB"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VWOplus",
-          "columns": [
-            "VooroplNiveau_VWOplus"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Landbouw",
-          "columns": [
-            "Landbouw"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "DSV",
-          "columns": [
-            "DSV"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Anders",
-          "columns": [
-            "Anders"
+            "eigen_variabele_1"
           ],
           "precision_without": 15.0,
           "recall_without": 19.0,
@@ -2583,36 +1696,6 @@
           "recall_without": 19.0,
           "precision_diff": 0.0,
           "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_TL",
-          "columns": [
-            "VooroplNiveau_VMBO_TL"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": -3.0,
-          "recall_diff": -3.0
-        },
-        {
-          "variable": "Techniek",
-          "columns": [
-            "Techniek"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": -3.0,
-          "recall_diff": -3.0
-        },
-        {
-          "variable": "Richting_nan",
-          "columns": [
-            "Richting_nan"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": -3.0,
-          "recall_diff": -3.0
         },
         {
           "variable": "StudentGender",
@@ -2688,7 +1771,7 @@
       ],
       "feature_importance": [
         {
-          "feature": "ROCMondriaan",
+          "feature": "eigen_variabele_1",
           "importance": 0.07763
         },
         {
@@ -2800,94 +1883,20 @@
       "mse_val": 0.159,
       "variable_impact": [
         {
-          "variable": "VooroplNiveau_VMBO_KB",
+          "variable": "Vooropleiding_richting",
           "columns": [
-            "VooroplNiveau_VMBO_KB"
+            "Economie",
+            "Landbouw",
+            "Techniek",
+            "DSV",
+            "Zorgenwelzijn",
+            "Anders",
+            "Richting_nan"
           ],
-          "precision_without": 5.0,
-          "recall_without": 6.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_other",
-          "columns": [
-            "VooroplNiveau_other"
-          ],
-          "precision_without": 5.0,
-          "recall_without": 6.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "Landbouw",
-          "columns": [
-            "Landbouw"
-          ],
-          "precision_without": 5.0,
-          "recall_without": 6.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "VooroplNiveau_basis",
-          "columns": [
-            "VooroplNiveau_basis"
-          ],
-          "precision_without": 8.0,
-          "recall_without": 9.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_educatie",
-          "columns": [
-            "VooroplNiveau_educatie"
-          ],
-          "precision_without": 8.0,
-          "recall_without": 9.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_nan",
-          "columns": [
-            "VooroplNiveau_nan"
-          ],
-          "precision_without": 8.0,
-          "recall_without": 9.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "VooroplNiveau_VWOplus",
-          "columns": [
-            "VooroplNiveau_VWOplus"
-          ],
-          "precision_without": 8.0,
-          "recall_without": 9.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "DSV",
-          "columns": [
-            "DSV"
-          ],
-          "precision_without": 8.0,
-          "recall_without": 9.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Anders",
-          "columns": [
-            "Anders"
-          ],
-          "precision_without": 8.0,
-          "recall_without": 9.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
+          "precision_without": 10.0,
+          "recall_without": 12.0,
+          "precision_diff": -2.0,
+          "recall_diff": -3.0
         },
         {
           "variable": "StudentAge",
@@ -2910,89 +1919,9 @@
           "recall_diff": -3.0
         },
         {
-          "variable": "VooroplNiveau_HAVO",
+          "variable": "eigen_variabele_1",
           "columns": [
-            "VooroplNiveau_HAVO"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": -2.0,
-          "recall_diff": -3.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_GL",
-          "columns": [
-            "VooroplNiveau_VMBO_GL"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": -2.0,
-          "recall_diff": -3.0
-        },
-        {
-          "variable": "Techniek",
-          "columns": [
-            "Techniek"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": -2.0,
-          "recall_diff": -3.0
-        },
-        {
-          "variable": "Zorgenwelzijn",
-          "columns": [
-            "Zorgenwelzijn"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": -2.0,
-          "recall_diff": -3.0
-        },
-        {
-          "variable": "Richting_nan",
-          "columns": [
-            "Richting_nan"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": -2.0,
-          "recall_diff": -3.0
-        },
-        {
-          "variable": "ROCMondriaan",
-          "columns": [
-            "ROCMondriaan"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": -4.0,
-          "recall_diff": -7.0
-        },
-        {
-          "variable": "VooroplNiveau_MBO",
-          "columns": [
-            "VooroplNiveau_MBO"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": -4.0,
-          "recall_diff": -7.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_BB",
-          "columns": [
-            "VooroplNiveau_VMBO_BB"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": -4.0,
-          "recall_diff": -7.0
-        },
-        {
-          "variable": "Economie",
-          "columns": [
-            "Economie"
+            "eigen_variabele_1"
           ],
           "precision_without": 12.0,
           "recall_without": 16.0,
@@ -3010,29 +1939,30 @@
           "recall_diff": -7.0
         },
         {
+          "variable": "Vooropleiding_niveau",
+          "columns": [
+            "VooroplNiveau_HAVO",
+            "VooroplNiveau_MBO",
+            "VooroplNiveau_basis",
+            "VooroplNiveau_educatie",
+            "VooroplNiveau_prak",
+            "VooroplNiveau_VMBO_BB",
+            "VooroplNiveau_VMBO_GL",
+            "VooroplNiveau_VMBO_KB",
+            "VooroplNiveau_VMBO_TL",
+            "VooroplNiveau_nan",
+            "VooroplNiveau_VWOplus",
+            "VooroplNiveau_other"
+          ],
+          "precision_without": 15.0,
+          "recall_without": 19.0,
+          "precision_diff": -7.0,
+          "recall_diff": -10.0
+        },
+        {
           "variable": "Aanmel_aantal",
           "columns": [
             "Aanmel_aantal"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": -7.0,
-          "recall_diff": -10.0
-        },
-        {
-          "variable": "VooroplNiveau_prak",
-          "columns": [
-            "VooroplNiveau_prak"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": -7.0,
-          "recall_diff": -10.0
-        },
-        {
-          "variable": "VooroplNiveau_VMBO_TL",
-          "columns": [
-            "VooroplNiveau_VMBO_TL"
           ],
           "precision_without": 15.0,
           "recall_without": 19.0,

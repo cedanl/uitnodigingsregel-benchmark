@@ -25,24 +25,33 @@ from uitnodigingsregel_benchmark.export import sanitize, write_result
 from uitnodigingsregel_benchmark.models import MODELS
 from uitnodigingsregel_benchmark.report import (
     IMPACT_TEXT,
+    LOCAL_NAMES_TEXT,
     PRECISION_RECALL_TEXT,
     QUICK_TEXT,
     build_html_report,
+    display_name,
     split_description,
 )
 from uitnodigingsregel_benchmark.runner import run_benchmark_on_data
 from uitnodigingsregel_benchmark.settings import QUICK_SETTINGS, SettingsError, load_config
+from uitnodigingsregel_benchmark.shared_variables import (
+    SHARED_NAMES,
+    load_mapping,
+    match_columns,
+    save_mapping,
+)
 
 DEMO_DATA = Path("data/01-raw/demo/synth_data_train.csv")
 RESULTS_DIR = Path("results")
 NONE = "(geen)"
 QUICK = "Snel"
 FULL = "Volledig"
+OWN = "(eigen variabele, niet in de lijst)"
 
 st.set_page_config(page_title="Uitnodigingsregel benchmark", page_icon="📊", layout="centered")
 st.markdown(APP_CSS, unsafe_allow_html=True)
 
-for key in ("data", "data_label", "upload_seen", "result", "result_path", "shared"):
+for key in ("data", "data_label", "upload_seen", "result", "result_path", "shared", "local_names"):
     st.session_state.setdefault(key, None)
 st.session_state.setdefault("own_groups", {})
 
@@ -80,8 +89,9 @@ def _result_table(result: dict) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values("Precisie (%)", ascending=False).reset_index(drop=True)
 
 
-def _impact_chart(entries: list[dict]) -> alt.Chart:
+def _impact_chart(entries: list[dict], local_names: dict[str, str]) -> alt.Chart:
     data = pd.DataFrame([e for e in entries if "precision_diff" in e])
+    data["variable"] = data["variable"].apply(lambda name: display_name(name, local_names))
     data["Effect"] = data["precision_diff"].apply(
         lambda diff: "Helpt" if diff > 0 else ("Geen verschil" if diff == 0 else "Helpt niet")
     )
@@ -219,6 +229,46 @@ with st.container(border=True):
                 st.rerun()
         variable_groups.update(own_groups)
 
+    column_mapping: dict[str, str | None] = {}
+    if data_ok:
+        features = [c for c in columns if c not in (dropout_col, id_col, cohort_col)]
+        saved = load_mapping()
+        try:
+            linked = match_columns(features, saved)
+        except SettingsError:
+            # A mapping saved for other data; start from the automatic recognition
+            saved = {}
+            linked = match_columns(features)
+        n_linked = sum(1 for name in linked.values() if name)
+        st.write(
+            f"**Gedeelde variabelen:** {n_linked} van de {len(features)} kolommen horen bij "
+            "een variabele uit de gedeelde lijst. Het resultaatbestand gebruikt alleen die "
+            "namen. De andere kolommen tellen gewoon mee, maar heten in het resultaatbestand "
+            "eigen_variabele_1, eigen_variabele_2, enzovoort."
+        )
+        with st.expander("Kolommen koppelen aan de gedeelde lijst"):
+            st.write(
+                "Heet een kolom anders dan in de gedeelde lijst maar bedoelt hij hetzelfde, "
+                "kies dan de gedeelde variabele. Je keuze wordt op deze computer bewaard in "
+                "koppeling.json en niet gedeeld."
+            )
+            options = [OWN, *SHARED_NAMES]
+            for column in features:
+                if linked[column] and column not in saved:
+                    continue
+                choice = st.selectbox(
+                    column,
+                    options,
+                    index=options.index(linked[column]) if linked[column] else 0,
+                    key=f"map_{column}",
+                )
+                column_mapping[column] = None if choice == OWN else choice
+        try:
+            match_columns(features, column_mapping)
+        except SettingsError as error:
+            data_ok = False
+            st.error(str(error))
+
 # ── Stap 3: draaien ───────────────────────────────────────────────────────────
 with st.container(border=True):
     st.subheader("3. Draai de benchmark")
@@ -260,13 +310,15 @@ if start:
             "cohort_column": cohort_col,
             "impact": measure_impact,
             "variable_groups": variable_groups or None,
+            "column_mapping": column_mapping,
         }
     )
+    save_mapping(column_mapping)
     if mode == QUICK:
         config.update(QUICK_SETTINGS)
     progress = st.progress(0.0, text="Starten")
     try:
-        result = run_benchmark_on_data(
+        result, local_names = run_benchmark_on_data(
             data,
             config,
             quick_mode=mode == QUICK,
@@ -278,10 +330,11 @@ if start:
     else:
         progress.empty()
         st.session_state.result = result
+        st.session_state.local_names = local_names
         st.session_state.shared = sharing.fetch_shared_data()
         st.session_state.result_path = write_result(result, RESULTS_DIR)
         st.session_state.result_path.with_suffix(".html").write_text(
-            build_html_report(result), encoding="utf-8"
+            build_html_report(result, local_names), encoding="utf-8"
         )
 
 result = st.session_state.result
@@ -291,6 +344,7 @@ if result is None:
 # ── Uitkomst ──────────────────────────────────────────────────────────────────
 metadata = result["metadata"]
 best = result["recommendation"]
+local_names = st.session_state.local_names
 with st.container(border=True):
     st.subheader("Uitkomst")
     st.caption(split_description(metadata))
@@ -310,8 +364,24 @@ if metadata["impact_measured"]:
         st.subheader("Impact per variabele")
         model_names = list(result["models"])
         chosen = st.selectbox("Model", model_names, index=model_names.index(best["model"]))
-        st.altair_chart(_impact_chart(result["models"][chosen]["variable_impact"]), width="stretch")
+        st.altair_chart(
+            _impact_chart(result["models"][chosen]["variable_impact"], local_names),
+            width="stretch",
+        )
         st.caption(IMPACT_TEXT)
+        if local_names:
+            with st.expander("Namen van je eigen kolommen in de uitkomst"):
+                st.caption(LOCAL_NAMES_TEXT)
+                st.dataframe(
+                    pd.DataFrame(
+                        [
+                            {"Naam in de uitkomst": public, "Je eigen kolom of groep": own}
+                            for public, own in local_names.items()
+                        ]
+                    ),
+                    hide_index=True,
+                    width="stretch",
+                )
 
 with st.container(border=True):
     st.subheader("Rapport en resultaatbestand")
@@ -322,13 +392,14 @@ with st.container(border=True):
     )
     st.download_button(
         "Download rapport",
-        data=build_html_report(result),
+        data=build_html_report(result, local_names),
         file_name=result_path.with_suffix(".html").name,
         mime="text/html",
     )
     st.write(
-        "Het **resultaatbestand** bevat de uitkomsten per model, de namen van je kolommen en "
-        "aantallen studenten, en geen gegevens van individuele studenten."
+        "Het **resultaatbestand** bevat de uitkomsten per model met de namen uit de gedeelde "
+        "variabelenlijst, en aantallen studenten. Het bevat geen namen van je eigen kolommen "
+        "en geen gegevens van individuele studenten."
     )
     st.download_button(
         "Download resultaatbestand",

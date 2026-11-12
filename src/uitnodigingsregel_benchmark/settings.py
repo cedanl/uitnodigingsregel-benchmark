@@ -19,6 +19,7 @@ DEFAULTS: dict = {
     "impact": False,
     "impact_variables": None,
     "variable_groups": None,
+    "column_mapping": None,
 }
 
 # Fewer models and fewer search rounds: a result in seconds instead of minutes.

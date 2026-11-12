@@ -28,6 +28,14 @@ from uitnodigingsregel_benchmark.impact import measure_variable_impact, resolve_
 from uitnodigingsregel_benchmark.models import MODELS
 from uitnodigingsregel_benchmark.report import build_html_report
 from uitnodigingsregel_benchmark.settings import SettingsError
+from uitnodigingsregel_benchmark.shared_variables import (
+    apply_shared_names,
+    is_own_name,
+    load_mapping,
+    match_columns,
+    merge_variable_groups,
+    public_names,
+)
 from uitnodigingsregel_benchmark.split import SPLIT_COHORT, split_train_test
 
 RANDOM_STATE = 42
@@ -139,10 +147,18 @@ def run_benchmark(
         SettingsError: If the settings name an unknown model.
     """
     print(f"Laden van data: {train_path}")
-    result = run_benchmark_on_data(read_student_data(train_path), config, quick_mode)
+    if config["column_mapping"] is None:
+        config = {**config, "column_mapping": load_mapping()}
+    result, local_names = run_benchmark_on_data(read_student_data(train_path), config, quick_mode)
+    own = [name for public, name in local_names.items() if is_own_name(public)]
+    if own:
+        print(
+            f"\n{len(own)} kolommen of groepen staan niet in de gedeelde variabelenlijst en "
+            f"komen onder een neutrale naam in het resultaatbestand: {', '.join(own)}."
+        )
     path = write_result(result, results_dir)
     report_path = path.with_suffix(".html")
-    report_path.write_text(build_html_report(result), encoding="utf-8")
+    report_path.write_text(build_html_report(result, local_names), encoding="utf-8")
     print(f"\nBenchmark resultaat opgeslagen: {path}")
     print(f"Rapport opgeslagen: {report_path}")
     return path
@@ -153,7 +169,7 @@ def run_benchmark_on_data(
     config: dict,
     quick_mode: bool = False,
     on_progress: Callable[[float, str], None] | None = None,
-) -> dict:
+) -> tuple[dict, dict[str, str]]:
     """Run the benchmark on student data and return the result.
 
     Args:
@@ -163,7 +179,9 @@ def run_benchmark_on_data(
         on_progress: Called with the share of the work done (0 to 1) and a description.
 
     Returns:
-        The complete result, ready to write with write_result().
+        The complete result, ready to write with write_result(), and the names in it
+        that replace a name of the institution, mapped to that own name. The result
+        holds shared variable names only; the second value stays with the institution.
 
     Raises:
         DataValidationError: If the data cannot be used.
@@ -188,11 +206,14 @@ def run_benchmark_on_data(
         training_years = config["training_years"]
         print(f"Willekeurige splitsing ({round((1 - test_size) * 100)}/{round(test_size * 100)}).")
 
+    feature_columns = [c for c in train_split.columns if c not in (dropout_col, id_col)]
+    linked = match_columns(feature_columns, config["column_mapping"])
     variables = None
     if config["impact"]:
-        feature_columns = [c for c in train_split.columns if c not in (dropout_col, id_col)]
         variables = resolve_variables(
-            feature_columns, config["variable_groups"], config["impact_variables"]
+            feature_columns,
+            merge_variable_groups(linked, config["variable_groups"]),
+            config["impact_variables"],
         )
 
     n_steps = len(models) + (len(variables) if variables else 0) + 1
@@ -309,4 +330,6 @@ def run_benchmark_on_data(
 
     if on_progress:
         on_progress(1.0, "Klaar")
-    return build_result(metadata, model_results)
+    result = build_result(metadata, model_results)
+    local_names = apply_shared_names(result, public_names(linked))
+    return result, local_names

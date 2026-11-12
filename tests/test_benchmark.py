@@ -238,6 +238,13 @@ def test_cli_quick_run_on_demo_data(tmp_path, monkeypatch):
     assert result["metadata"]["instelling_id"] == "demo"
     assert result["metadata"]["split"]["type"] == "random"
     assert set(result["models"]) == {"Random Forest", "Lasso", "Logistic Regression"}
+    # Own column names stay out of the result file, but are in the local report
+    features = result["metadata"]["features_available"]
+    assert "ROCMondriaan" not in features
+    assert "ROCMondriaan" not in json.dumps(result)
+    assert "eigen_variabele_1" in features
+    report = (tmp_path / "benchmark_demo_onbekend.html").read_text(encoding="utf-8")
+    assert "ROCMondriaan" in report
 
 
 def test_cli_reports_missing_file_without_traceback(tmp_path, capsys):
@@ -292,8 +299,9 @@ def test_cli_measures_impact_per_variable(tmp_path, monkeypatch):
     assert result["metadata"]["impact_measured"] is True
     for model in result["models"].values():
         impact = {e["variable"]: e for e in model["variable_impact"]}
-        assert set(impact) == {"StudentAge", "Vooropleiding"}
-        assert len(impact["Vooropleiding"]["columns"]) > 1
+        # The own group of shared columns gets the shared group name
+        assert set(impact) == {"StudentAge", "Vooropleiding_niveau"}
+        assert len(impact["Vooropleiding_niveau"]["columns"]) > 1
         entry = impact["StudentAge"]
         assert entry["precision_diff"] == pytest.approx(
             model["evaluation"]["precision"] - entry["precision_without"]

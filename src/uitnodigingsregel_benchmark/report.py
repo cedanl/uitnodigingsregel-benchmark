@@ -5,6 +5,8 @@ from html import escape
 
 from student_signal.evaluate import get_stoplight_evaluation
 
+from uitnodigingsregel_benchmark.shared_variables import is_own_name
+
 # Shown in the app and in the report; ** marks bold text
 PRECISION_RECALL_TEXT = (
     "Als je de 20% studenten met de hoogste voorspelde kans uitnodigt: **precisie** is het "
@@ -17,6 +19,11 @@ IMPACT_TEXT = (
     "Naar rechts: het model voorspelt beter mét de variabele. Een verschil van enkele "
     "procentpunten kan toeval zijn, zeker bij een kleine groep studenten. Twee variabelen "
     "die hetzelfde zeggen kunnen elk onbelangrijk lijken, omdat de ander het overneemt."
+)
+LOCAL_NAMES_TEXT = (
+    "De uitkomst gebruikt de namen van de gedeelde variabelenlijst. Kolommen die daar niet "
+    "in staan hebben een neutrale naam. Deze tabel staat alleen in dit rapport en op je "
+    "eigen scherm, niet in het resultaatbestand."
 )
 QUICK_TEXT = "Dit is een snelle run. Kies 'Volledig' voor een uitkomst om te delen."
 
@@ -55,6 +62,13 @@ footer { margin-top: 40px; color: #5a5a5a; font-size: 13px; border-top: 1px soli
 """
 
 
+def display_name(name: str, local_names: dict[str, str] | None) -> str:
+    """Show an own variable with the institution's own name next to its neutral name."""
+    if local_names and is_own_name(name) and name in local_names:
+        return f"{local_names[name]} ({name})"
+    return name
+
+
 def _html(text: str) -> str:
     """Escape text for HTML and turn **bold** into <strong>."""
     return re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", escape(text))
@@ -87,7 +101,7 @@ def _model_rows(result: dict) -> str:
     return "\n".join(rows)
 
 
-def _impact_bars(entries: list[dict]) -> str:
+def _impact_bars(entries: list[dict], local_names: dict[str, str] | None = None) -> str:
     """Draw the impact per variable as bars to the left and right of zero."""
     measured = [e for e in entries if "precision_diff" in e]
     largest = max((abs(e["precision_diff"]) for e in measured), default=0) or 1
@@ -98,7 +112,7 @@ def _impact_bars(entries: list[dict]) -> str:
         left = f'<div class="bar" style="width:{width:.1f}%;background:{COLOR_HURTS}"></div>'
         right = f'<div class="bar" style="width:{width:.1f}%;background:{COLOR_HELPS}"></div>'
         rows.append(
-            f'<tr><td class="name">{escape(str(entry["variable"]))}</td>'
+            f'<tr><td class="name">{escape(display_name(entry["variable"], local_names))}</td>'
             f'<td><div class="track"><div class="half left">{left if diff < 0 else ""}</div>'
             f'<div class="half">{right if diff > 0 else ""}</div></div></td>'
             f'<td class="value">{diff:+.1f}</td></tr>'
@@ -106,13 +120,15 @@ def _impact_bars(entries: list[dict]) -> str:
     return f'<table class="bars">{"".join(rows)}</table>'
 
 
-def build_html_report(result: dict) -> str:
+def build_html_report(result: dict, local_names: dict[str, str] | None = None) -> str:
     """Build a standalone HTML report of a benchmark result.
 
     The report needs no internet connection and holds no data of individual students.
 
     Args:
         result: Complete benchmark result from run_benchmark_on_data().
+        local_names: Names in the result mapped to the institution's own names; shown
+            in the report so the reader knows which variable is meant.
 
     Returns:
         The report as one HTML document.
@@ -151,17 +167,29 @@ def build_html_report(result: dict) -> str:
             "<h2>Impact per variabele</h2>",
             f'<p class="note">{_html(IMPACT_TEXT)} De getallen zijn procentpunten.</p>',
             f"<h3>{escape(best['model'])} (best voorspellend)</h3>",
-            _impact_bars(result["models"][best["model"]]["variable_impact"]),
+            _impact_bars(result["models"][best["model"]]["variable_impact"], local_names),
         ]
         for name, model in result["models"].items():
             if name != best["model"]:
                 parts.append(
                     f"<details><summary>{escape(name)}</summary>"
-                    f"{_impact_bars(model['variable_impact'])}</details>"
+                    f"{_impact_bars(model['variable_impact'], local_names)}</details>"
                 )
 
+    if local_names:
+        rows = "".join(
+            f"<tr><td>{escape(public)}</td><td>{escape(own)}</td></tr>"
+            for public, own in local_names.items()
+        )
+        parts += [
+            "<h2>Namen van je eigen kolommen</h2>",
+            f'<p class="note">{escape(LOCAL_NAMES_TEXT)}</p>',
+            f"<table><tr><th>Naam in de uitkomst</th><th>Je eigen kolom of groep</th></tr>"
+            f"{rows}</table>",
+        ]
+
     parts.append(
-        "<footer>Dit rapport bevat uitkomsten per model, namen van kolommen en aantallen "
+        "<footer>Dit rapport bevat uitkomsten per model, namen van variabelen en aantallen "
         "studenten. Het bevat geen gegevens van individuele studenten. Gemaakt met "
         f"uitnodigingsregel-benchmark en student_signal "
         f"{escape(str(metadata.get('student_signal_version', '')))}.</footer>"

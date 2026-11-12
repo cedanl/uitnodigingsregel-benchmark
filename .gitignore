@@ -19,3 +19,6 @@ results/*.html
 
 # Locally built overview page
 site/
+
+# Column mapping of the institution (own column names)
+koppeling.json
