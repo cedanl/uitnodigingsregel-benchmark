@@ -25,7 +25,8 @@ Python 3.13, student-signal, scikit-learn, pandas, Streamlit.
 │   ├── runner.py                    ← trains the models and assembles the result (used by app and CLI)
 │   ├── features.py                  ← full feature importance extraction
 │   ├── impact.py                    ← impact per variable: retrain without it and compare (--impact)
-│   └── export.py                    ← builds standardized JSON output
+│   ├── export.py                    ← builds standardized JSON output
+│   └── report.py                    ← standalone HTML report of one result (app download and CLI)
 ├── analysis/aggregate.qmd           ← CEDA-side Quarto aggregation doc
 ├── results/                         ← JSON results files land here
 │   └── voorbeeld/                   ← example result, made on the demo data
