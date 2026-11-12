@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Resultaatbestand uitnodigingsregel-benchmark, formaat 1",
+  "type": "object",
+  "required": ["metadata", "models", "recommendation"],
+  "additionalProperties": false,
+  "$defs": {
+    "number_or_null": {"type": ["number", "null"]},
+    "cohort": {"type": ["string", "integer", "number"]},
+    "name": {"type": "string", "maxLength": 100}
+  },
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format_version", "benchmark_version", "student_signal_version", "instelling_id",
+        "split", "quick_mode", "impact_measured", "n_train", "n_test", "dropout_rate_train",
+        "dropout_rate_test", "features_available", "n_own_variables", "run_date"
+      ],
+      "properties": {
+        "format_version": {"type": "string"},
+        "benchmark_version": {"type": "string"},
+        "student_signal_version": {"type": "string"},
+        "instelling_id": {"type": "string", "minLength": 1, "maxLength": 60},
+        "dropout_year": {"type": ["string", "integer", "null"]},
+        "training_years": {
+          "anyOf": [{"type": "array", "items": {"$ref": "#/$defs/cohort"}}, {"$ref": "#/$defs/cohort"}, {"type": "null"}]
+        },
+        "split": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": {"enum": ["random", "cohort"]},
+            "test_size": {"type": "number"},
+            "train_cohorts": {"type": "array", "items": {"$ref": "#/$defs/cohort"}},
+            "test_cohort": {"$ref": "#/$defs/cohort"}
+          }
+        },
+        "quick_mode": {"type": "boolean"},
+        "impact_measured": {"type": "boolean"},
+        "n_train": {"type": "integer", "minimum": 0},
+        "n_test": {"type": "integer", "minimum": 0},
+        "dropout_rate_train": {"type": "number", "minimum": 0, "maximum": 1},
+        "dropout_rate_test": {"type": "number", "minimum": 0, "maximum": 1},
+        "features_available": {"type": "array", "items": {"$ref": "#/$defs/name"}},
+        "n_own_variables": {"type": "integer", "minimum": 0},
+        "run_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "cv_folds": {"type": "integer"},
+        "n_iter_search": {"type": "integer"}
+      }
+    },
+    "models": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["evaluation", "precision_recall_curve"],
+        "properties": {
+          "best_params": {
+            "type": "object",
+            "additionalProperties": {"type": ["number", "string", "boolean", "null"]}
+          },
+          "precision_recall_curve": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["pct", "precision", "recall"],
+              "properties": {
+                "pct": {"type": "number"},
+                "precision": {"type": "number"},
+                "recall": {"type": "number"}
+              }
+            }
+          },
+          "feature_importance": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["feature", "importance"],
+              "properties": {
+                "feature": {"$ref": "#/$defs/name"},
+                "importance": {"$ref": "#/$defs/number_or_null"},
+                "coefficient": {"$ref": "#/$defs/number_or_null"}
+              }
+            }
+          },
+          "variable_impact": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["variable", "columns"],
+              "properties": {
+                "variable": {"$ref": "#/$defs/name"},
+                "columns": {"type": "array", "items": {"$ref": "#/$defs/name"}},
+                "precision_without": {"type": "number"},
+                "recall_without": {"type": "number"},
+                "precision_diff": {"type": "number"},
+                "recall_diff": {"type": "number"},
+                "error": {"type": "string", "maxLength": 200}
+              }
+            }
+          },
+          "evaluation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["precision", "recall", "status"],
+            "properties": {
+              "precision": {"type": "number"},
+              "recall": {"type": "number"},
+              "lift_over_baseline": {"$ref": "#/$defs/number_or_null"},
+              "status": {"type": "string"}
+            }
+          },
+          "r2_train": {"$ref": "#/$defs/number_or_null"},
+          "r2_val": {"$ref": "#/$defs/number_or_null"},
+          "mse_train": {"$ref": "#/$defs/number_or_null"},
+          "mse_val": {"$ref": "#/$defs/number_or_null"}
+        }
+      }
+    },
+    "recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "precision_at_20", "recall_at_20", "status"],
+      "properties": {
+        "model": {"type": "string"},
+        "precision_at_20": {"type": "number"},
+        "recall_at_20": {"type": "number"},
+        "lift_over_baseline": {"$ref": "#/$defs/number_or_null"},
+        "status": {"type": "string"}
+      }
+    }
+  }
+}

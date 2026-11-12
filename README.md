@@ -51,9 +51,10 @@ Een uitkomst staat dus pas in het overzicht nadat CEDA het bestand heeft toegevo
 
 ### Voor CEDA: een gedeelde uitkomst opnemen
 
-1. Controleer het bestand: een volledige run (`quick_mode` is false), een naam of code waar de instelling mee akkoord is, en alleen namen uit de gedeelde variabelenlijst of `eigen_variabele_N` en `eigen_groep_N`.
-2. Voeg het bestand in een pull request toe aan `results/` en merge die.
-3. De workflow `Overview` bouwt de pagina opnieuw en publiceert die op GitHub Pages. Uitkomsten van snelle runs en van de demo-data blijven buiten het overzicht.
+1. Controleer of de naam of code in het bestand (`instelling_id`) er een is waar de instelling mee akkoord is, en of het een volledige run is (`quick_mode` is false).
+2. Voeg het bestand in een pull request toe aan `results/`. De CI controleert het bestand: het formaat, de versie en of er alleen namen uit de gedeelde variabelenlijst in staan. Een afgekeurd bestand maakt de pull request rood; vraag de instelling dan om de benchmark opnieuw te draaien met de laatste versie. Lokaal controleren: `uv run python -m uitnodigingsregel_benchmark.check results/<bestand>.json`.
+3. Merge de pull request.
+4. De workflow `Overview` bouwt de pagina opnieuw en publiceert die op GitHub Pages. Uitkomsten van snelle runs en van de demo-data blijven buiten het overzicht.
 
 Het overzicht lokaal bouwen: `uv run python -m uitnodigingsregel_benchmark.overview`, en open daarna `site/index.html`. Lokaal tellen ook de bestanden mee die alleen in je eigen map `results/` staan.
 
@@ -173,7 +174,11 @@ Lees de verschillen met voorzichtigheid. Bij een kleine groep studenten kan een 
 
 ## Uitkomsten van verschillende versies vergelijken
 
-Sinds `student_signal` 0.2.0 wordt het studentnummer (`Studentnummer`) niet meer gebruikt om te voorspellen. Uitkomsten van een eerdere versie zijn niet te vergelijken met uitkomsten van 0.2.0 of later. In het resultaatbestand staat de gebruikte versie bij `metadata.student_signal_version`; een bestand zonder dat veld is met een eerdere versie gemaakt. Draai de benchmark opnieuw om te kunnen vergelijken.
+Sinds `student_signal` 0.2.0 wordt het studentnummer (`Studentnummer`) niet meer gebruikt om te voorspellen. Uitkomsten van een eerdere versie zijn niet te vergelijken met uitkomsten van 0.2.0 of later.
+
+In het resultaatbestand staan drie versies: van het formaat (`metadata.format_version`), van de benchmark (`metadata.benchmark_version`) en van `student_signal` (`metadata.student_signal_version`). Het formaat ligt vast in `src/uitnodigingsregel_benchmark/metadata/result_schema.json`. Vóór het schrijven controleert de benchmark het bestand daartegen; een bestand dat niet voldoet wordt niet geschreven. Het gezamenlijke overzicht slaat bestanden met een onbekende versie over en meldt welke. Een bestand zonder `format_version` is met een eerdere versie gemaakt: draai de benchmark opnieuw.
+
+Heeft de testgroep minder dan 30 uitvallers, dan meldt de benchmark dat: de precisie hangt dan af van een handvol studenten.
 
 ## Modellen toevoegen
 

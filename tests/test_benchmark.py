@@ -8,6 +8,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 import student_signal
+from conftest import make_result
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Lasso
 from sklearn.model_selection import train_test_split
@@ -18,7 +19,7 @@ from uitnodigingsregel_benchmark.dataset import (
     ensure_id_column,
     validate_student_data,
 )
-from uitnodigingsregel_benchmark.export import build_result, write_result
+from uitnodigingsregel_benchmark.export import write_result
 from uitnodigingsregel_benchmark.features import extract_feature_importance
 from uitnodigingsregel_benchmark.impact import resolve_variables
 from uitnodigingsregel_benchmark.runner import select_models
@@ -71,36 +72,12 @@ def test_feature_importance_linear(prepared):
     assert all("coefficient" in r for r in result)
 
 
-def test_write_result(tmp_path):
-    metadata = {
-        "instelling_id": "test",
-        "n_train": 100,
-        "dropout_rate_train": 0.2,
-        "run_date": "2026-04-24",
-    }
-    model_results = {
-        "Test Model": {
-            "best_params": {},
-            "precision_recall_curve": [{"pct": 20, "precision": 50.0, "recall": 50.0}],
-            "feature_importance": [{"feature": "x", "importance": 0.5}],
-            "evaluation": {
-                "precision": 50.0,
-                "recall": 50.0,
-                "lift_over_baseline": 2.5,
-                "status": "Betrouwbaar",
-            },
-            "r2_train": 0.1,
-            "r2_val": 0.1,
-            "mse_train": 0.1,
-            "mse_val": 0.1,
-        }
-    }
-    result = build_result(metadata, model_results)
-    path = write_result(result, tmp_path)
-    assert path.exists()
+def test_write_result(tmp_path, valid_result):
+    path = write_result(valid_result, tmp_path)
+    assert path.name == "benchmark_test_2023.json"
     with open(path, encoding="utf-8") as f:
         loaded = json.load(f)
-    assert loaded["recommendation"]["model"] == "Test Model"
+    assert loaded["recommendation"]["model"] == "Lasso"
     assert loaded["recommendation"]["lift_over_baseline"] == 2.5
     assert loaded["metadata"]["instelling_id"] == "test"
 
@@ -167,7 +144,7 @@ def test_split_leaves_out_rows_without_cohort():
 
 
 def test_write_result_with_cohort_in_file_name(tmp_path):
-    result = {"metadata": {"instelling_id": "test", "dropout_year": "2023/2024"}}
+    result = make_result(dropout_year="2023/2024")
     assert write_result(result, tmp_path).name == "benchmark_test_2023-2024.json"
 
 
