@@ -526,17 +526,10 @@ with st.container(border=True):
             f"uitkomst staat er onder de naam **{metadata['instelling_id']}**. Wil je niet "
             "herkenbaar zijn, draai dan opnieuw met een code als naam."
         )
-        if sharing.UPLOAD_URL:
-            st.write(
-                "Zet het resultaatbestand in de uploadmap. CEDA controleert het bestand en "
-                "neemt het daarna op in het overzicht. De app verstuurt zelf niets."
-            )
-            st.link_button("Open de uploadmap", sharing.UPLOAD_URL)
-        else:
-            st.write(
-                "Stuur het resultaatbestand naar je contactpersoon bij CEDA. CEDA controleert "
-                "het bestand en neemt het daarna op in het overzicht. De app verstuurt zelf niets."
-            )
+        st.write(
+            "Mail het resultaatbestand naar je contactpersoon bij CEDA. CEDA controleert het "
+            "bestand en neemt het daarna op in het overzicht. De app verstuurt zelf niets."
+        )
 
 with st.container(border=True):
     st.subheader("Vergelijk met andere instellingen")

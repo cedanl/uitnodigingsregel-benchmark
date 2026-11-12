@@ -6,8 +6,6 @@ import urllib.request
 from uitnodigingsregel_benchmark.overview import SHARED_DATA_FILE
 
 OVERVIEW_URL = "https://cedanl.github.io/uitnodigingsregel-benchmark/"
-# Upload-only folder for result files; None until the folder exists
-UPLOAD_URL: str | None = None
 FETCH_TIMEOUT_SECONDS = 5
 
 
