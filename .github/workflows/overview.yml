@@ -1,0 +1,48 @@
+name: Overview
+
+# Rebuilds the collective overview page when a shared result is added
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "results/*.json"
+      - "src/uitnodigingsregel_benchmark/overview.py"
+      - "src/uitnodigingsregel_benchmark/aggregate.py"
+      - "src/uitnodigingsregel_benchmark/report.py"
+      - ".github/workflows/overview.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Build overview
+        run: uv run python -m uitnodigingsregel_benchmark.overview --output-dir site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

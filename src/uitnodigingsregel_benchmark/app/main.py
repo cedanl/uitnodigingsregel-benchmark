@@ -8,6 +8,7 @@ import pandas as pd
 import streamlit as st
 from student_signal.evaluate import get_stoplight_evaluation
 
+from uitnodigingsregel_benchmark import sharing
 from uitnodigingsregel_benchmark.app.styles import APP_CSS
 from uitnodigingsregel_benchmark.dataset import (
     DataValidationError,
@@ -41,7 +42,7 @@ FULL = "Volledig"
 st.set_page_config(page_title="Uitnodigingsregel benchmark", page_icon="📊", layout="centered")
 st.markdown(APP_CSS, unsafe_allow_html=True)
 
-for key in ("data", "data_label", "upload_seen", "result", "result_path"):
+for key in ("data", "data_label", "upload_seen", "result", "result_path", "shared"):
     st.session_state.setdefault(key, None)
 st.session_state.setdefault("own_groups", {})
 
@@ -277,6 +278,7 @@ if start:
     else:
         progress.empty()
         st.session_state.result = result
+        st.session_state.shared = sharing.fetch_shared_data()
         st.session_state.result_path = write_result(result, RESULTS_DIR)
         st.session_state.result_path.with_suffix(".html").write_text(
             build_html_report(result), encoding="utf-8"
@@ -325,9 +327,8 @@ with st.container(border=True):
         mime="text/html",
     )
     st.write(
-        "Het **resultaatbestand** is bedoeld om te delen voor de gezamenlijke benchmark. "
-        "Het bevat de uitkomsten per model, de namen van je kolommen en aantallen "
-        "studenten, en geen gegevens van individuele studenten."
+        "Het **resultaatbestand** bevat de uitkomsten per model, de namen van je kolommen en "
+        "aantallen studenten, en geen gegevens van individuele studenten."
     )
     st.download_button(
         "Download resultaatbestand",
@@ -336,3 +337,81 @@ with st.container(border=True):
         mime="application/json",
     )
     st.caption(f"Beide bestanden staan ook in de map {result_path.parent}.")
+
+with st.container(border=True):
+    st.subheader("Delen voor de gezamenlijke benchmark")
+    if metadata["quick_mode"]:
+        st.write(
+            "Een snelle run is niet bedoeld om te delen. Draai de benchmark met 'Volledig' "
+            "voor een uitkomst die meetelt in het gezamenlijke overzicht."
+        )
+    else:
+        st.write(
+            f"Met het resultaatbestand telt je uitkomst mee in het "
+            f"[gezamenlijke overzicht]({sharing.OVERVIEW_URL}). Dat overzicht is openbaar: je "
+            f"uitkomst staat er onder de naam **{metadata['instelling_id']}**. Wil je niet "
+            "herkenbaar zijn, draai dan opnieuw met een code als naam."
+        )
+        if sharing.UPLOAD_URL:
+            st.write(
+                "Zet het resultaatbestand in de uploadmap. CEDA controleert het bestand en "
+                "neemt het daarna op in het overzicht. De app verstuurt zelf niets."
+            )
+            st.link_button("Open de uploadmap", sharing.UPLOAD_URL)
+        else:
+            st.write(
+                "Stuur het resultaatbestand naar je contactpersoon bij CEDA. CEDA controleert "
+                "het bestand en neemt het daarna op in het overzicht. De app verstuurt zelf niets."
+            )
+
+with st.container(border=True):
+    st.subheader("Vergelijk met andere instellingen")
+    shared = st.session_state.shared
+    if shared is None:
+        st.write(
+            "Er zijn nog geen gedeelde resultaten om mee te vergelijken, of er is geen "
+            f"internetverbinding. Het overzicht staat op {sharing.OVERVIEW_URL}"
+        )
+    else:
+        summary = shared["summary"]
+        st.caption(
+            f"Gedeelde resultaten van {summary['n_institutions']} instellingen, opgehaald uit "
+            "het gezamenlijke overzicht. Er is niets over je eigen data verstuurd."
+        )
+        split_type = metadata["split"]["type"]
+        others = [
+            row["precision"]
+            for row in shared["models"]
+            if row["model"] == best["model"] and row["split"] == split_type
+        ]
+        if others:
+            st.write(
+                f"**{best['model']}** haalt bij jou een precisie van "
+                f"{best['precision_at_20']:.0f}%. Bij {len(others)} gedeelde resultaten met "
+                f"dezelfde soort splitsing ligt die tussen {min(others):.0f}% en "
+                f"{max(others):.0f}%."
+            )
+        if metadata["impact_measured"]:
+            own = {
+                entry["variable"]: entry["precision_diff"]
+                for entry in result["models"][best["model"]]["variable_impact"]
+                if "precision_diff" in entry
+            }
+            rows = [
+                {
+                    "Variabele": row["variable"],
+                    "Jouw data": own[row["variable"]],
+                    "Gemiddeld bij anderen": row["mean"],
+                    "Aantal instellingen": row["n_institutions"],
+                }
+                for row in shared["variables"]
+                if row["variable"] in own
+            ]
+            if rows:
+                st.write("Impact per variabele, in procentpunten precisie:")
+                st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+            else:
+                st.write(
+                    "Geen van je variabelen komt onder dezelfde naam voor in de gedeelde "
+                    "resultaten."
+                )
