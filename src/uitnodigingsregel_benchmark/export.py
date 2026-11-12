@@ -8,14 +8,14 @@ from pathlib import Path
 import pandas as pd
 
 
-def _sanitize(obj):
+def sanitize(obj):
     """Recursively replace float NaN/Inf with None for valid JSON."""
     if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
         return None
     if isinstance(obj, dict):
-        return {k: _sanitize(v) for k, v in obj.items()}
+        return {k: sanitize(v) for k, v in obj.items()}
     if isinstance(obj, list):
-        return [_sanitize(v) for v in obj]
+        return [sanitize(v) for v in obj]
     return obj
 
 
@@ -111,5 +111,5 @@ def write_result(result: dict, results_dir: str | Path = "results") -> Path:
     name = re.sub(r"[^\w.-]+", "-", f"benchmark_{instelling_id}_{dropout_year}")
     path = results_dir / f"{name}.json"
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(_sanitize(result), f, indent=2, ensure_ascii=False)
+        json.dump(sanitize(result), f, indent=2, ensure_ascii=False)
     return path

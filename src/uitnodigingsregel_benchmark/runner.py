@@ -1,5 +1,6 @@
 """Run the benchmark: prepare data, train models, write standardized JSON results."""
 
+from collections.abc import Callable
 from datetime import datetime
 from importlib.metadata import version
 from pathlib import Path
@@ -136,11 +137,37 @@ def run_benchmark(
         DataValidationError: If the data cannot be used.
         SettingsError: If the settings name an unknown model.
     """
+    print(f"Laden van data: {train_path}")
+    result = run_benchmark_on_data(read_student_data(train_path), config, quick_mode)
+    path = write_result(result, results_dir)
+    print(f"\nBenchmark resultaat opgeslagen: {path}")
+    return path
+
+
+def run_benchmark_on_data(
+    data: pd.DataFrame,
+    config: dict,
+    quick_mode: bool = False,
+    on_progress: Callable[[float, str], None] | None = None,
+) -> dict:
+    """Run the benchmark on student data and return the result.
+
+    Args:
+        data: Student data with known outcomes.
+        config: Settings from load_config().
+        quick_mode: Whether the settings are those of quick mode; stated in the result.
+        on_progress: Called with the share of the work done (0 to 1) and a description.
+
+    Returns:
+        The complete result, ready to write with write_result().
+
+    Raises:
+        DataValidationError: If the data cannot be used.
+        SettingsError: If the settings name an unknown model or variable.
+    """
     dropout_col = config["dropout_column"]
     models = select_models(config["models"])
 
-    print(f"Laden van data: {train_path}")
-    data = read_student_data(train_path)
     validate_student_data(data, dropout_col, config["id_column"], config["cv_folds"])
     data, id_col = ensure_id_column(data, config["id_column"])
 
@@ -164,6 +191,16 @@ def run_benchmark(
             feature_columns, config["variable_groups"], config["impact_variables"]
         )
 
+    n_steps = len(models) + (len(variables) if variables else 0) + 1
+    steps_done = 0
+
+    def report(message: str) -> None:
+        nonlocal steps_done
+        if on_progress:
+            on_progress(steps_done / n_steps, message)
+        steps_done += 1
+
+    report("Data voorbereiden")
     print("Data voorbereiden...")
     prepared = student_signal.prepare(
         train_split,
@@ -208,6 +245,7 @@ def run_benchmark(
         use_scaled = model_cfg["use_scaled"]
         param_grid = model_cfg.get("param_grid", {})
 
+        report(f"Model trainen: {name}")
         print(f"Trainen: {name} (gridsearch {config['n_iter']} iteraties)...")
         X_train = prepared.X_train_scaled if use_scaled else prepared.X_train
 
@@ -260,12 +298,11 @@ def run_benchmark(
             for name, r in model_results.items()
         }
         impact = measure_variable_impact(
-            train_split, test_split, variables, fitted_models, baseline, dropout_col, id_col
+            train_split, test_split, variables, fitted_models, baseline, dropout_col, id_col, report
         )
         for name, entries in impact.items():
             model_results[name]["variable_impact"] = entries
 
-    result = build_result(metadata, model_results)
-    path = write_result(result, results_dir)
-    print(f"\nBenchmark resultaat opgeslagen: {path}")
-    return path
+    if on_progress:
+        on_progress(1.0, "Klaar")
+    return build_result(metadata, model_results)

@@ -5,8 +5,9 @@
 instelling_id: "anoniem"
 
 # Het jaar waarop de Dropout-kolom betrekking heeft, en de jaren in de data.
-dropout_year: 2023
-training_years: [2021, 2022]
+# Voorbeeld: dropout_year: 2023 en training_years: [2021, 2022]
+dropout_year: null
+training_years: null
 
 # Kolomnamen in je bestand.
 dropout_column: "Dropout"        # 1 = uitgevallen, 0 = niet uitgevallen

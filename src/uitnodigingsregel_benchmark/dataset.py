@@ -1,5 +1,6 @@
 """Read the student data and check that the benchmark can use it."""
 
+import io
 from pathlib import Path
 
 import pandas as pd
@@ -19,11 +20,11 @@ def _list_columns(columns: object) -> str:
     return f"{listed} en {extra} andere" if extra > 0 else listed
 
 
-def read_student_data(path: str | Path) -> pd.DataFrame:
+def read_student_data(source: str | Path | bytes) -> pd.DataFrame:
     """Read a student CSV file; the separator is detected automatically.
 
     Args:
-        path: Path to the CSV file.
+        source: Path to the CSV file, or the raw content of an uploaded file.
 
     Returns:
         The data without duplicate rows.
@@ -31,18 +32,20 @@ def read_student_data(path: str | Path) -> pd.DataFrame:
     Raises:
         DataValidationError: If the file does not exist or cannot be read.
     """
-    path = Path(path)
-    if not path.exists():
-        raise DataValidationError(
-            f"Het bestand {path} bestaat niet. Zet je CSV in data/01-raw/user_data/ "
-            "en geef het pad op met --train, of gebruik --demo voor de demo-data."
-        )
+    if isinstance(source, bytes):
+        name, buffer = "Het bestand", io.BytesIO(source)
+    else:
+        path = Path(source)
+        if not path.exists():
+            raise DataValidationError(
+                f"Het bestand {path} bestaat niet. Zet je CSV in data/01-raw/user_data/ "
+                "en geef het pad op met --train, of gebruik --demo voor de demo-data."
+            )
+        name, buffer = f"Het bestand {path}", path
     try:
-        data = pd.read_csv(path, sep=None, engine="python")
+        data = pd.read_csv(buffer, sep=None, engine="python")
     except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError) as e:
-        raise DataValidationError(
-            f"Het bestand {path} kan niet worden gelezen als CSV ({e})."
-        ) from e
+        raise DataValidationError(f"{name} kan niet worden gelezen als CSV ({e}).") from e
     return data.drop_duplicates().reset_index(drop=True)
 
 
