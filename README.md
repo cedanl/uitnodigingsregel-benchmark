@@ -1,6 +1,6 @@
 # uitnodigingsregel-benchmark
 
-Benchmarking harness for the uitnodigingsregel dropout prediction methodology. Each instelling runs this locally on their own data — no student data leaves the institution. The resulting JSON file can be shared with CEDA for cross-institutional analysis.
+Benchmarking harness for the uitnodigingsregel dropout prediction methodology. Each instelling runs this locally on their own data — no student data leaves the institution. The resulting file can be shared; the shared results form a [collective overview](https://cedanl.github.io/uitnodigingsregel-benchmark/) of which variables matter and how well the models predict.
 
 ## Installation
 
@@ -33,9 +33,27 @@ The app opens in your browser. It runs on your own computer; no student data lea
 3. **Run the benchmark.** Choose quick (a first check, about a minute) or full (all models, for a result to share), and whether to measure the impact per variable.
 4. **Read the result.** Per model the precision and recall when the 20% students with the highest predicted risk are invited, and a chart with the impact of each variable.
 5. **Download the report.** One HTML file with the outcome and the charts, to keep or to send to colleagues. It opens in any browser, also without internet.
-6. **Share the result.** Download the result file and share it with CEDA to contribute to the collective benchmark. The file holds outcomes per model, your column names and numbers of students; no data of individual students.
+6. **Share the result.** Download the result file and share it to count in the collective overview (see below). The file holds outcomes per model, your column names and numbers of students; no data of individual students.
+7. **Compare.** The app shows your outcome next to the shared results of other institutions. It only downloads those results; nothing about your data is sent.
 
 The report and the result file are also written to `results/`. `results/voorbeeld/` holds an example, made on the demo data.
+
+## Sharing your result
+
+Shared results appear in the [collective overview](https://cedanl.github.io/uitnodigingsregel-benchmark/). The overview is public: your result is listed under the name you entered in the app. Use a code as name if you do not want to be recognisable.
+
+1. Run the benchmark with "Volledig". A quick run does not count.
+2. Download the result file in the app.
+3. Send the file to your contact at CEDA. The app itself sends nothing.
+4. CEDA checks the file and adds it to this repository. The overview is rebuilt automatically.
+
+### For CEDA: adding a shared result
+
+1. Check the file: a full run (`quick_mode` is false), a name or code the institution agreed to, and no column names that identify students or the institution against its wish.
+2. Add the file to `results/` in a pull request and merge it.
+3. The workflow `Overview` rebuilds the page and publishes it on GitHub Pages. Results of quick runs and of the demo data are left out.
+
+To build the overview locally: `uv run python -m uitnodigingsregel_benchmark.overview`, then open `site/index.html`.
 
 ## Command line and settings file
 
@@ -102,7 +120,7 @@ cohort_column: "Startjaar"
 
 or pass it on the command line with `--cohort-column Startjaar`. The cohort column is not used as a predictor, and `dropout_year` and `training_years` in the result then follow from the data.
 
-This is optional. Without a cohort column, or with only one cohort in the data, the benchmark uses the random split. The result file states which split was used in `metadata.split`, and the aggregation only compares results with the same kind of split.
+This is optional. Without a cohort column, or with only one cohort in the data, the benchmark uses the random split. The result file states which split was used in `metadata.split`, and the collective overview only compares results with the same kind of split.
 
 ## Measuring the impact of a variable
 
