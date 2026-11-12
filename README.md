@@ -1,10 +1,10 @@
 # uitnodigingsregel-benchmark
 
-Benchmarking harness for the uitnodigingsregel dropout prediction methodology. Each instelling runs this locally on their own data — no student data leaves the institution. The resulting file can be shared; the shared results form a [collective overview](https://cedanl.github.io/uitnodigingsregel-benchmark/) of which variables matter and how well the models predict.
+Meet hoe goed modellen uitval voorspellen op de data van je eigen instelling, en welke variabelen daaraan bijdragen. De benchmark draait op je eigen computer; er gaat geen studentdata naar buiten. De uitkomst kun je delen. De gedeelde uitkomsten vormen samen een [gezamenlijk overzicht](https://cedanl.github.io/uitnodigingsregel-benchmark/) van welke variabelen ertoe doen en hoe goed de modellen voorspellen.
 
-## Installation
+## Installeren
 
-Requires Python 3.13+ and [uv](https://astral.sh/uv/).
+Je hebt Python 3.13 of hoger en [uv](https://astral.sh/uv/) nodig.
 
 ```bash
 git clone https://github.com/cedanl/uitnodigingsregel-benchmark.git
@@ -12,138 +12,140 @@ cd uitnodigingsregel-benchmark
 uv sync
 ```
 
-On a Mac, XGBoost needs OpenMP, which `uv sync` does not install. Without it the benchmark skips XGBoost and runs the other models, including Hist Gradient Boosting: the same kind of model, from scikit-learn. To include XGBoost:
+Op een Mac heeft het model XGBoost het onderdeel OpenMP nodig. Dat installeert `uv sync` niet. Zonder OpenMP slaat de benchmark XGBoost over en draait de andere modellen, waaronder Hist Gradient Boosting: hetzelfde soort model, uit scikit-learn. Wil je XGBoost erbij:
 
 ```bash
 brew install libomp
 ```
 
-## Usage
+## Gebruiken
 
-Start the app:
+Start de app:
 
 ```bash
 uv run uitnodigingsregel-benchmark
 ```
 
-The app opens in your browser. It runs on your own computer; no student data leaves it. To stop the app, press Ctrl+C in the terminal window.
+De app opent in je browser. Stoppen doe je met Ctrl+C in het terminalvenster.
 
-1. **Choose your data.** Upload a CSV with one row per student, a column that states whether the student dropped out (1) or not (0), and the student features. A column with student numbers is not needed. Or click the demo data to try the app first.
-2. **Check the columns.** The app recognises the dropout column, the student number and a cohort column, and suggests which columns together form one variable. Correct what is wrong; the app states directly if the data cannot be used.
-3. **Run the benchmark.** Choose quick (a first check, about a minute) or full (all models, for a result to share), and whether to measure the impact per variable.
-4. **Read the result.** Per model the precision and recall when the 20% students with the highest predicted risk are invited, and a chart with the impact of each variable.
-5. **Download the report.** One HTML file with the outcome and the charts, to keep or to send to colleagues. It opens in any browser, also without internet.
-6. **Share the result.** Download the result file and share it to count in the collective overview (see below). The file holds outcomes per model, your column names and numbers of students; no data of individual students.
-7. **Compare.** The app shows your outcome next to the shared results of other institutions. It only downloads those results; nothing about your data is sent.
+1. **Kies je data.** Upload een CSV met één rij per student, een kolom die aangeeft of de student is uitgevallen (1) of niet (0), en de kenmerken van de student. Een kolom met studentnummers is niet nodig. Of klik op de demo-data om de app eerst te proberen.
+2. **Controleer de kolommen.** De app herkent de uitvalkolom, het studentnummer en een cohortkolom, en stelt voor welke kolommen samen één variabele vormen. Pas aan wat niet klopt. Kan de data niet worden gebruikt, dan staat er direct waarom.
+3. **Draai de benchmark.** Kies snel (een eerste controle, ongeveer een minuut) of volledig (alle modellen, voor een uitkomst om te delen), en of de impact per variabele wordt gemeten.
+4. **Lees de uitkomst.** Per model de precisie en recall als de 20% studenten met de hoogste voorspelde kans worden uitgenodigd, en een grafiek met de impact per variabele.
+5. **Download het rapport.** Eén HTML-bestand met de uitkomst en de grafieken, om te bewaren of door te sturen naar collega's. Het opent in elke browser, ook zonder internet.
+6. **Deel de uitkomst.** Download het resultaatbestand en lever het aan voor het gezamenlijke overzicht (zie hieronder). Het bestand bevat de uitkomsten per model, de namen van je kolommen en aantallen studenten, en geen gegevens van individuele studenten.
+7. **Vergelijk.** De app toont je uitkomst naast de gedeelde uitkomsten van andere instellingen. De app haalt die alleen op; er wordt niets over je data verstuurd.
 
-The report and the result file are also written to `results/`. `results/voorbeeld/` holds an example, made on the demo data.
+Het rapport en het resultaatbestand staan ook in de map `results/`. In `results/voorbeeld/` staat een voorbeeld, gemaakt op de demo-data.
 
-## Sharing your result
+## Je uitkomst delen
 
-Shared results appear in the [collective overview](https://cedanl.github.io/uitnodigingsregel-benchmark/). The overview is public: your result is listed under the name you entered in the app. Use a code as name if you do not want to be recognisable.
+Gedeelde uitkomsten staan in het [gezamenlijke overzicht](https://cedanl.github.io/uitnodigingsregel-benchmark/). Het overzicht is openbaar: je uitkomst staat er onder de naam die je in de app hebt ingevuld. Gebruik een code als naam als je niet herkenbaar wilt zijn.
 
-1. Run the benchmark with "Volledig". A quick run does not count.
-2. Download the result file in the app.
-3. Send the file to your contact at CEDA. The app itself sends nothing.
-4. CEDA checks the file and adds it to this repository. The overview is rebuilt automatically.
+1. Draai de benchmark met "Volledig". Een snelle run telt niet mee.
+2. Download het resultaatbestand in de app.
+3. Stuur het bestand naar je contactpersoon bij CEDA. De app verstuurt zelf niets.
+4. CEDA controleert het bestand en voegt het toe aan deze repository. Het overzicht wordt daarna vanzelf opnieuw gebouwd.
 
-### For CEDA: adding a shared result
+Een uitkomst staat dus pas in het overzicht nadat CEDA het bestand heeft toegevoegd. Bestanden in je eigen map `results/` staan alleen op je eigen computer.
 
-1. Check the file: a full run (`quick_mode` is false), a name or code the institution agreed to, and no column names that identify students or the institution against its wish.
-2. Add the file to `results/` in a pull request and merge it.
-3. The workflow `Overview` rebuilds the page and publishes it on GitHub Pages. Results of quick runs and of the demo data are left out.
+### Voor CEDA: een gedeelde uitkomst opnemen
 
-To build the overview locally: `uv run python -m uitnodigingsregel_benchmark.overview`, then open `site/index.html`.
+1. Controleer het bestand: een volledige run (`quick_mode` is false), een naam of code waar de instelling mee akkoord is, en geen kolomnamen die studenten herkenbaar maken of de instelling tegen haar wens.
+2. Voeg het bestand in een pull request toe aan `results/` en merge die.
+3. De workflow `Overview` bouwt de pagina opnieuw en publiceert die op GitHub Pages. Uitkomsten van snelle runs en van de demo-data blijven buiten het overzicht.
 
-## Command line and settings file
+Het overzicht lokaal bouwen: `uv run python -m uitnodigingsregel_benchmark.overview`, en open daarna `site/index.html`. Lokaal tellen ook de bestanden mee die alleen in je eigen map `results/` staan.
 
-For advanced users. Everything the app does can also be run from the command line, with the settings in `config.yaml`.
+## Commandoregel en instellingenbestand
 
-First try the benchmark on the synthetic demo data:
+Voor gevorderde gebruikers. Alles wat de app doet, kan ook vanaf de commandoregel, met de instellingen in `config.yaml`.
+
+Probeer de benchmark eerst op de demo-data:
 
 ```bash
 uv run uitnodigingsregel-benchmark --demo --quick
 ```
 
-Then run it on your own data:
+Draai hem daarna op je eigen data:
 
-1. Place your CSV in `data/01-raw/user_data/`: one file with a `Dropout` column (1 = dropped out, 0 = not) and the student features. A column with student numbers is not needed.
-2. Set your `instelling_id` and `dropout_year` in `config.yaml`.
-3. Run:
+1. Zet je CSV in `data/01-raw/user_data/`: één bestand met een kolom `Dropout` (1 = uitgevallen, 0 = niet) en de kenmerken van de student. Een kolom met studentnummers is niet nodig.
+2. Vul `instelling_id` en `dropout_year` in `config.yaml` in.
+3. Start:
 
 ```bash
 uv run uitnodigingsregel-benchmark --train data/01-raw/user_data/data.csv
 ```
 
-Output: `results/benchmark_{instelling_id}_{dropout_year}.json`, and the report as an HTML file with the same name. Share this file with CEDA to contribute to the collective benchmark. `results/voorbeeld/` holds an example of the file, made on the demo data.
+Uitvoer: `results/benchmark_{instelling_id}_{dropout_year}.json`, en het rapport als HTML-bestand met dezelfde naam.
 
-Before training, the benchmark checks the data. If something is missing or wrong, it stops and states what to change.
+Vóór het trainen controleert de benchmark de data. Ontbreekt er iets of klopt er iets niet, dan stopt hij en staat er wat je moet aanpassen.
 
-| Option | What it does |
+| Optie | Wat het doet |
 |---|---|
-| (none) | Start the app |
-| `--train PATH` | Run on your own CSV |
-| `--demo` | Run on the synthetic demo data; writes `results/benchmark_demo_*.json` |
-| `--quick` | Three models and fewer search rounds, for a first check. The result file states `quick_mode: true`; do not share a quick result |
-| `--cohort-column NAME` | Test on a later cohort (see below) |
-| `--impact` | Measure the impact of each variable (see below) |
-| `--config PATH` | Use another settings file than `config.yaml` |
-| `--results-dir PATH` | Write the result to another folder |
-| `--no-browser` | Start the app without opening the browser |
+| (geen) | Start de app |
+| `--train PAD` | Draai op je eigen CSV |
+| `--demo` | Draai op de demo-data; schrijft `results/benchmark_demo_*.json` |
+| `--quick` | Drie modellen en minder zoekrondes, voor een eerste controle. In het resultaatbestand staat `quick_mode: true`; deel een snelle uitkomst niet |
+| `--cohort-column NAAM` | Toets op een later cohort (zie hieronder) |
+| `--impact` | Meet de impact per variabele (zie hieronder) |
+| `--config PAD` | Gebruik een ander instellingenbestand dan `config.yaml` |
+| `--results-dir PAD` | Schrijf de uitkomst naar een andere map |
+| `--no-browser` | Start de app zonder de browser te openen |
 
-## Settings
+## Instellingen
 
-All settings are in `config.yaml`; each one is explained there. No Python files need to be changed.
+Alle instellingen staan in `config.yaml`, met uitleg per regel. Er hoeven geen Python-bestanden te worden aangepast.
 
-| Setting | Meaning | Default |
+| Instelling | Betekenis | Standaard |
 |---|---|---|
-| `instelling_id` | Short code for your institution, used in the file name | `anoniem` |
-| `dropout_year`, `training_years` | Years the data covers | none |
-| `dropout_column` | Name of the dropout column | `Dropout` |
-| `id_column` | Name of the student number column; may be absent | `Studentnummer` |
-| `cohort_column` | Name of the cohort column (see below) | none |
-| `models` | Models to run | all |
-| `n_iter`, `cv_folds` | Search rounds per model and folds per round; lower is faster | 20, 5 |
-| `test_size` | Share of the data used for testing in a random split | 0.2 |
-| `n_jobs` | Processes to run at once; set to 2 if the computer runs out of memory | all cores |
-| `impact`, `impact_variables`, `variable_groups` | Impact per variable (see below) | off |
+| `instelling_id` | Korte code voor je instelling, komt in de bestandsnaam | `anoniem` |
+| `dropout_year`, `training_years` | Jaren waarover de data gaat | geen |
+| `dropout_column` | Naam van de uitvalkolom | `Dropout` |
+| `id_column` | Naam van de kolom met studentnummers; mag ontbreken | `Studentnummer` |
+| `cohort_column` | Naam van de cohortkolom (zie hieronder) | geen |
+| `models` | Modellen om te draaien | alle |
+| `n_iter`, `cv_folds` | Zoekrondes per model en aantal delen per ronde; lager is sneller | 20, 5 |
+| `test_size` | Aandeel van de data om op te toetsen bij een willekeurige splitsing | 0.2 |
+| `n_jobs` | Aantal processen tegelijk; zet op 2 als het geheugen volraakt | alle kernen |
+| `impact`, `impact_variables`, `variable_groups` | Impact per variabele (zie hieronder) | uit |
 
-## Testing on a later cohort
+## Toetsen op een later cohort
 
-By default the data is split at random: 80% to train the models, 20% to test them. In practice an institution trains on earlier cohorts and predicts the next one, and a random split often gives a more favourable result than that.
+Standaard wordt de data willekeurig gesplitst: 80% om de modellen te trainen en 20% om ze te toetsen. In de praktijk traint een instelling op eerdere cohorten en voorspelt het volgende. Een willekeurige splitsing geeft vaak een gunstigere uitkomst dan dat.
 
-If your data has a column with the cohort (for example the start year) and holds at least two cohorts, the benchmark can train on the earlier cohorts and test on the last one. Set the column name in `config.yaml`:
+Heeft je data een kolom met het cohort (bijvoorbeeld het startjaar) en minstens twee cohorten, dan kan de benchmark trainen op de eerdere cohorten en toetsen op het laatste. In de app kies je de kolom bij stap 2. Vanaf de commandoregel zet je de naam in `config.yaml`:
 
 ```yaml
 cohort_column: "Startjaar"
 ```
 
-or pass it on the command line with `--cohort-column Startjaar`. The cohort column is not used as a predictor, and `dropout_year` and `training_years` in the result then follow from the data.
+of geef je hem mee met `--cohort-column Startjaar`. De cohortkolom wordt niet gebruikt om te voorspellen. `dropout_year` en `training_years` in de uitkomst volgen dan uit de data.
 
-This is optional. Without a cohort column, or with only one cohort in the data, the benchmark uses the random split. The result file states which split was used in `metadata.split`, and the collective overview only compares results with the same kind of split.
+Dit is optioneel. Zonder cohortkolom, of met maar één cohort in de data, gebruikt de benchmark de willekeurige splitsing. In het resultaatbestand staat bij `metadata.split` welke splitsing is gebruikt, en het gezamenlijke overzicht vergelijkt alleen uitkomsten met dezelfde soort splitsing.
 
-## Measuring the impact of a variable
+## De impact van een variabele meten
 
-With `--impact` the benchmark trains each model again without one variable at a time, and stores the difference in precision and recall at 20% invited students. This shows what a variable adds, which a ranking of variables does not.
+Met de impactmeting traint de benchmark elk model opnieuw zonder één variabele, en slaat het verschil op in precisie en recall bij 20% uitgenodigde studenten. Dat laat zien wat een variabele oplevert; een rangschikking van variabelen doet dat niet. In de app is het een vinkje bij stap 3. Vanaf de commandoregel:
 
 ```bash
 uv run uitnodigingsregel-benchmark --train data/01-raw/user_data/data.csv --impact
 ```
 
-The result holds per model a list `variable_impact` with for each variable:
+In de uitkomst staat per model een lijst `variable_impact` met voor elke variabele:
 
-| Field | Meaning |
+| Veld | Betekenis |
 |---|---|
-| `precision_without`, `recall_without` | Precision and recall at 20% (in %) of the model trained without the variable |
-| `precision_diff`, `recall_diff` | Result with the variable minus result without, in percentage points. Positive: the model does better with the variable. Around zero or negative: the variable adds nothing in this data |
+| `precision_without`, `recall_without` | Precisie en recall bij 20% (in %) van het model dat zonder de variabele is getraind |
+| `precision_diff`, `recall_diff` | Uitkomst met de variabele min de uitkomst zonder, in procentpunten. Positief: het model voorspelt beter met de variabele. Rond nul of negatief: de variabele voegt in deze data niets toe |
 
-The run takes longer: one extra training per model for each variable. The models keep the settings found in the search. To test only some variables, list them in `config.yaml`:
+De run duurt langer: per variabele wordt elk model één keer extra getraind. De modellen houden de instellingen die bij het zoeken zijn gevonden. Wil je alleen bepaalde variabelen toetsen, noem ze dan in `config.yaml`:
 
 ```yaml
 impact_variables: [StudentAge, Vooropleiding]
 ```
 
-A variable that is spread over several columns, such as one column per level of prior education, counts as one variable when the columns are joined in a group. A `*` stands for any text:
+Een variabele die over meerdere kolommen is verdeeld, zoals een kolom per niveau van de vooropleiding, telt als één variabele als je de kolommen samenvoegt in een groep. De app stelt zulke groepen zelf voor. In `config.yaml` staat een `*` voor een willekeurig stuk tekst:
 
 ```yaml
 variable_groups:
@@ -151,15 +153,15 @@ variable_groups:
   Richting: [Economie, Landbouw, Techniek]
 ```
 
-Read the differences with care. On a small test set a difference of a few percentage points can be chance, and two variables that carry the same information can each look unimportant because the other one takes over.
+Lees de verschillen met voorzichtigheid. Bij een kleine groep studenten kan een verschil van enkele procentpunten toeval zijn. Twee variabelen die dezelfde informatie dragen kunnen elk onbelangrijk lijken, omdat de ander het overneemt.
 
-## Comparing results across versions
+## Uitkomsten van verschillende versies vergelijken
 
-Since `student_signal` 0.2.0 the student number (`Studentnummer`) is no longer used as a predictor. Results made with an earlier version are not comparable with results made with 0.2.0 or later. The JSON file states the version used in `metadata.student_signal_version`; a file without that field was made with an earlier version. Run the benchmark again to compare.
+Sinds `student_signal` 0.2.0 wordt het studentnummer (`Studentnummer`) niet meer gebruikt om te voorspellen. Uitkomsten van een eerdere versie zijn niet te vergelijken met uitkomsten van 0.2.0 of later. In het resultaatbestand staat de gebruikte versie bij `metadata.student_signal_version`; een bestand zonder dat veld is met een eerdere versie gemaakt. Draai de benchmark opnieuw om te kunnen vergelijken.
 
-## Adding algorithms
+## Modellen toevoegen
 
-The available models are listed in `src/uitnodigingsregel_benchmark/models.py`. Any sklearn-compatible estimator can be added there:
+De beschikbare modellen staan in `src/uitnodigingsregel_benchmark/models.py`. Elk model dat met scikit-learn samenwerkt kan daar worden toegevoegd:
 
 ```python
 MODELS = {
@@ -175,14 +177,14 @@ MODELS = {
 }
 ```
 
-Results with other models than the standard ones are for local use; the collective benchmark compares the standard models.
+Uitkomsten met andere modellen dan de standaardmodellen zijn voor eigen gebruik; het gezamenlijke overzicht vergelijkt de standaardmodellen.
 
-## Development
+## Ontwikkelen
 
 ```bash
 uv run pytest
 ```
 
-## License
+## Licentie
 
 MIT
