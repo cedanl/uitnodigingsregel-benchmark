@@ -80,7 +80,7 @@ Gedeelde uitkomsten staan in het [gezamenlijke overzicht](https://cedanl.github.
 
 1. Draai de benchmark met "Volledig". Een snelle run telt niet mee.
 2. Download het resultaatbestand in de app.
-3. Stuur het bestand naar je contactpersoon bij CEDA. De app verstuurt zelf niets.
+3. Mail het bestand naar je contactpersoon bij CEDA. De app verstuurt zelf niets.
 4. CEDA controleert het bestand en voegt het toe aan deze repository. Het overzicht wordt daarna vanzelf opnieuw gebouwd.
 
 Een uitkomst staat dus pas in het overzicht nadat CEDA het bestand heeft toegevoegd. Bestanden in je eigen map `results/` staan alleen op je eigen computer.
