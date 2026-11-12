@@ -26,6 +26,8 @@ from uitnodigingsregel_benchmark.detect import (
 from uitnodigingsregel_benchmark.export import sanitize, write_result
 from uitnodigingsregel_benchmark.models import MODELS
 from uitnodigingsregel_benchmark.report import (
+    HELP_TEXTS,
+    IMPACT_COLORS_TEXT,
     IMPACT_TEXT,
     LOCAL_NAMES_TEXT,
     PRECISION_RECALL_TEXT,
@@ -33,6 +35,7 @@ from uitnodigingsregel_benchmark.report import (
     REFERENCE_LABEL,
     REFERENCE_TEXT,
     SPREAD_TEXT,
+    STOPLIGHT_TEXT,
     build_html_report,
     close_to_best,
     display_name,
@@ -426,17 +429,40 @@ with st.container(border=True):
         st.caption(f"Het verschil met {', '.join(close)} valt binnen de spreiding.")
     best_eval = result["models"][best["model"]]["evaluation"]
     left, middle, right = st.columns(3)
-    left.metric("Precisie", with_spread(best["precision_at_20"], best_eval.get("precision_sd")))
-    middle.metric("Recall", with_spread(best["recall_at_20"], best_eval.get("recall_sd")))
-    right.metric("Uitval in de data", f"{metadata['dropout_rate_test'] * 100:.0f}%")
+    left.metric(
+        "Precisie",
+        with_spread(best["precision_at_20"], best_eval.get("precision_sd")),
+        help=HELP_TEXTS["precision"],
+    )
+    middle.metric(
+        "Recall",
+        with_spread(best["recall_at_20"], best_eval.get("recall_sd")),
+        help=HELP_TEXTS["recall"],
+    )
+    right.metric(
+        "Uitval in de data",
+        f"{metadata['dropout_rate_test'] * 100:.0f}%",
+        help=HELP_TEXTS["dropout_rate"],
+    )
     st.caption(PRECISION_RECALL_TEXT)
-    st.dataframe(_result_table(result, local_names), hide_index=True, width="stretch")
+    st.dataframe(
+        _result_table(result, local_names),
+        hide_index=True,
+        width="stretch",
+        column_config={
+            "Oordeel": st.column_config.TextColumn(help=STOPLIGHT_TEXT),
+            "Precisie (%)": st.column_config.NumberColumn(help=HELP_TEXTS["precision"]),
+            "Recall (%)": st.column_config.NumberColumn(help=HELP_TEXTS["recall"]),
+            "± precisie": st.column_config.NumberColumn(help=HELP_TEXTS["spread"]),
+            "± recall": st.column_config.NumberColumn(help=HELP_TEXTS["spread"]),
+        },
+    )
     if result.get("references"):
         st.caption(REFERENCE_TEXT)
 
 if metadata["impact_measured"]:
     with st.container(border=True):
-        st.subheader("Impact per variabele")
+        st.subheader("Impact per variabele", help=IMPACT_COLORS_TEXT)
         model_names = list(result["models"])
         chosen = st.selectbox("Model", model_names, index=model_names.index(best["model"]))
         st.altair_chart(
@@ -549,6 +575,12 @@ with st.container(border=True):
                 ),
                 hide_index=True,
                 width="stretch",
+                column_config={
+                    "Jouw data": st.column_config.NumberColumn(help=HELP_TEXTS["own_impact"]),
+                    "Gemiddeld bij anderen": st.column_config.NumberColumn(
+                        help=HELP_TEXTS["shared_impact"]
+                    ),
+                },
             )
         elif metadata["impact_measured"]:
             st.write(

@@ -30,6 +30,29 @@ SPREAD_TEXT = (
     "ze per splitsing verschilden. Een grijze balk valt binnen die spreiding: het verschil is "
     "niet te onderscheiden van toeval."
 )
+IMPACT_COLORS_TEXT = (
+    "Helpt (groen): zonder deze variabele voorspelt het model slechter, en het verschil is "
+    "groter dan de spreiding over de splitsingen. Helpt niet (oranje): zonder deze variabele "
+    "voorspelt het model beter, met een verschil groter dan de spreiding. Binnen de spreiding "
+    "(grijs): het verschil is nul of niet groter dan wat per splitsing toevallig verschilt. "
+    "Na een snelle run is er maar één splitsing en dus geen spreiding: dan is elk verschil "
+    "groen of oranje en zegt de kleur weinig."
+)
+STOPLIGHT_TEXT = (
+    "Groen (betrouwbaar): precisie en recall allebei minstens 40%. Geel (gebruik met "
+    "voorzichtigheid): allebei minstens 30%. Rood (niet bruikbaar): lager."
+)
+HELP_TEXTS = {
+    "precision": "Het deel van de uitgenodigde studenten dat ook echt uitviel, als je de 20% "
+    "met de hoogste voorspelde kans uitnodigt.",
+    "recall": "Het deel van alle uitvallers dat bij de 20% uitgenodigde studenten zat.",
+    "dropout_rate": "Het deel van de studenten in de testgroep dat uitviel. Dit is ook de "
+    "precisie als je willekeurig uitnodigt.",
+    "spread": "Hoeveel het getal verschilde tussen de splitsingen van de data. Een verschil "
+    "kleiner dan dit is toeval.",
+    "own_impact": "Verschil in precisie met en zonder de variabele in jouw data, in procentpunten.",
+    "shared_impact": "Gemiddelde impact bij de instellingen die deze variabele hebben gedeeld.",
+}
 QUICK_TEXT = "Dit is een snelle run. Kies 'Volledig' voor een uitkomst om te delen."
 
 COLOR_HELPS = "#2a7f62"
@@ -60,6 +83,7 @@ td.number, th.number { text-align: right; font-variant-numeric: tabular-nums; }
 .half { flex: 1; display: flex; }
 .half.left { justify-content: flex-end; border-right: 1px solid #888; }
 .bar { height: 100%; border-radius: 2px; }
+.legend span { display: inline-block; width: 10px; height: 10px; margin: 0 4px 0 12px; }
 tr.reference td { color: #5a5a5a; font-style: italic; }
 details { margin: 8px 0; }
 summary { cursor: pointer; font-weight: 600; }
@@ -282,6 +306,7 @@ def build_html_report(
         '<table><tr><th>Model</th><th>Oordeel</th><th class="number">Precisie</th>'
         f'<th class="number">Recall</th></tr>{_model_rows(result)}'
         f"{_reference_rows(result, local_names)}</table>",
+        f'<p class="note">Oordeel: {escape(STOPLIGHT_TEXT)}</p>',
         *([f'<p class="note">{escape(REFERENCE_TEXT)}</p>'] if result.get("references") else []),
     ]
 
@@ -290,6 +315,10 @@ def build_html_report(
             "<h2>Impact per variabele</h2>",
             f'<p class="note">{_html(IMPACT_TEXT)} De getallen zijn procentpunten.</p>',
             *([f'<p class="note">{_html(SPREAD_TEXT)}</p>'] if _repeated(metadata) else []),
+            f'<p class="note legend"><span style="background:{COLOR_HELPS}"></span>helpt'
+            f'<span style="background:{COLOR_HURTS}"></span>helpt niet'
+            f'<span style="background:{COLOR_NOISE}"></span>binnen de spreiding</p>',
+            f'<p class="note">{escape(IMPACT_COLORS_TEXT)}</p>',
             f"<h3>{escape(best['model'])} (best voorspellend)</h3>",
             _impact_bars(result["models"][best["model"]]["variable_impact"], local_names),
         ]
