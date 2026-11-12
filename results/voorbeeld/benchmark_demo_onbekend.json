@@ -213,7 +213,9 @@
         "precision_sd": 7.5,
         "recall_sd": 9.2,
         "lift_over_baseline": 0.93,
-        "status": "Niet bruikbaar"
+        "status": "Niet bruikbaar",
+        "precision_vs_random": -1.0,
+        "precision_vs_single_variable": 2.5
       },
       "variable_impact": [
         {
@@ -526,7 +528,9 @@
         "precision_sd": 6.1,
         "recall_sd": 7.5,
         "lift_over_baseline": 1.06,
-        "status": "Niet bruikbaar"
+        "status": "Niet bruikbaar",
+        "precision_vs_random": 1.0,
+        "precision_vs_single_variable": 4.5
       },
       "variable_impact": [
         {
@@ -664,68 +668,68 @@
       "feature_importance": [
         {
           "feature": "eigen_variabele_1",
-          "importance": 0.927315,
-          "coefficient": 0.927315
+          "importance": 0.927358,
+          "coefficient": 0.927358
         },
         {
           "feature": "VooroplNiveau_prak",
-          "importance": 0.853701,
-          "coefficient": -0.853701
+          "importance": 0.853781,
+          "coefficient": -0.853781
         },
         {
           "feature": "VooroplNiveau_other",
-          "importance": 0.758586,
-          "coefficient": -0.758586
+          "importance": 0.758552,
+          "coefficient": -0.758552
         },
         {
           "feature": "Aanmel_aantal",
-          "importance": 0.726768,
-          "coefficient": -0.726768
+          "importance": 0.72679,
+          "coefficient": -0.72679
         },
         {
           "feature": "VooroplNiveau_VMBO_GL",
-          "importance": 0.519979,
-          "coefficient": 0.519979
+          "importance": 0.519982,
+          "coefficient": 0.519982
         },
         {
           "feature": "absence_unauthorized",
-          "importance": 0.442262,
-          "coefficient": 0.442262
+          "importance": 0.442309,
+          "coefficient": 0.442309
         },
         {
           "feature": "Landbouw",
-          "importance": 0.352603,
-          "coefficient": 0.352603
+          "importance": 0.353035,
+          "coefficient": 0.353035
         },
         {
           "feature": "max1studie",
-          "importance": 0.31322,
-          "coefficient": -0.31322
+          "importance": 0.313202,
+          "coefficient": -0.313202
         },
         {
           "feature": "Richting_nan",
-          "importance": 0.287403,
-          "coefficient": -0.287403
+          "importance": 0.287121,
+          "coefficient": -0.287121
         },
         {
           "feature": "Zorgenwelzijn",
-          "importance": 0.247344,
-          "coefficient": 0.247344
+          "importance": 0.247604,
+          "coefficient": 0.247604
         },
         {
           "feature": "VooroplNiveau_VMBO_TL",
-          "importance": 0.187274,
-          "coefficient": 0.187274
+          "importance": 0.187281,
+          "coefficient": 0.187281
         },
         {
           "feature": "Economie",
-          "importance": 0.13688,
-          "coefficient": -0.13688
+          "importance": 0.136624,
+          "coefficient": -0.136624
         },
         {
           "feature": "StudentGender",
-          "importance": 0.081128,
-          "coefficient": -0.081128
+          "importance": 0.081127,
+          "coefficient": -0.081127
         },
         {
           "feature": "VooroplNiveau_MBO",
@@ -734,13 +738,13 @@
         },
         {
           "feature": "VooroplNiveau_VMBO_KB",
-          "importance": 0.047801,
-          "coefficient": -0.047801
+          "importance": 0.047792,
+          "coefficient": -0.047792
         },
         {
           "feature": "VooroplNiveau_HAVO",
-          "importance": 0.038214,
-          "coefficient": -0.038214
+          "importance": 0.038216,
+          "coefficient": -0.038216
         },
         {
           "feature": "StudentAge",
@@ -840,7 +844,9 @@
         "precision_sd": 7.1,
         "recall_sd": 9.2,
         "lift_over_baseline": 1.08,
-        "status": "Niet bruikbaar"
+        "status": "Niet bruikbaar",
+        "precision_vs_random": 1.4,
+        "precision_vs_single_variable": 4.9
       },
       "variable_impact": [
         {
@@ -1130,7 +1136,9 @@
         "precision_sd": 5.1,
         "recall_sd": 6.7,
         "lift_over_baseline": 0.88,
-        "status": "Niet bruikbaar"
+        "status": "Niet bruikbaar",
+        "precision_vs_random": -1.8,
+        "precision_vs_single_variable": 1.7
       },
       "variable_impact": [
         {
@@ -1421,7 +1429,9 @@
         "precision_sd": 5.4,
         "recall_sd": 6.7,
         "lift_over_baseline": 0.88,
-        "status": "Niet bruikbaar"
+        "status": "Niet bruikbaar",
+        "precision_vs_random": -1.8,
+        "precision_vs_single_variable": 1.7
       },
       "variable_impact": [
         {
@@ -1712,7 +1722,9 @@
         "precision_sd": 5.4,
         "recall_sd": 6.8,
         "lift_over_baseline": 1.07,
-        "status": "Niet bruikbaar"
+        "status": "Niet bruikbaar",
+        "precision_vs_random": 1.2,
+        "precision_vs_single_variable": 4.7
       },
       "variable_impact": [
         {
@@ -2004,7 +2016,9 @@
         "precision_sd": 4.0,
         "recall_sd": 5.2,
         "lift_over_baseline": 0.78,
-        "status": "Niet bruikbaar"
+        "status": "Niet bruikbaar",
+        "precision_vs_random": -3.4,
+        "precision_vs_single_variable": 0.1
       },
       "variable_impact": [
         {
@@ -2141,5 +2155,20 @@
     "recall_at_20": 21.8,
     "lift_over_baseline": 1.08,
     "status": "Niet bruikbaar"
+  },
+  "references": {
+    "random": {
+      "precision": 16.0,
+      "recall": 20.0,
+      "precision_sd": 0.0,
+      "recall_sd": 0.0
+    },
+    "single_variable": {
+      "variable": "absence_unauthorized",
+      "precision": 12.5,
+      "recall": 15.6,
+      "precision_sd": 6.8,
+      "recall_sd": 8.6
+    }
   }
 }

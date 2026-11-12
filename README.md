@@ -18,6 +18,22 @@ Op een Mac heeft het model XGBoost het onderdeel OpenMP nodig. Dat installeert `
 brew install libomp
 ```
 
+## Welke data heb je nodig
+
+Eén CSV-bestand met studenten van wie de afloop bekend is. Dat is hetzelfde bestand waarmee je de Uitnodigingsregel traint. Een bestand met het huidige cohort is niet nodig: daarvan is de afloop nog niet bekend, dus daar kun je niet op toetsen. De benchmark verdeelt het bestand zelf in een deel om te trainen en een deel om te toetsen.
+
+- **Eén rij per student**, met eerstejaars die in hetzelfde jaar zijn begonnen of in een paar opeenvolgende jaren.
+- **Een kolom met de afloop**: 1 als de student is uitgevallen, 0 als niet. Standaard heet die kolom `Dropout`.
+- **Kenmerken van de student**, bij voorkeur met de namen uit de [gedeelde variabelenlijst](#gedeelde-variabelen), zoals leeftijd, aantal aanmeldingen, vooropleiding en verzuim. Eigen kolommen mogen erbij.
+- **Optioneel** een kolom met het studentnummer (wordt niet gebruikt om te voorspellen) en een kolom met het cohort (alleen nodig om op een later jaar te toetsen).
+
+Twee dingen bepalen of de uitkomst iets zegt:
+
+1. **Genoeg uitvallers.** Reken op minstens 150 uitvallers in het bestand, zodat de testgroep er rond de 30 heeft. Bij 15% uitval zijn dat ongeveer 1000 studenten. Heb je er minder, voeg dan meerdere jaren samen. Bij minder dan 30 uitvallers in de testgroep geeft de benchmark een waarschuwing.
+2. **Alleen gegevens die bekend zijn op het moment dat je uitnodigt.** Nodig je in week 10 uit, dan hoort verzuim uit week 11 of later er niet in. Anders lijkt een model beter dan het in de praktijk is. De benchmark kan dat niet zelf controleren.
+
+Gebruik dezelfde doelgroep als bij de Uitnodigingsregel, eerstejaars BOL. Met andere groepen erbij zijn de uitkomsten niet te vergelijken met die van andere instellingen.
+
 ## Gebruiken
 
 Start de app:
@@ -30,13 +46,33 @@ De app opent in je browser. Stoppen doe je met Ctrl+C in het terminalvenster.
 
 1. **Kies je data.** Upload een CSV met één rij per student, een kolom die aangeeft of de student is uitgevallen (1) of niet (0), en de kenmerken van de student. Een kolom met studentnummers is niet nodig. Of klik op de demo-data om de app eerst te proberen.
 2. **Controleer de kolommen.** De app herkent de uitvalkolom, het studentnummer en een cohortkolom, stelt voor welke kolommen samen één variabele vormen, en koppelt je kolommen aan de gedeelde variabelenlijst. Pas aan wat niet klopt. Kan de data niet worden gebruikt, dan staat er direct waarom.
-3. **Draai de benchmark.** Kies snel (een eerste controle, ongeveer een minuut) of volledig (alle modellen, vijf keer met een andere splitsing van de data, voor een uitkomst om te delen), en of de impact per variabele wordt gemeten.
+3. **Draai de benchmark.** Kies snel (een eerste controle, ongeveer een minuut) of volledig (alle modellen, vijf keer met een andere splitsing van de data, voor een uitkomst om te delen), of de impact per variabele wordt gemeten, en eventueel een variabele om mee te vergelijken (bijvoorbeeld verzuim).
 4. **Lees de uitkomst.** Per model de precisie en recall als de 20% studenten met de hoogste voorspelde kans worden uitgenodigd, en een grafiek met de impact per variabele.
 5. **Download het rapport.** Eén HTML-bestand met de uitkomst en de grafieken, om te bewaren of door te sturen naar collega's. Het opent in elke browser, ook zonder internet.
 6. **Deel de uitkomst.** Download het resultaatbestand en lever het aan voor het gezamenlijke overzicht (zie hieronder). Het bestand bevat de uitkomsten per model en aantallen studenten. Het bevat geen namen van je eigen kolommen en geen gegevens van individuele studenten (zie [Gedeelde variabelen](#gedeelde-variabelen)).
 7. **Vergelijk.** De app toont je uitkomst naast de gedeelde uitkomsten van andere instellingen. De app haalt die alleen op; er wordt niets over je data verstuurd.
 
-Het rapport en het resultaatbestand staan ook in de map `results/`. In `results/voorbeeld/` staat een voorbeeld, gemaakt op de demo-data.
+Het rapport en het resultaatbestand staan ook in de map `results/`.
+
+## De uitkomst lezen
+
+Alle getallen gaan over hetzelfde scenario: je nodigt de 20% studenten uit die volgens het model de grootste kans op uitval hebben.
+
+| Getal | Wat het is | Wat het voor jou betekent |
+|---|---|---|
+| Precisie | Het deel van de uitgenodigde studenten dat ook echt uitviel | Hoe vaak een gesprek terecht is. Bij 40% is vier van de tien uitgenodigde studenten later uitgevallen |
+| Recall | Het deel van alle uitvallers dat bij de uitgenodigden zat | Hoeveel uitvallers je bereikt. Bij 35% zit ruim een derde van alle uitvallers in je uitnodigingen |
+| Uitval in de data | Het deel van de studenten in de testgroep dat uitviel | De ondergrens: dit is de precisie als je willekeurig uitnodigt |
+| Oordeel (stoplicht) | Groen, oranje of rood, op basis van precisie en recall | Groen: betrouwbaar. Oranje: gebruik met voorzichtigheid. Rood: niet bruikbaar, het model voegt te weinig toe |
+| Lift | Precisie gedeeld door het uitvalpercentage | Hoeveel keer beter dan willekeurig uitnodigen. Een lift van 2 betekent twee keer zoveel terechte gesprekken |
+| ± | De spreiding over vijf splitsingen van de data | Hoeveel het getal afhangt van welke studenten toevallig in de testgroep zaten. Een verschil kleiner dan de spreiding is toeval |
+| Willekeurig uitnodigen | Referentie zonder model | Wat je haalt zonder enige voorspelling |
+| Uitnodigen op één variabele | Referentie zonder model: de 20% met de hoogste waarde op één variabele, bijvoorbeeld verzuim | Wat je haalt met een eenvoudige regel. Haalt een model niet meer, dan levert het weinig op |
+| Impact van een variabele | Het verschil in precisie tussen het model met en zonder die variabele, in procentpunten | Positief: de variabele helpt. Rond nul: de variabele voegt in jouw data niets toe. Een grijze balk valt binnen de spreiding |
+
+**Willekeurige splitsing of later cohort.** Bij een willekeurige splitsing zitten studenten uit dezelfde jaren in de trainings- en de testgroep. Dat valt vaak gunstiger uit dan de praktijk, waarin je een nieuw jaar voorspelt. Toetsen op een later cohort lijkt meer op de praktijk. Vergelijk daarom alleen uitkomsten met dezelfde soort splitsing; het gezamenlijke overzicht doet dat ook.
+
+**De impact lezen.** Kijk eerst naar de kleur: alleen groene en oranje balken zijn duidelijker dan toeval. Een variabele zonder impact is niet per se onbelangrijk: als twee variabelen hetzelfde zeggen, zoals verzuim in week 3 en verzuim in week 4, neemt de ene het over als de andere wegvalt. Beide lijken dan weinig toe te voegen. In `results/voorbeeld/` staat een voorbeeld, gemaakt op de demo-data.
 
 ## Je uitkomst delen
 
@@ -126,6 +162,7 @@ Alle instellingen staan in `config.yaml`, met uitleg per regel. Er hoeven geen P
 | `repeats` | Aantal keren dat de willekeurige splitsing wordt herhaald (zie hieronder) | 5 (snel: 1) |
 | `n_jobs` | Aantal processen tegelijk; zet op 2 als het geheugen volraakt | alle kernen |
 | `impact`, `impact_variables`, `variable_groups` | Impact per variabele (zie hieronder) | uit |
+| `reference_variable` | Kolom voor de referentie "uitnodigen op één variabele", bijvoorbeeld `absence_unauthorized` | geen |
 | `column_mapping` | Eigen kolom gekoppeld aan een gedeelde variabele, bijvoorbeeld `{Leeftijd: StudentAge}`. Zonder deze instelling leest de commandoregel `koppeling.json` uit de app | geen |
 
 ## Toetsen op een later cohort

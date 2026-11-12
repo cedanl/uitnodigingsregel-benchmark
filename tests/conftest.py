@@ -2,6 +2,7 @@
 
 import pytest
 
+from uitnodigingsregel_benchmark import sharing
 from uitnodigingsregel_benchmark.check import FORMAT_VERSION
 from uitnodigingsregel_benchmark.export import build_result
 
@@ -51,3 +52,9 @@ def make_result(instelling: str = "test", precision_diff: float = 2.0, **metadat
 @pytest.fixture
 def valid_result() -> dict:
     return make_result()
+
+
+@pytest.fixture(autouse=True)
+def no_network(monkeypatch):
+    """Tests never reach the internet."""
+    monkeypatch.setattr(sharing, "fetch_shared_data", lambda: None)

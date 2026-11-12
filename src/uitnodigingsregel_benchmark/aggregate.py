@@ -123,3 +123,45 @@ def build_shared_data(results: list[dict]) -> dict:
         "models": model_table(results),
         "variables": variable_impact_table(results),
     }
+
+
+def compare_with_shared(result: dict, shared: dict) -> dict:
+    """Put an own result next to the shared results of other institutions.
+
+    Args:
+        result: Own result.
+        shared: Output of build_shared_data().
+
+    Returns:
+        The best model's own precision with the precisions of shared results with the
+        same kind of split, and per variable the own impact next to the shared mean.
+    """
+    metadata = result["metadata"]
+    best = result["recommendation"]["model"]
+    others = [
+        row["precision"]
+        for row in shared["models"]
+        if row["model"] == best and row["split"] == metadata["split"]["type"]
+    ]
+    own_impact = {
+        entry["variable"]: entry["precision_diff"]
+        for entry in result["models"][best].get("variable_impact", [])
+        if "precision_diff" in entry
+    }
+    variables = [
+        {
+            "variable": row["variable"],
+            "own": own_impact[row["variable"]],
+            "shared_mean": row["mean"],
+            "n_institutions": row["n_institutions"],
+        }
+        for row in shared["variables"]
+        if row["variable"] in own_impact
+    ]
+    return {
+        "n_institutions": shared["summary"]["n_institutions"],
+        "model": best,
+        "own_precision": result["recommendation"]["precision_at_20"],
+        "other_precisions": others,
+        "variables": variables,
+    }

@@ -60,6 +60,7 @@ td.number, th.number { text-align: right; font-variant-numeric: tabular-nums; }
 .half { flex: 1; display: flex; }
 .half.left { justify-content: flex-end; border-right: 1px solid #888; }
 .bar { height: 100%; border-radius: 2px; }
+tr.reference td { color: #5a5a5a; font-style: italic; }
 details { margin: 8px 0; }
 summary { cursor: pointer; font-weight: 600; }
 footer { margin-top: 40px; color: #5a5a5a; font-size: 13px; border-top: 1px solid #ddd;
@@ -119,6 +120,65 @@ def split_description(metadata: dict) -> str:
     return f"{how} Getraind op {metadata['n_train']} studenten, getoetst op {metadata['n_test']}."
 
 
+REFERENCE_TEXT = (
+    "Ter vergelijking twee regels zonder model: willekeurig uitnodigen, en de 20% studenten "
+    "uitnodigen met de hoogste waarde op één variabele. Haalt een model niet meer dan zo'n "
+    "regel, dan levert het weinig op."
+)
+REFERENCE_LABEL = "Referentie zonder model"
+
+
+def reference_label(key: str, reference: dict, local_names: dict[str, str] | None) -> str:
+    """Name of a reference rule as shown to the user."""
+    if key == "random":
+        return "Willekeurig uitnodigen"
+    return f"Uitnodigen op {display_name(reference['variable'], local_names)}"
+
+
+def _reference_rows(result: dict, local_names: dict[str, str] | None) -> str:
+    rows = []
+    for key, reference in result.get("references", {}).items():
+        precision = with_spread(reference["precision"], reference.get("precision_sd"))
+        recall = with_spread(reference["recall"], reference.get("recall_sd"))
+        rows.append(
+            f'<tr class="reference"><td>{escape(reference_label(key, reference, local_names))}'
+            f"</td><td>{REFERENCE_LABEL}</td>"
+            f'<td class="number">{precision}</td><td class="number">{recall}</td></tr>'
+        )
+    return "\n".join(rows)
+
+
+def comparison_section(comparison: dict, local_names: dict[str, str] | None) -> str:
+    """The own result next to the shared results, for the report."""
+    parts = [
+        "<h2>Vergelijking met andere instellingen</h2>",
+        f'<p class="note">Gedeelde resultaten van {comparison["n_institutions"]} instellingen '
+        "uit het gezamenlijke overzicht.</p>",
+    ]
+    others = comparison["other_precisions"]
+    if others:
+        parts.append(
+            f"<p>{escape(comparison['model'])} haalt bij jou een precisie van "
+            f"{comparison['own_precision']:.0f}%. Bij {len(others)} gedeelde resultaten met "
+            f"dezelfde soort splitsing ligt die tussen {min(others):.0f}% en "
+            f"{max(others):.0f}%.</p>"
+        )
+    if comparison["variables"]:
+        rows = "".join(
+            f"<tr><td>{escape(display_name(row['variable'], local_names))}</td>"
+            f'<td class="number">{row["own"]:+.1f}</td>'
+            f'<td class="number">{row["shared_mean"]:+.1f}</td>'
+            f'<td class="number">{row["n_institutions"]}</td></tr>'
+            for row in comparison["variables"]
+        )
+        parts.append(
+            '<table><tr><th>Variabele</th><th class="number">Impact bij jou</th>'
+            '<th class="number">Gemiddeld bij anderen</th>'
+            f'<th class="number">Instellingen</th></tr>{rows}</table>'
+        )
+    return "\n".join(parts)
+
+
 def _model_rows(result: dict) -> str:
     models = sorted(
         result["models"].items(), key=lambda item: item[1]["evaluation"]["precision"], reverse=True
@@ -172,7 +232,11 @@ def _close_note(result: dict) -> str:
     return f". Het verschil met {', '.join(close)} valt binnen de spreiding."
 
 
-def build_html_report(result: dict, local_names: dict[str, str] | None = None) -> str:
+def build_html_report(
+    result: dict,
+    local_names: dict[str, str] | None = None,
+    comparison: dict | None = None,
+) -> str:
     """Build a standalone HTML report of a benchmark result.
 
     The report needs no internet connection and holds no data of individual students.
@@ -181,6 +245,7 @@ def build_html_report(result: dict, local_names: dict[str, str] | None = None) -
         result: Complete benchmark result from run_benchmark_on_data().
         local_names: Names in the result mapped to the institution's own names; shown
             in the report so the reader knows which variable is meant.
+        comparison: Output of compare_with_shared(), or None without shared results.
 
     Returns:
         The report as one HTML document.
@@ -215,7 +280,9 @@ def build_html_report(result: dict, local_names: dict[str, str] | None = None) -
         "</div>",
         f'<p class="note">{_html(PRECISION_RECALL_TEXT)}</p>',
         '<table><tr><th>Model</th><th>Oordeel</th><th class="number">Precisie</th>'
-        f'<th class="number">Recall</th></tr>{_model_rows(result)}</table>',
+        f'<th class="number">Recall</th></tr>{_model_rows(result)}'
+        f"{_reference_rows(result, local_names)}</table>",
+        *([f'<p class="note">{escape(REFERENCE_TEXT)}</p>'] if result.get("references") else []),
     ]
 
     if metadata.get("impact_measured"):
@@ -232,6 +299,9 @@ def build_html_report(result: dict, local_names: dict[str, str] | None = None) -
                     f"<details><summary>{escape(name)}</summary>"
                     f"{_impact_bars(model['variable_impact'], local_names)}</details>"
                 )
+
+    if comparison:
+        parts.append(comparison_section(comparison, local_names))
 
     if local_names:
         rows = "".join(

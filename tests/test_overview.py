@@ -9,11 +9,13 @@ from conftest import make_result
 
 from uitnodigingsregel_benchmark.aggregate import (
     build_shared_data,
+    compare_with_shared,
     is_shareable,
     load_shared_results,
     variable_impact_table,
 )
 from uitnodigingsregel_benchmark.overview import build_overview_html, build_site
+from uitnodigingsregel_benchmark.report import build_html_report
 
 EXAMPLE_RESULT = Path(__file__).parent.parent / "results/voorbeeld/benchmark_demo_onbekend.json"
 
@@ -95,3 +97,16 @@ def test_build_site_writes_page_and_data(tmp_path):
 
 def test_example_result_does_not_count_in_the_overview():
     assert not is_shareable(json.loads(EXAMPLE_RESULT.read_text(encoding="utf-8")))
+
+
+def test_compare_with_shared_puts_own_result_next_to_others():
+    own = make_result("eigen", 4.0)
+    shared = build_shared_data([_result("a", 1.0), _result("b", 3.0)])
+    comparison = compare_with_shared(own, shared)
+    assert comparison["n_institutions"] == 2
+    assert comparison["other_precisions"] == [50.0, 50.0]
+    assert comparison["variables"] == [
+        {"variable": "StudentAge", "own": 4.0, "shared_mean": 2.0, "n_institutions": 2}
+    ]
+    page = build_html_report(own, comparison=comparison)
+    assert "Vergelijking met andere instellingen" in page

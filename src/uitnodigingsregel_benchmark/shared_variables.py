@@ -180,6 +180,9 @@ def apply_shared_names(result: dict, names: dict[str, str]) -> dict[str, str]:
         for entry in model.get("variable_impact", []):
             entry["variable"] = variable_name(entry["variable"], entry["columns"])
             entry["columns"] = [column_name(c) for c in entry["columns"]]
+    single_variable = result.get("references", {}).get("single_variable")
+    if single_variable:
+        single_variable["variable"] = column_name(single_variable["variable"])
     metadata["n_own_variables"] = sum(
         1 for name in metadata["features_available"] if is_own_name(name)
     )

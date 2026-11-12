@@ -330,3 +330,39 @@ def test_cohort_split_is_not_repeated():
     result, _ = run_benchmark_on_data(data, config)
     assert result["metadata"]["split"]["repeats"] == 1
     assert result["models"]["Lasso"]["evaluation"]["precision_sd"] == 0
+
+
+def test_references_for_random_and_one_variable():
+    data = _students([2021] * 100)
+    data["Verzuim"] = data["Dropout"] * 5  # absence that predicts dropout perfectly
+    config = {**load_config("geen.yaml"), "n_jobs": 1, "models": ["Lasso"], "n_iter": 2}
+    config.update({"cv_folds": 2, "repeats": 2, "reference_variable": "Verzuim"})
+    config["column_mapping"] = {"Verzuim": "absence_unauthorized"}
+    result, local_names = run_benchmark_on_data(data, config)
+
+    references = result["references"]
+    assert references["random"]["precision"] == pytest.approx(50.0)
+    assert references["random"]["recall"] == 20.0
+    single = references["single_variable"]
+    assert single["variable"] == "absence_unauthorized"
+    assert single["precision"] == 100.0
+    assert single["recall"] == 40.0
+    evaluation = result["models"]["Lasso"]["evaluation"]
+    assert evaluation["precision_vs_single_variable"] == pytest.approx(
+        evaluation["precision"] - 100.0, abs=0.1
+    )
+    assert evaluation["precision_vs_random"] == pytest.approx(
+        evaluation["precision"] - 50.0, abs=0.1
+    )
+
+
+def test_reference_variable_must_be_a_numeric_feature():
+    data = _students([2021] * 40)
+    data["Opleiding"] = "Zorg"
+    config = {**load_config("geen.yaml"), "n_jobs": 1, "models": ["Lasso"], "n_iter": 2}
+    config.update({"cv_folds": 2, "repeats": 1, "reference_variable": "Opleiding"})
+    with pytest.raises(SettingsError, match="getallen"):
+        run_benchmark_on_data(data, config)
+    config["reference_variable"] = "Dropout"
+    with pytest.raises(SettingsError, match="geen kolom met kenmerken"):
+        run_benchmark_on_data(data, config)

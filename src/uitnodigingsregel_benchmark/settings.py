@@ -21,6 +21,7 @@ DEFAULTS: dict = {
     "impact_variables": None,
     "variable_groups": None,
     "column_mapping": None,
+    "reference_variable": None,
 }
 
 # Fewer models and fewer search rounds: a result in seconds instead of minutes.
