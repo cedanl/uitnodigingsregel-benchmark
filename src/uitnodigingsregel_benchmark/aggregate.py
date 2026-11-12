@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from statistics import mean, median
 
+from uitnodigingsregel_benchmark.shared_variables import is_own_name
+
 DEMO_INSTELLING_ID = "demo"
 
 
@@ -84,7 +86,8 @@ def variable_impact_table(results: list[dict]) -> list[dict]:
         instelling = result["metadata"]["instelling_id"]
         for model in result["models"].values():
             for entry in model.get("variable_impact", []):
-                if "precision_diff" in entry:
+                # An own variable of one institution is not the same variable elsewhere
+                if "precision_diff" in entry and not is_own_name(entry["variable"]):
                     per_institution.setdefault(entry["variable"], {}).setdefault(
                         instelling, []
                     ).append(entry["precision_diff"])

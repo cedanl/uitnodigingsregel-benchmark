@@ -1,0 +1,138 @@
+# Gedeelde variabelen van de benchmark.
+# Een resultaatbestand gebruikt alleen deze namen; andere kolommen heten eigen_variabele_1, _2, ...
+# groep: variabelen met dezelfde groep tellen samen als één variabele bij de impactmeting.
+# Bron: docs/Variabelen_Definities_v4.xlsx in cedanl/Uitnodigingsregel.
+variabelen:
+  - naam: StudentGender
+    omschrijving: "Geslacht van de student."
+  - naam: StudentAge
+    omschrijving: "Leeftijd bij de eerste inschrijving, in jaren."
+  - naam: Aanmel_aantal
+    omschrijving: "Aantal opleidingen waarvoor de student zich heeft aangemeld."
+  - naam: AanmelderVoor1april
+    omschrijving: "Aanmelding vóór 1 april geplaatst (1) of niet (0)."
+  - naam: max1studie
+    omschrijving: "Student heeft zich voor maximaal één opleiding aangemeld (1) of niet (0)."
+  - naam: VooroplNiveau_VMBO_BB
+    omschrijving: "Vooropleiding: VMBO basisberoepsgericht."
+    groep: Vooropleiding_niveau
+  - naam: VooroplNiveau_VMBO_KB
+    omschrijving: "Vooropleiding: VMBO kaderberoepsgericht."
+    groep: Vooropleiding_niveau
+  - naam: VooroplNiveau_VMBO_GL
+    omschrijving: "Vooropleiding: VMBO gemengde leerweg."
+    groep: Vooropleiding_niveau
+  - naam: VooroplNiveau_VMBO_TL
+    omschrijving: "Vooropleiding: VMBO theoretische leerweg."
+    groep: Vooropleiding_niveau
+  - naam: VooroplNiveau_HAVO
+    omschrijving: "Vooropleiding: HAVO."
+    groep: Vooropleiding_niveau
+  - naam: VooroplNiveau_VWOplus
+    omschrijving: "Vooropleiding: VWO of hoger."
+    groep: Vooropleiding_niveau
+  - naam: VooroplNiveau_MBO
+    omschrijving: "Vooropleiding: MBO."
+    groep: Vooropleiding_niveau
+  - naam: VooroplNiveau_basis
+    omschrijving: "Vooropleiding: basisonderwijs."
+    groep: Vooropleiding_niveau
+  - naam: VooroplNiveau_educatie
+    omschrijving: "Vooropleiding: volwasseneneducatie of inburgering."
+    groep: Vooropleiding_niveau
+  - naam: VooroplNiveau_prak
+    omschrijving: "Vooropleiding: praktijkonderwijs."
+    groep: Vooropleiding_niveau
+  - naam: VooroplNiveau_other
+    omschrijving: "Vooropleiding: overige opleiding."
+    groep: Vooropleiding_niveau
+  - naam: VooroplNiveau_nan
+    omschrijving: "Vooropleiding: niet bekend."
+    groep: Vooropleiding_niveau
+  - naam: Economie
+    omschrijving: "Richting van de vooropleiding: economie."
+    groep: Vooropleiding_richting
+  - naam: Techniek
+    omschrijving: "Richting van de vooropleiding: techniek."
+    groep: Vooropleiding_richting
+  - naam: Zorgenwelzijn
+    omschrijving: "Richting van de vooropleiding: zorg en welzijn."
+    groep: Vooropleiding_richting
+  - naam: DSV
+    omschrijving: "Richting van de vooropleiding: dienstverlening en veiligheid."
+    groep: Vooropleiding_richting
+  - naam: Landbouw
+    omschrijving: "Richting van de vooropleiding: landbouw."
+    groep: Vooropleiding_richting
+  - naam: Anders
+    omschrijving: "Richting van de vooropleiding: een andere richting."
+    groep: Vooropleiding_richting
+  - naam: Richting_nan
+    omschrijving: "Richting van de vooropleiding: niet bekend."
+    groep: Vooropleiding_richting
+  - naam: Total_verzuimW1_unap
+    omschrijving: "Totaal ongeoorloofd verzuim in week 1 van het schooljaar."
+    groep: Verzuim_ongeoorloofd_per_week
+  - naam: Total_verzuimW2_unap
+    omschrijving: "Totaal ongeoorloofd verzuim in week 2 van het schooljaar."
+    groep: Verzuim_ongeoorloofd_per_week
+  - naam: Total_verzuimW3_unap
+    omschrijving: "Totaal ongeoorloofd verzuim in week 3 van het schooljaar."
+    groep: Verzuim_ongeoorloofd_per_week
+  - naam: Total_verzuimW4_unap
+    omschrijving: "Totaal ongeoorloofd verzuim in week 4 van het schooljaar."
+    groep: Verzuim_ongeoorloofd_per_week
+  - naam: Total_verzuimW5_unap
+    omschrijving: "Totaal ongeoorloofd verzuim in week 5 van het schooljaar."
+    groep: Verzuim_ongeoorloofd_per_week
+  - naam: Total_verzuimW6_unap
+    omschrijving: "Totaal ongeoorloofd verzuim in week 6 van het schooljaar."
+    groep: Verzuim_ongeoorloofd_per_week
+  - naam: Total_verzuimW7_unap
+    omschrijving: "Totaal ongeoorloofd verzuim in week 7 van het schooljaar."
+    groep: Verzuim_ongeoorloofd_per_week
+  - naam: Total_verzuimW8_unap
+    omschrijving: "Totaal ongeoorloofd verzuim in week 8 van het schooljaar."
+    groep: Verzuim_ongeoorloofd_per_week
+  - naam: Total_verzuimW9_unap
+    omschrijving: "Totaal ongeoorloofd verzuim in week 9 van het schooljaar."
+    groep: Verzuim_ongeoorloofd_per_week
+  - naam: Total_verzuimW10_unap
+    omschrijving: "Totaal ongeoorloofd verzuim in week 10 van het schooljaar."
+    groep: Verzuim_ongeoorloofd_per_week
+  - naam: Total_verzuimW1_ap
+    omschrijving: "Totaal geoorloofd verzuim in week 1 van het schooljaar."
+    groep: Verzuim_geoorloofd_per_week
+  - naam: Total_verzuimW2_ap
+    omschrijving: "Totaal geoorloofd verzuim in week 2 van het schooljaar."
+    groep: Verzuim_geoorloofd_per_week
+  - naam: Total_verzuimW3_ap
+    omschrijving: "Totaal geoorloofd verzuim in week 3 van het schooljaar."
+    groep: Verzuim_geoorloofd_per_week
+  - naam: Total_verzuimW4_ap
+    omschrijving: "Totaal geoorloofd verzuim in week 4 van het schooljaar."
+    groep: Verzuim_geoorloofd_per_week
+  - naam: Total_verzuimW5_ap
+    omschrijving: "Totaal geoorloofd verzuim in week 5 van het schooljaar."
+    groep: Verzuim_geoorloofd_per_week
+  - naam: Total_verzuimW6_ap
+    omschrijving: "Totaal geoorloofd verzuim in week 6 van het schooljaar."
+    groep: Verzuim_geoorloofd_per_week
+  - naam: Total_verzuimW7_ap
+    omschrijving: "Totaal geoorloofd verzuim in week 7 van het schooljaar."
+    groep: Verzuim_geoorloofd_per_week
+  - naam: Total_verzuimW8_ap
+    omschrijving: "Totaal geoorloofd verzuim in week 8 van het schooljaar."
+    groep: Verzuim_geoorloofd_per_week
+  - naam: Total_verzuimW9_ap
+    omschrijving: "Totaal geoorloofd verzuim in week 9 van het schooljaar."
+    groep: Verzuim_geoorloofd_per_week
+  - naam: Total_verzuimW10_ap
+    omschrijving: "Totaal geoorloofd verzuim in week 10 van het schooljaar."
+    groep: Verzuim_geoorloofd_per_week
+  - naam: absence_unauthorized
+    omschrijving: "Totaal ongeoorloofd verzuim over de gemeten weken."
+  - naam: absence_authorized
+    omschrijving: "Totaal geoorloofd verzuim over de gemeten weken."
+  - naam: Reistijd
+    omschrijving: "Reistijd van het woonadres naar de instelling, in minuten."

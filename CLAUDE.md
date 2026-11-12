@@ -26,6 +26,8 @@ Python 3.13, student-signal, scikit-learn, pandas, Streamlit.
 │   ├── features.py                  ← full feature importance extraction
 │   ├── impact.py                    ← impact per variable: retrain without it and compare (--impact)
 │   ├── export.py                    ← builds standardized JSON output
+│   ├── shared_variables.py          ← shared variable names: own column names never reach the result file
+│   ├── metadata/variabelen.yaml     ← the shared variable list
 │   ├── report.py                    ← standalone HTML report of one result (app download and CLI)
 │   ├── aggregate.py                 ← combines shared results (overview page and app comparison)
 │   ├── overview.py                  ← builds the collective overview page (GitHub Pages)
@@ -53,6 +55,8 @@ A run never overwrites a tracked file: `--demo` writes `results/benchmark_demo_*
 The app is the primary interface: a feature for institutions must work there, not only on the command line. App and command line both call `run_benchmark_on_data` in `runner.py`. `tests/test_app.py` clicks through the app on the demo data.
 
 Sharing: an institution sends its result file to CEDA, CEDA adds it to `results/` via a pull request, and the `Overview` workflow publishes the collective overview on GitHub Pages together with `shared_results.json`, which the app downloads for the comparison. The app never uploads anything. Quick runs and demo results do not count (`aggregate.is_shareable`).
+
+Shared names: `run_benchmark_on_data` returns `(result, local_names)`. The result holds only names from `metadata/variabelen.yaml` or `eigen_variabele_N`/`eigen_groep_N`; `local_names` maps those back to the institution's own names and is only shown in the app and the HTML report, never written to the JSON. Own variables are left out of the collective overview.
 
 ## Data
 Input: one CSV with a `Dropout` column (0/1) and any student features. With `cohort_column` set (in `config.yaml` or `--cohort-column`) and at least two cohorts in the data, the tool trains on the earlier cohorts and tests on the last one. Otherwise it splits 80/20 at random. `metadata.split` in the result states which split was used.

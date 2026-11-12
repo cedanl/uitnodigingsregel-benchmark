@@ -29,11 +29,11 @@ uv run uitnodigingsregel-benchmark
 De app opent in je browser. Stoppen doe je met Ctrl+C in het terminalvenster.
 
 1. **Kies je data.** Upload een CSV met één rij per student, een kolom die aangeeft of de student is uitgevallen (1) of niet (0), en de kenmerken van de student. Een kolom met studentnummers is niet nodig. Of klik op de demo-data om de app eerst te proberen.
-2. **Controleer de kolommen.** De app herkent de uitvalkolom, het studentnummer en een cohortkolom, en stelt voor welke kolommen samen één variabele vormen. Pas aan wat niet klopt. Kan de data niet worden gebruikt, dan staat er direct waarom.
+2. **Controleer de kolommen.** De app herkent de uitvalkolom, het studentnummer en een cohortkolom, stelt voor welke kolommen samen één variabele vormen, en koppelt je kolommen aan de gedeelde variabelenlijst. Pas aan wat niet klopt. Kan de data niet worden gebruikt, dan staat er direct waarom.
 3. **Draai de benchmark.** Kies snel (een eerste controle, ongeveer een minuut) of volledig (alle modellen, voor een uitkomst om te delen), en of de impact per variabele wordt gemeten.
 4. **Lees de uitkomst.** Per model de precisie en recall als de 20% studenten met de hoogste voorspelde kans worden uitgenodigd, en een grafiek met de impact per variabele.
 5. **Download het rapport.** Eén HTML-bestand met de uitkomst en de grafieken, om te bewaren of door te sturen naar collega's. Het opent in elke browser, ook zonder internet.
-6. **Deel de uitkomst.** Download het resultaatbestand en lever het aan voor het gezamenlijke overzicht (zie hieronder). Het bestand bevat de uitkomsten per model, de namen van je kolommen en aantallen studenten, en geen gegevens van individuele studenten.
+6. **Deel de uitkomst.** Download het resultaatbestand en lever het aan voor het gezamenlijke overzicht (zie hieronder). Het bestand bevat de uitkomsten per model en aantallen studenten. Het bevat geen namen van je eigen kolommen en geen gegevens van individuele studenten (zie [Gedeelde variabelen](#gedeelde-variabelen)).
 7. **Vergelijk.** De app toont je uitkomst naast de gedeelde uitkomsten van andere instellingen. De app haalt die alleen op; er wordt niets over je data verstuurd.
 
 Het rapport en het resultaatbestand staan ook in de map `results/`. In `results/voorbeeld/` staat een voorbeeld, gemaakt op de demo-data.
@@ -51,11 +51,26 @@ Een uitkomst staat dus pas in het overzicht nadat CEDA het bestand heeft toegevo
 
 ### Voor CEDA: een gedeelde uitkomst opnemen
 
-1. Controleer het bestand: een volledige run (`quick_mode` is false), een naam of code waar de instelling mee akkoord is, en geen kolomnamen die studenten herkenbaar maken of de instelling tegen haar wens.
+1. Controleer het bestand: een volledige run (`quick_mode` is false), een naam of code waar de instelling mee akkoord is, en alleen namen uit de gedeelde variabelenlijst of `eigen_variabele_N` en `eigen_groep_N`.
 2. Voeg het bestand in een pull request toe aan `results/` en merge die.
 3. De workflow `Overview` bouwt de pagina opnieuw en publiceert die op GitHub Pages. Uitkomsten van snelle runs en van de demo-data blijven buiten het overzicht.
 
 Het overzicht lokaal bouwen: `uv run python -m uitnodigingsregel_benchmark.overview`, en open daarna `site/index.html`. Lokaal tellen ook de bestanden mee die alleen in je eigen map `results/` staan.
+
+## Gedeelde variabelen
+
+Elke instelling noemt haar kolommen anders. Om uitkomsten bij elkaar op te tellen, gebruikt het resultaatbestand alleen de namen uit een gedeelde lijst: `src/uitnodigingsregel_benchmark/metadata/variabelen.yaml`. De lijst volgt de variabelendefinities van de Uitnodigingsregel, met per variabele een omschrijving.
+
+- Een kolom met dezelfde naam als een gedeelde variabele wordt vanzelf gekoppeld. Hoofdletters, spaties en lage streepjes maken niet uit.
+- Heet een kolom anders maar bedoelt hij hetzelfde, koppel hem dan in de app bij stap 2. De app bewaart die keuze in `koppeling.json` op je eigen computer; dat bestand wordt niet gedeeld.
+- Een kolom die niet in de lijst staat telt gewoon mee, maar heet in het resultaatbestand `eigen_variabele_1`, `eigen_variabele_2`, enzovoort. Een eigen groep van kolommen heet `eigen_groep_1`. Je rapport en de app tonen welke kolom erbij hoort; het resultaatbestand niet.
+- Gedeelde variabelen die samen één kenmerk vormen, zoals de kolommen per niveau van de vooropleiding, tellen bij de impactmeting altijd als één variabele.
+
+Eigen variabelen tellen niet mee in het gezamenlijke overzicht: `eigen_variabele_1` is bij elke instelling iets anders.
+
+### Een variabele voorstellen voor de gedeelde lijst
+
+Meet je een variabele die voor andere instellingen ook bruikbaar is, zoals reistijd of een toetsuitslag? Maak dan een issue aan in deze repository met de naam, een omschrijving van één zin, hoe je de waarde berekent en uit welk systeem die komt. Na opname in de lijst koppelt de app de kolom vanzelf.
 
 ## Commandoregel en instellingenbestand
 
@@ -109,6 +124,7 @@ Alle instellingen staan in `config.yaml`, met uitleg per regel. Er hoeven geen P
 | `test_size` | Aandeel van de data om op te toetsen bij een willekeurige splitsing | 0.2 |
 | `n_jobs` | Aantal processen tegelijk; zet op 2 als het geheugen volraakt | alle kernen |
 | `impact`, `impact_variables`, `variable_groups` | Impact per variabele (zie hieronder) | uit |
+| `column_mapping` | Eigen kolom gekoppeld aan een gedeelde variabele, bijvoorbeeld `{Leeftijd: StudentAge}`. Zonder deze instelling leest de commandoregel `koppeling.json` uit de app | geen |
 
 ## Toetsen op een later cohort
 

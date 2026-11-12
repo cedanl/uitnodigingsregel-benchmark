@@ -93,14 +93,18 @@ def test_app_runs_benchmark_on_demo_data(tmp_path, monkeypatch):
     result = json.loads(result_files[0].read_text(encoding="utf-8"))
     assert result["metadata"]["quick_mode"] is True
     impact = result["models"]["Lasso"]["variable_impact"]
-    assert "VooroplNiveau" in {entry["variable"] for entry in impact}
+    variables = {entry["variable"] for entry in impact}
+    assert "Vooropleiding_niveau" in variables
+    assert "ROCMondriaan" not in json.dumps(result)
+    assert (tmp_path / "koppeling.json").exists()
 
     assert [button.label for button in app.get("download_button")] == [
         "Download rapport",
         "Download resultaatbestand",
     ]
     report = result_files[0].with_suffix(".html").read_text(encoding="utf-8")
-    assert report == build_html_report(result)
+    assert "Namen van je eigen kolommen" in report
+    assert "ROCMondriaan" in report
 
 
 def test_report_is_standalone_and_shows_the_result():
@@ -114,7 +118,7 @@ def test_report_is_standalone_and_shows_the_result():
     for name in result["models"]:
         assert name in report
     assert "Impact per variabele" in report
-    assert "VooroplNiveau_HAVO" in report or "VooroplNiveau" in report
+    assert "Vooropleiding_niveau" in report
 
 
 def test_report_without_impact_and_with_cohort_split():
