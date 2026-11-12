@@ -1,5 +1,6 @@
 """Measure the impact of a variable: train the models again without it and compare."""
 
+from collections.abc import Callable
 from fnmatch import fnmatch
 from typing import Any
 
@@ -86,6 +87,7 @@ def measure_variable_impact(
     baseline: dict[str, tuple[float, float]],
     dropout_col: str,
     id_col: str,
+    on_step: Callable[[str], None] | None = None,
 ) -> dict[str, list[dict]]:
     """Train each model again without one variable at a time and compare with the baseline.
 
@@ -100,6 +102,7 @@ def measure_variable_impact(
         baseline: Model name mapped to (precision, recall) at 20% with all variables.
         dropout_col: Name of the dropout column.
         id_col: Name of the identification column.
+        on_step: Called with a description before each variable, to show progress.
 
     Returns:
         Per model a list with one entry per variable, largest precision difference first.
@@ -107,6 +110,8 @@ def measure_variable_impact(
     impact: dict[str, list[dict]] = {name: [] for name in fitted_models}
     for number, (variable, columns) in enumerate(variables.items(), start=1):
         print(f"  Zonder '{variable}' ({number} van {len(variables)})...")
+        if on_step:
+            on_step(f"Impact meten: zonder '{variable}' ({number} van {len(variables)})")
         prepared = student_signal.prepare(
             train.drop(columns=columns),
             test.drop(columns=columns),

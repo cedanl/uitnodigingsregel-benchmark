@@ -20,7 +20,28 @@ brew install libomp
 
 ## Usage
 
-First try the benchmark on the synthetic demo data. This needs no data of your own and takes a few seconds:
+Start the app:
+
+```bash
+uv run uitnodigingsregel-benchmark
+```
+
+The app opens in your browser. It runs on your own computer; no student data leaves it. To stop the app, press Ctrl+C in the terminal window.
+
+1. **Choose your data.** Upload a CSV with one row per student, a column that states whether the student dropped out (1) or not (0), and the student features. A column with student numbers is not needed. Or click the demo data to try the app first.
+2. **Check the columns.** The app recognises the dropout column, the student number and a cohort column, and suggests which columns together form one variable. Correct what is wrong; the app states directly if the data cannot be used.
+3. **Run the benchmark.** Choose quick (a first check, about a minute) or full (all models, for a result to share), and whether to measure the impact per variable.
+4. **Read the result.** Per model the precision and recall when the 20% students with the highest predicted risk are invited, and a chart with the impact of each variable.
+5. **Download the report.** One HTML file with the outcome and the charts, to keep or to send to colleagues. It opens in any browser, also without internet.
+6. **Share the result.** Download the result file and share it with CEDA to contribute to the collective benchmark. The file holds outcomes per model, your column names and numbers of students; no data of individual students.
+
+The report and the result file are also written to `results/`. `results/voorbeeld/` holds an example, made on the demo data.
+
+## Command line and settings file
+
+For advanced users. Everything the app does can also be run from the command line, with the settings in `config.yaml`.
+
+First try the benchmark on the synthetic demo data:
 
 ```bash
 uv run uitnodigingsregel-benchmark --demo --quick
@@ -36,12 +57,13 @@ Then run it on your own data:
 uv run uitnodigingsregel-benchmark --train data/01-raw/user_data/data.csv
 ```
 
-Output: `results/benchmark_{instelling_id}_{dropout_year}.json`. Share this file with CEDA to contribute to the collective benchmark. `results/voorbeeld/` holds an example of the file, made on the demo data.
+Output: `results/benchmark_{instelling_id}_{dropout_year}.json`, and the report as an HTML file with the same name. Share this file with CEDA to contribute to the collective benchmark. `results/voorbeeld/` holds an example of the file, made on the demo data.
 
 Before training, the benchmark checks the data. If something is missing or wrong, it stops and states what to change.
 
 | Option | What it does |
 |---|---|
+| (none) | Start the app |
 | `--train PATH` | Run on your own CSV |
 | `--demo` | Run on the synthetic demo data; writes `results/benchmark_demo_*.json` |
 | `--quick` | Three models and fewer search rounds, for a first check. The result file states `quick_mode: true`; do not share a quick result |
@@ -49,6 +71,7 @@ Before training, the benchmark checks the data. If something is missing or wrong
 | `--impact` | Measure the impact of each variable (see below) |
 | `--config PATH` | Use another settings file than `config.yaml` |
 | `--results-dir PATH` | Write the result to another folder |
+| `--no-browser` | Start the app without opening the browser |
 
 ## Settings
 
