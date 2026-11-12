@@ -7,7 +7,19 @@
   "$defs": {
     "number_or_null": {"type": ["number", "null"]},
     "cohort": {"type": ["string", "integer", "number"]},
-    "name": {"type": "string", "maxLength": 100}
+    "name": {"type": "string", "maxLength": 100},
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["precision", "recall"],
+      "properties": {
+        "variable": {"$ref": "#/$defs/name"},
+        "precision": {"type": "number"},
+        "recall": {"type": "number"},
+        "precision_sd": {"type": "number", "minimum": 0},
+        "recall_sd": {"type": "number", "minimum": 0}
+      }
+    }
   },
   "properties": {
     "metadata": {
@@ -119,6 +131,8 @@
               "recall": {"type": "number"},
               "precision_sd": {"type": "number", "minimum": 0},
               "recall_sd": {"type": "number", "minimum": 0},
+              "precision_vs_random": {"type": "number"},
+              "precision_vs_single_variable": {"type": "number"},
               "lift_over_baseline": {"$ref": "#/$defs/number_or_null"},
               "status": {"type": "string"}
             }
@@ -128,6 +142,14 @@
           "mse_train": {"$ref": "#/$defs/number_or_null"},
           "mse_val": {"$ref": "#/$defs/number_or_null"}
         }
+      }
+    },
+    "references": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "random": {"$ref": "#/$defs/reference"},
+        "single_variable": {"$ref": "#/$defs/reference"}
       }
     },
     "recommendation": {

@@ -9,6 +9,7 @@ import streamlit as st
 from student_signal.evaluate import get_stoplight_evaluation
 
 from uitnodigingsregel_benchmark import sharing
+from uitnodigingsregel_benchmark.aggregate import compare_with_shared
 from uitnodigingsregel_benchmark.app.styles import APP_CSS
 from uitnodigingsregel_benchmark.check import ResultError, check_result
 from uitnodigingsregel_benchmark.dataset import (
@@ -25,14 +26,20 @@ from uitnodigingsregel_benchmark.detect import (
 from uitnodigingsregel_benchmark.export import sanitize, write_result
 from uitnodigingsregel_benchmark.models import MODELS
 from uitnodigingsregel_benchmark.report import (
+    HELP_TEXTS,
+    IMPACT_COLORS_TEXT,
     IMPACT_TEXT,
     LOCAL_NAMES_TEXT,
     PRECISION_RECALL_TEXT,
     QUICK_TEXT,
+    REFERENCE_LABEL,
+    REFERENCE_TEXT,
     SPREAD_TEXT,
+    STOPLIGHT_TEXT,
     build_html_report,
     close_to_best,
     display_name,
+    reference_label,
     split_description,
     with_spread,
     within_spread,
@@ -52,6 +59,8 @@ NONE = "(geen)"
 QUICK = "Snel"
 FULL = "Volledig"
 OWN = "(eigen variabele, niet in de lijst)"
+# Unauthorized absence is the rule an institution most often applies without a model
+REFERENCE_SUGGESTION = "absence_unauthorized"
 
 st.set_page_config(page_title="Uitnodigingsregel benchmark", page_icon="📊", layout="centered")
 st.markdown(APP_CSS, unsafe_allow_html=True)
@@ -62,7 +71,7 @@ for key in (
     "upload_seen",
     "result",
     "result_path",
-    "shared",
+    "comparison",
     "local_names",
     "warnings",
 ):
@@ -87,7 +96,7 @@ def _select(label: str, options: list[str], detected: str | None, help_text: str
     return st.selectbox(label, options, index=index, help=help_text)
 
 
-def _result_table(result: dict) -> pd.DataFrame:
+def _result_table(result: dict, local_names: dict[str, str] | None) -> pd.DataFrame:
     rows = []
     for name, model in result["models"].items():
         evaluation = model["evaluation"]
@@ -102,7 +111,20 @@ def _result_table(result: dict) -> pd.DataFrame:
                 "± recall": evaluation.get("recall_sd") or None,
             }
         )
-    table = pd.DataFrame(rows).sort_values("Precisie (%)", ascending=False)
+    references = [
+        {
+            "Model": reference_label(key, reference, local_names),
+            "Oordeel": REFERENCE_LABEL,
+            "Precisie (%)": reference["precision"],
+            "± precisie": reference.get("precision_sd") or None,
+            "Recall (%)": reference["recall"],
+            "± recall": reference.get("recall_sd") or None,
+        }
+        for key, reference in result.get("references", {}).items()
+    ]
+    table = pd.concat(
+        [pd.DataFrame(rows).sort_values("Precisie (%)", ascending=False), pd.DataFrame(references)]
+    )
     # Without repeated splits there is no spread to show
     return table.dropna(axis=1, how="all").reset_index(drop=True)
 
@@ -323,6 +345,20 @@ with st.container(border=True):
         help="Traint elk model opnieuw zonder één variabele en vergelijkt de uitkomst. "
         "Duurt langer bij veel variabelen.",
     )
+    reference_variable = None
+    if data_ok:
+        numeric = [c for c in features if pd.api.types.is_numeric_dtype(data[c])]
+        shared_names = match_columns(features, column_mapping)
+        suggested = next((c for c in numeric if shared_names[c] == REFERENCE_SUGGESTION), NONE)
+        choice = st.selectbox(
+            "Vergelijk met uitnodigen op één variabele (optioneel)",
+            [NONE, *numeric],
+            index=[NONE, *numeric].index(suggested),
+            help="Een regel zonder model: de 20% studenten met de hoogste waarde op deze "
+            "variabele uitnodigen. Zo zie je wat een model meer oplevert. Willekeurig "
+            "uitnodigen staat er altijd bij.",
+        )
+        reference_variable = None if choice == NONE else choice
     start = st.button("Start benchmark", type="primary", disabled=not data_ok)
 
 if start:
@@ -336,6 +372,7 @@ if start:
             "impact": measure_impact,
             "variable_groups": variable_groups or None,
             "column_mapping": column_mapping,
+            "reference_variable": reference_variable,
         }
     )
     save_mapping(column_mapping)
@@ -363,9 +400,11 @@ if start:
         else:
             st.session_state.result = result
             st.session_state.local_names = local_names
-            st.session_state.shared = sharing.fetch_shared_data()
+            shared = sharing.fetch_shared_data()
+            st.session_state.comparison = compare_with_shared(result, shared) if shared else None
             st.session_state.result_path.with_suffix(".html").write_text(
-                build_html_report(result, local_names), encoding="utf-8"
+                build_html_report(result, local_names, st.session_state.comparison),
+                encoding="utf-8",
             )
 
 result = st.session_state.result
@@ -390,15 +429,40 @@ with st.container(border=True):
         st.caption(f"Het verschil met {', '.join(close)} valt binnen de spreiding.")
     best_eval = result["models"][best["model"]]["evaluation"]
     left, middle, right = st.columns(3)
-    left.metric("Precisie", with_spread(best["precision_at_20"], best_eval.get("precision_sd")))
-    middle.metric("Recall", with_spread(best["recall_at_20"], best_eval.get("recall_sd")))
-    right.metric("Uitval in de data", f"{metadata['dropout_rate_test'] * 100:.0f}%")
+    left.metric(
+        "Precisie",
+        with_spread(best["precision_at_20"], best_eval.get("precision_sd")),
+        help=HELP_TEXTS["precision"],
+    )
+    middle.metric(
+        "Recall",
+        with_spread(best["recall_at_20"], best_eval.get("recall_sd")),
+        help=HELP_TEXTS["recall"],
+    )
+    right.metric(
+        "Uitval in de data",
+        f"{metadata['dropout_rate_test'] * 100:.0f}%",
+        help=HELP_TEXTS["dropout_rate"],
+    )
     st.caption(PRECISION_RECALL_TEXT)
-    st.dataframe(_result_table(result), hide_index=True, width="stretch")
+    st.dataframe(
+        _result_table(result, local_names),
+        hide_index=True,
+        width="stretch",
+        column_config={
+            "Oordeel": st.column_config.TextColumn(help=STOPLIGHT_TEXT),
+            "Precisie (%)": st.column_config.NumberColumn(help=HELP_TEXTS["precision"]),
+            "Recall (%)": st.column_config.NumberColumn(help=HELP_TEXTS["recall"]),
+            "± precisie": st.column_config.NumberColumn(help=HELP_TEXTS["spread"]),
+            "± recall": st.column_config.NumberColumn(help=HELP_TEXTS["spread"]),
+        },
+    )
+    if result.get("references"):
+        st.caption(REFERENCE_TEXT)
 
 if metadata["impact_measured"]:
     with st.container(border=True):
-        st.subheader("Impact per variabele")
+        st.subheader("Impact per variabele", help=IMPACT_COLORS_TEXT)
         model_names = list(result["models"])
         chosen = st.selectbox("Model", model_names, index=model_names.index(best["model"]))
         st.altair_chart(
@@ -431,7 +495,7 @@ with st.container(border=True):
     )
     st.download_button(
         "Download rapport",
-        data=build_html_report(result, local_names),
+        data=build_html_report(result, local_names, st.session_state.comparison),
         file_name=result_path.with_suffix(".html").name,
         mime="text/html",
     )
@@ -476,52 +540,49 @@ with st.container(border=True):
 
 with st.container(border=True):
     st.subheader("Vergelijk met andere instellingen")
-    shared = st.session_state.shared
-    if shared is None:
+    comparison = st.session_state.comparison
+    if comparison is None:
         st.write(
             "Er zijn nog geen gedeelde resultaten om mee te vergelijken, of er is geen "
             f"internetverbinding. Het overzicht staat op {sharing.OVERVIEW_URL}"
         )
     else:
-        summary = shared["summary"]
         st.caption(
-            f"Gedeelde resultaten van {summary['n_institutions']} instellingen, opgehaald uit "
-            "het gezamenlijke overzicht. Er is niets over je eigen data verstuurd."
+            f"Gedeelde resultaten van {comparison['n_institutions']} instellingen, opgehaald "
+            "uit het gezamenlijke overzicht. Er is niets over je eigen data verstuurd."
         )
-        split_type = metadata["split"]["type"]
-        others = [
-            row["precision"]
-            for row in shared["models"]
-            if row["model"] == best["model"] and row["split"] == split_type
-        ]
+        others = comparison["other_precisions"]
         if others:
             st.write(
-                f"**{best['model']}** haalt bij jou een precisie van "
-                f"{best['precision_at_20']:.0f}%. Bij {len(others)} gedeelde resultaten met "
+                f"**{comparison['model']}** haalt bij jou een precisie van "
+                f"{comparison['own_precision']:.0f}%. Bij {len(others)} gedeelde resultaten met "
                 f"dezelfde soort splitsing ligt die tussen {min(others):.0f}% en "
                 f"{max(others):.0f}%."
             )
-        if metadata["impact_measured"]:
-            own = {
-                entry["variable"]: entry["precision_diff"]
-                for entry in result["models"][best["model"]]["variable_impact"]
-                if "precision_diff" in entry
-            }
-            rows = [
-                {
-                    "Variabele": row["variable"],
-                    "Jouw data": own[row["variable"]],
-                    "Gemiddeld bij anderen": row["mean"],
-                    "Aantal instellingen": row["n_institutions"],
-                }
-                for row in shared["variables"]
-                if row["variable"] in own
-            ]
-            if rows:
-                st.write("Impact per variabele, in procentpunten precisie:")
-                st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
-            else:
-                st.write(
-                    "Geen van je variabelen komt onder dezelfde naam voor in de gedeelde "
-                    "resultaten."
-                )
+        if comparison["variables"]:
+            st.write("Impact per variabele, in procentpunten precisie:")
+            st.dataframe(
+                pd.DataFrame(
+                    [
+                        {
+                            "Variabele": display_name(row["variable"], local_names),
+                            "Jouw data": row["own"],
+                            "Gemiddeld bij anderen": row["shared_mean"],
+                            "Aantal instellingen": row["n_institutions"],
+                        }
+                        for row in comparison["variables"]
+                    ]
+                ),
+                hide_index=True,
+                width="stretch",
+                column_config={
+                    "Jouw data": st.column_config.NumberColumn(help=HELP_TEXTS["own_impact"]),
+                    "Gemiddeld bij anderen": st.column_config.NumberColumn(
+                        help=HELP_TEXTS["shared_impact"]
+                    ),
+                },
+            )
+        elif metadata["impact_measured"]:
+            st.write(
+                "Geen van je variabelen komt onder dezelfde naam voor in de gedeelde resultaten."
+            )

@@ -37,6 +37,9 @@ class ResultError(ValueError):
 def _unknown_names(result: dict) -> list[str]:
     """Names in the result that are neither shared nor neutral, such as own column names."""
     columns: set[str] = set(result["metadata"]["features_available"])
+    single_variable = result.get("references", {}).get("single_variable")
+    if single_variable:
+        columns.add(single_variable["variable"])
     variables: set[str] = set()
     for model in result["models"].values():
         columns |= {e["feature"] for e in model.get("feature_importance", [])}

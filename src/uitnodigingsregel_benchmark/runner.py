@@ -13,6 +13,8 @@ from sklearn.base import clone
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
 from student_signal.evaluate import get_stoplight_evaluation, prepare_model_predictions
 
+from uitnodigingsregel_benchmark import sharing
+from uitnodigingsregel_benchmark.aggregate import compare_with_shared
 from uitnodigingsregel_benchmark.check import FORMAT_VERSION, check_result
 from uitnodigingsregel_benchmark.dataset import (
     ensure_id_column,
@@ -28,6 +30,11 @@ from uitnodigingsregel_benchmark.export import (
 from uitnodigingsregel_benchmark.features import extract_feature_importance
 from uitnodigingsregel_benchmark.impact import measure_variable_impact, resolve_variables
 from uitnodigingsregel_benchmark.models import MODELS
+from uitnodigingsregel_benchmark.references import (
+    check_reference_variable,
+    random_reference,
+    single_variable_reference,
+)
 from uitnodigingsregel_benchmark.report import build_html_report
 from uitnodigingsregel_benchmark.settings import SettingsError
 from uitnodigingsregel_benchmark.shared_variables import (
@@ -221,8 +228,10 @@ def run_benchmark(
     for warning in check_result(result):
         print(f"\nLet op: {warning}")
     path = write_result(result, results_dir)
+    shared = sharing.fetch_shared_data()
+    comparison = compare_with_shared(result, shared) if shared else None
     report_path = path.with_suffix(".html")
-    report_path.write_text(build_html_report(result, local_names), encoding="utf-8")
+    report_path.write_text(build_html_report(result, local_names, comparison), encoding="utf-8")
     print(f"\nBenchmark resultaat opgeslagen: {path}")
     print(f"Rapport opgeslagen: {report_path}")
     return path
@@ -287,6 +296,9 @@ def run_benchmark_on_data(
     split_info["repeats"] = len(splits)
 
     feature_columns = [c for c in train_split.columns if c not in (dropout_col, id_col)]
+    reference_variable = config["reference_variable"]
+    if reference_variable:
+        check_reference_variable(train_split, reference_variable, [dropout_col, id_col])
     linked = match_columns(feature_columns, config["column_mapping"])
     variables = None
     if config["impact"]:
@@ -379,6 +391,12 @@ def run_benchmark_on_data(
             curves[name].append(_curve(model, prepared_split, use_scaled, dropout_col, name))
             fitted[-1][name] = (model, use_scaled)
 
+    references = {"random": random_reference([test for _, test in splits], dropout_col)}
+    if reference_variable:
+        references["single_variable"] = single_variable_reference(
+            splits, reference_variable, dropout_col
+        )
+
     dropout_rate_pct = metadata["dropout_rate_train"] * 100
     for name, model_curves in curves.items():
         per_split = [_precision_at(curve, 20) for curve in model_curves]
@@ -397,6 +415,10 @@ def run_benchmark_on_data(
                         round(precision / dropout_rate_pct, 2) if dropout_rate_pct > 0 else None
                     ),
                     "status": status,
+                    **{
+                        f"precision_vs_{key}": round(precision - reference["precision"], 1)
+                        for key, reference in references.items()
+                    },
                 },
             }
         )
@@ -432,5 +454,6 @@ def run_benchmark_on_data(
     if on_progress:
         on_progress(1.0, "Klaar")
     result = build_result(metadata, model_results)
+    result["references"] = references
     local_names = apply_shared_names(result, public_names(linked))
     return result, local_names

@@ -23,12 +23,6 @@ DEMO_TRAIN = REPO_ROOT / "data/01-raw/demo/synth_data_train.csv"
 EXAMPLE_RESULT = REPO_ROOT / "results/voorbeeld/benchmark_demo_onbekend.json"
 
 
-@pytest.fixture(autouse=True)
-def no_network(monkeypatch):
-    """The app never reaches the internet in tests."""
-    monkeypatch.setattr(sharing, "fetch_shared_data", lambda: None)
-
-
 def _students() -> pd.DataFrame:
     return pd.DataFrame(
         {

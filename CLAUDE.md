@@ -30,6 +30,7 @@ Python 3.13, student-signal, scikit-learn, pandas, Streamlit.
 │   ├── metadata/variabelen.yaml     ← the shared variable list
 │   ├── check.py                     ← checks a result before writing/sharing (schema, version, names)
 │   ├── metadata/result_schema.json  ← JSON Schema of the result file (format_version 1)
+│   ├── references.py                ← reference rules without a model: random, and inviting on one variable
 │   ├── report.py                    ← standalone HTML report of one result (app download and CLI)
 │   ├── aggregate.py                 ← combines shared results (overview page and app comparison)
 │   ├── overview.py                  ← builds the collective overview page (GitHub Pages)
