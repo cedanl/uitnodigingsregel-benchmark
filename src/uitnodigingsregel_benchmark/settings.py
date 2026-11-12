@@ -15,6 +15,7 @@ DEFAULTS: dict = {
     "n_iter": 20,
     "cv_folds": 5,
     "test_size": 0.2,
+    "repeats": 5,
     "n_jobs": -1,
     "impact": False,
     "impact_variables": None,
@@ -27,6 +28,7 @@ QUICK_SETTINGS: dict = {
     "models": ["Random Forest", "Lasso", "Logistic Regression"],
     "n_iter": 5,
     "cv_folds": 3,
+    "repeats": 1,
 }
 
 

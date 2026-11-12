@@ -18,6 +18,7 @@ def split_train_test(
     cohort_col: str | None = None,
     test_size: float = 0.2,
     random_state: int = 42,
+    verbose: bool = True,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     """Split the data in a train and a test set.
 
@@ -31,6 +32,7 @@ def split_train_test(
         cohort_col: Name of the cohort column, or None for a random split.
         test_size: Share of the data in the test set for a random split.
         random_state: Seed for a random split.
+        verbose: Whether to print why rows are left out or the split falls back.
 
     Returns:
         Train set, test set and a description of the split for the result file.
@@ -43,7 +45,7 @@ def split_train_test(
         reason = f"kolom '{cohort_col}' staat niet in de data"
     elif cohort_col:
         n_missing = int(data[cohort_col].isna().sum())
-        if n_missing:
+        if n_missing and verbose:
             print(f"{n_missing} rijen zonder waarde in '{cohort_col}' doen niet mee.")
             data = data[data[cohort_col].notna()]
         cohorts = sorted(data[cohort_col].unique())
@@ -62,7 +64,7 @@ def split_train_test(
             "test_cohort": _plain(test_cohort),
         }
     else:
-        if reason:
+        if reason and verbose:
             print(f"Geen splitsing op cohort: {reason}. De data wordt willekeurig gesplitst.")
         train, test = train_test_split(
             data,

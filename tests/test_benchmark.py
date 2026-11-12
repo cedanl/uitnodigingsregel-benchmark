@@ -22,7 +22,7 @@ from uitnodigingsregel_benchmark.dataset import (
 from uitnodigingsregel_benchmark.export import write_result
 from uitnodigingsregel_benchmark.features import extract_feature_importance
 from uitnodigingsregel_benchmark.impact import resolve_variables
-from uitnodigingsregel_benchmark.runner import select_models
+from uitnodigingsregel_benchmark.runner import run_benchmark_on_data, select_models
 from uitnodigingsregel_benchmark.settings import DEFAULTS, SettingsError, load_config
 from uitnodigingsregel_benchmark.split import split_train_test
 
@@ -297,3 +297,36 @@ def test_cli_without_impact_leaves_it_out(tmp_path, monkeypatch):
         result = json.load(f)
     assert result["metadata"]["impact_measured"] is False
     assert "variable_impact" not in result["models"]["Lasso"]
+
+
+def test_repeated_splits_give_mean_and_spread(tmp_path, monkeypatch):
+    if not DEMO_TRAIN.exists():
+        pytest.skip("Demo data niet aanwezig")
+    monkeypatch.chdir(DEMO_TRAIN.parents[3])
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text(
+        "n_jobs: 1\nmodels: [Lasso, Logistic Regression]\nn_iter: 3\ncv_folds: 3\nrepeats: 3\n"
+        "impact_variables: [StudentAge, Vooropleiding_niveau]\n",
+        encoding="utf-8",
+    )
+    args = ["--demo", "--impact", "--config", str(config_file), "--results-dir", str(tmp_path)]
+    assert main(args) == 0
+    result = json.loads((tmp_path / "benchmark_demo_onbekend.json").read_text(encoding="utf-8"))
+    assert result["metadata"]["split"]["repeats"] == 3
+    for model in result["models"].values():
+        evaluation = model["evaluation"]
+        assert evaluation["precision_sd"] >= 0 and evaluation["recall_sd"] >= 0
+        point_20 = next(p for p in model["precision_recall_curve"] if p["pct"] == 20)
+        assert point_20["precision"] == pytest.approx(evaluation["precision"], abs=0.1)
+        impact = {e["variable"]: e for e in model["variable_impact"]}
+        assert set(impact) == {"StudentAge", "Vooropleiding_niveau"}
+        assert all("precision_diff_sd" in e for e in impact.values())
+
+
+def test_cohort_split_is_not_repeated():
+    data = _students([2021] * 30 + [2022] * 30 + [2023] * 30)
+    config = {**load_config("geen.yaml"), "cohort_column": "Cohort", "repeats": 4, "n_jobs": 1}
+    config.update({"models": ["Lasso"], "n_iter": 2, "cv_folds": 2})
+    result, _ = run_benchmark_on_data(data, config)
+    assert result["metadata"]["split"]["repeats"] == 1
+    assert result["models"]["Lasso"]["evaluation"]["precision_sd"] == 0
