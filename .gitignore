@@ -14,3 +14,6 @@ analysis/*.html
 
 # Result of a run on the demo data
 results/benchmark_demo_*.json
+
+# Reports of runs (the result files are shared, the reports are not)
+results/*.html

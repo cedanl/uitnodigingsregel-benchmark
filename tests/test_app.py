@@ -14,9 +14,11 @@ from uitnodigingsregel_benchmark.detect import (
     detect_id_column,
     suggest_variable_groups,
 )
+from uitnodigingsregel_benchmark.report import build_html_report
 
 REPO_ROOT = Path(__file__).parent.parent
 DEMO_TRAIN = REPO_ROOT / "data/01-raw/demo/synth_data_train.csv"
+EXAMPLE_RESULT = REPO_ROOT / "results/voorbeeld/benchmark_demo_onbekend.json"
 
 
 def _students() -> pd.DataFrame:
@@ -84,3 +86,39 @@ def test_app_runs_benchmark_on_demo_data(tmp_path, monkeypatch):
     assert result["metadata"]["quick_mode"] is True
     impact = result["models"]["Lasso"]["variable_impact"]
     assert "VooroplNiveau" in {entry["variable"] for entry in impact}
+
+    assert [button.label for button in app.get("download_button")] == [
+        "Download rapport",
+        "Download resultaatbestand",
+    ]
+    report = result_files[0].with_suffix(".html").read_text(encoding="utf-8")
+    assert report == build_html_report(result)
+
+
+def test_report_is_standalone_and_shows_the_result():
+    result = json.loads(EXAMPLE_RESULT.read_text(encoding="utf-8"))
+    report = build_html_report(result)
+    assert report.startswith("<!doctype html>")
+    assert "http://" not in report
+    assert "https://" not in report
+    assert "<script" not in report
+    assert result["recommendation"]["model"] in report
+    for name in result["models"]:
+        assert name in report
+    assert "Impact per variabele" in report
+    assert "VooroplNiveau_HAVO" in report or "VooroplNiveau" in report
+
+
+def test_report_without_impact_and_with_cohort_split():
+    result = json.loads(EXAMPLE_RESULT.read_text(encoding="utf-8"))
+    result["metadata"]["impact_measured"] = False
+    result["metadata"]["split"] = {
+        "type": "cohort",
+        "train_cohorts": [2021, 2022],
+        "test_cohort": 2023,
+    }
+    result["metadata"]["instelling_id"] = "<b>naam</b>"
+    report = build_html_report(result)
+    assert "Impact per variabele" not in report
+    assert "getoetst op cohort 2023" in report
+    assert "<b>naam</b>" not in report

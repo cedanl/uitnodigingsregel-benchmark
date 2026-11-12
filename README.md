@@ -32,9 +32,10 @@ The app opens in your browser. It runs on your own computer; no student data lea
 2. **Check the columns.** The app recognises the dropout column, the student number and a cohort column, and suggests which columns together form one variable. Correct what is wrong; the app states directly if the data cannot be used.
 3. **Run the benchmark.** Choose quick (a first check, about a minute) or full (all models, for a result to share), and whether to measure the impact per variable.
 4. **Read the result.** Per model the precision and recall when the 20% students with the highest predicted risk are invited, and a chart with the impact of each variable.
-5. **Share the result.** Download the result file and share it with CEDA to contribute to the collective benchmark. The file holds outcomes per model, your column names and numbers of students; no data of individual students.
+5. **Download the report.** One HTML file with the outcome and the charts, to keep or to send to colleagues. It opens in any browser, also without internet.
+6. **Share the result.** Download the result file and share it with CEDA to contribute to the collective benchmark. The file holds outcomes per model, your column names and numbers of students; no data of individual students.
 
-The result file is also written to `results/`. `results/voorbeeld/` holds an example, made on the demo data.
+The report and the result file are also written to `results/`. `results/voorbeeld/` holds an example, made on the demo data.
 
 ## Command line and settings file
 
@@ -56,7 +57,7 @@ Then run it on your own data:
 uv run uitnodigingsregel-benchmark --train data/01-raw/user_data/data.csv
 ```
 
-Output: `results/benchmark_{instelling_id}_{dropout_year}.json`. Share this file with CEDA to contribute to the collective benchmark. `results/voorbeeld/` holds an example of the file, made on the demo data.
+Output: `results/benchmark_{instelling_id}_{dropout_year}.json`, and the report as an HTML file with the same name. Share this file with CEDA to contribute to the collective benchmark. `results/voorbeeld/` holds an example of the file, made on the demo data.
 
 Before training, the benchmark checks the data. If something is missing or wrong, it stops and states what to change.
 

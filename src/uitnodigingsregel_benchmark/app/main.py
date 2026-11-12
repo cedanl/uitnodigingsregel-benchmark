@@ -22,6 +22,13 @@ from uitnodigingsregel_benchmark.detect import (
 )
 from uitnodigingsregel_benchmark.export import sanitize, write_result
 from uitnodigingsregel_benchmark.models import MODELS
+from uitnodigingsregel_benchmark.report import (
+    IMPACT_TEXT,
+    PRECISION_RECALL_TEXT,
+    QUICK_TEXT,
+    build_html_report,
+    split_description,
+)
 from uitnodigingsregel_benchmark.runner import run_benchmark_on_data
 from uitnodigingsregel_benchmark.settings import QUICK_SETTINGS, SettingsError, load_config
 
@@ -271,6 +278,9 @@ if start:
         progress.empty()
         st.session_state.result = result
         st.session_state.result_path = write_result(result, RESULTS_DIR)
+        st.session_state.result_path.with_suffix(".html").write_text(
+            build_html_report(result), encoding="utf-8"
+        )
 
 result = st.session_state.result
 if result is None:
@@ -281,33 +291,16 @@ metadata = result["metadata"]
 best = result["recommendation"]
 with st.container(border=True):
     st.subheader("Uitkomst")
-    if metadata["split"]["type"] == "cohort":
-        split_text = (
-            f"Getraind op cohort {', '.join(map(str, metadata['split']['train_cohorts']))} "
-            f"en getoetst op cohort {metadata['split']['test_cohort']}."
-        )
-    else:
-        split_text = (
-            "De data is willekeurig gesplitst in een deel om te trainen en een deel om te toetsen."
-        )
-    st.caption(
-        f"{split_text} Getraind op {metadata['n_train']} studenten, "
-        f"getoetst op {metadata['n_test']}."
-    )
+    st.caption(split_description(metadata))
     if metadata["quick_mode"]:
-        st.info("Dit is een snelle run. Kies 'Volledig' voor een uitkomst om te delen.")
+        st.info(QUICK_TEXT)
 
     st.write(f"Best voorspellende model: **{best['model']}**")
     left, middle, right = st.columns(3)
     left.metric("Precisie", f"{best['precision_at_20']:.0f}%")
     middle.metric("Recall", f"{best['recall_at_20']:.0f}%")
     right.metric("Uitval in de data", f"{metadata['dropout_rate_test'] * 100:.0f}%")
-    st.caption(
-        "Als je de 20% studenten met de hoogste voorspelde kans uitnodigt: **precisie** is het "
-        "deel van de uitgenodigde studenten dat ook echt uitviel, **recall** is het deel van "
-        "alle uitvallers dat je daarmee bereikt. Een precisie rond het uitvalpercentage in de "
-        "data betekent dat het model niet beter is dan willekeurig uitnodigen."
-    )
+    st.caption(PRECISION_RECALL_TEXT)
     st.dataframe(_result_table(result), hide_index=True, width="stretch")
 
 if metadata["impact_measured"]:
@@ -316,23 +309,30 @@ if metadata["impact_measured"]:
         model_names = list(result["models"])
         chosen = st.selectbox("Model", model_names, index=model_names.index(best["model"]))
         st.altair_chart(_impact_chart(result["models"][chosen]["variable_impact"]), width="stretch")
-        st.caption(
-            "Elke balk is het verschil in precisie tussen het model met en zonder de variabele. "
-            "Naar rechts: het model voorspelt beter mét de variabele. Een verschil van enkele "
-            "procentpunten kan toeval zijn, zeker bij een kleine groep studenten. Twee variabelen "
-            "die hetzelfde zeggen kunnen elk onbelangrijk lijken, omdat de ander het overneemt."
-        )
+        st.caption(IMPACT_TEXT)
 
 with st.container(border=True):
-    st.subheader("Resultaat delen")
+    st.subheader("Rapport en resultaatbestand")
+    result_path = st.session_state.result_path
     st.write(
-        "Het resultaatbestand bevat de uitkomsten per model, de namen van je kolommen en "
-        "aantallen studenten. Het bevat geen gegevens van individuele studenten."
+        "Het **rapport** is één HTML-bestand met de uitkomst en de grafieken, om te bewaren "
+        "of door te sturen naar collega's. Het opent in elke browser, ook zonder internet."
+    )
+    st.download_button(
+        "Download rapport",
+        data=build_html_report(result),
+        file_name=result_path.with_suffix(".html").name,
+        mime="text/html",
+    )
+    st.write(
+        "Het **resultaatbestand** is bedoeld om te delen voor de gezamenlijke benchmark. "
+        "Het bevat de uitkomsten per model, de namen van je kolommen en aantallen "
+        "studenten, en geen gegevens van individuele studenten."
     )
     st.download_button(
         "Download resultaatbestand",
         data=json.dumps(sanitize(result), indent=2, ensure_ascii=False),
-        file_name=st.session_state.result_path.name,
+        file_name=result_path.name,
         mime="application/json",
     )
-    st.caption(f"Het bestand staat ook in {st.session_state.result_path}.")
+    st.caption(f"Beide bestanden staan ook in de map {result_path.parent}.")

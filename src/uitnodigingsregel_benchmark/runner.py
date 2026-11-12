@@ -26,6 +26,7 @@ from uitnodigingsregel_benchmark.export import (
 from uitnodigingsregel_benchmark.features import extract_feature_importance
 from uitnodigingsregel_benchmark.impact import measure_variable_impact, resolve_variables
 from uitnodigingsregel_benchmark.models import MODELS
+from uitnodigingsregel_benchmark.report import build_html_report
 from uitnodigingsregel_benchmark.settings import SettingsError
 from uitnodigingsregel_benchmark.split import SPLIT_COHORT, split_train_test
 
@@ -140,7 +141,10 @@ def run_benchmark(
     print(f"Laden van data: {train_path}")
     result = run_benchmark_on_data(read_student_data(train_path), config, quick_mode)
     path = write_result(result, results_dir)
+    report_path = path.with_suffix(".html")
+    report_path.write_text(build_html_report(result), encoding="utf-8")
     print(f"\nBenchmark resultaat opgeslagen: {path}")
+    print(f"Rapport opgeslagen: {report_path}")
     return path
 
 
