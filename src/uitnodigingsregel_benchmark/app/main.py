@@ -29,9 +29,13 @@ from uitnodigingsregel_benchmark.report import (
     LOCAL_NAMES_TEXT,
     PRECISION_RECALL_TEXT,
     QUICK_TEXT,
+    SPREAD_TEXT,
     build_html_report,
+    close_to_best,
     display_name,
     split_description,
+    with_spread,
+    within_spread,
 )
 from uitnodigingsregel_benchmark.runner import run_benchmark_on_data
 from uitnodigingsregel_benchmark.settings import QUICK_SETTINGS, SettingsError, load_config
@@ -93,18 +97,27 @@ def _result_table(result: dict) -> pd.DataFrame:
                 "Model": name,
                 "Oordeel": f"{emoji} {evaluation['status']}",
                 "Precisie (%)": evaluation["precision"],
+                "± precisie": evaluation.get("precision_sd") or None,
                 "Recall (%)": evaluation["recall"],
+                "± recall": evaluation.get("recall_sd") or None,
             }
         )
-    return pd.DataFrame(rows).sort_values("Precisie (%)", ascending=False).reset_index(drop=True)
+    table = pd.DataFrame(rows).sort_values("Precisie (%)", ascending=False)
+    # Without repeated splits there is no spread to show
+    return table.dropna(axis=1, how="all").reset_index(drop=True)
 
 
 def _impact_chart(entries: list[dict], local_names: dict[str, str]) -> alt.Chart:
     data = pd.DataFrame([e for e in entries if "precision_diff" in e])
     data["variable"] = data["variable"].apply(lambda name: display_name(name, local_names))
-    data["Effect"] = data["precision_diff"].apply(
-        lambda diff: "Helpt" if diff > 0 else ("Geen verschil" if diff == 0 else "Helpt niet")
-    )
+    data["Effect"] = [
+        "Binnen de spreiding"
+        if within_spread(entry) or entry["precision_diff"] == 0
+        else ("Helpt" if entry["precision_diff"] > 0 else "Helpt niet")
+        for entry in data.to_dict("records")
+    ]
+    if "precision_diff_sd" not in data:
+        data["precision_diff_sd"] = 0.0
     return (
         alt.Chart(data)
         .mark_bar()
@@ -119,7 +132,7 @@ def _impact_chart(entries: list[dict], local_names: dict[str, str]) -> alt.Chart
             color=alt.Color(
                 "Effect:N",
                 scale=alt.Scale(
-                    domain=["Helpt", "Geen verschil", "Helpt niet"],
+                    domain=["Helpt", "Binnen de spreiding", "Helpt niet"],
                     range=["#2a7f62", "#9a9a9a", "#c8785a"],
                 ),
                 legend=alt.Legend(orient="bottom", title=None),
@@ -127,6 +140,7 @@ def _impact_chart(entries: list[dict], local_names: dict[str, str]) -> alt.Chart
             tooltip=[
                 alt.Tooltip("variable:N", title="Variabele"),
                 alt.Tooltip("precision_diff:Q", title="Verschil precisie"),
+                alt.Tooltip("precision_diff_sd:Q", title="± over de splitsingen"),
                 alt.Tooltip("recall_diff:Q", title="Verschil recall"),
                 alt.Tooltip("precision_without:Q", title="Precisie zonder"),
             ],
@@ -298,7 +312,8 @@ with st.container(border=True):
         captions=[
             f"{len(QUICK_SETTINGS['models'])} modellen, klaar in ongeveer een minuut. "
             "Om te kijken of alles werkt.",
-            f"Alle {len(MODELS)} modellen. Gebruik dit voor een uitkomst om te delen.",
+            f"Alle {len(MODELS)} modellen, {config['repeats']} keer met een andere splitsing van "
+            "de data. Duurt langer. Gebruik dit voor een uitkomst om te delen.",
         ],
         horizontal=True,
     )
@@ -370,9 +385,13 @@ with st.container(border=True):
         st.warning(warning)
 
     st.write(f"Best voorspellende model: **{best['model']}**")
+    close = close_to_best(result)
+    if close:
+        st.caption(f"Het verschil met {', '.join(close)} valt binnen de spreiding.")
+    best_eval = result["models"][best["model"]]["evaluation"]
     left, middle, right = st.columns(3)
-    left.metric("Precisie", f"{best['precision_at_20']:.0f}%")
-    middle.metric("Recall", f"{best['recall_at_20']:.0f}%")
+    left.metric("Precisie", with_spread(best["precision_at_20"], best_eval.get("precision_sd")))
+    middle.metric("Recall", with_spread(best["recall_at_20"], best_eval.get("recall_sd")))
     right.metric("Uitval in de data", f"{metadata['dropout_rate_test'] * 100:.0f}%")
     st.caption(PRECISION_RECALL_TEXT)
     st.dataframe(_result_table(result), hide_index=True, width="stretch")
@@ -387,6 +406,8 @@ if metadata["impact_measured"]:
             width="stretch",
         )
         st.caption(IMPACT_TEXT)
+        if metadata["split"].get("repeats", 1) > 1:
+            st.caption(SPREAD_TEXT)
         if local_names:
             with st.expander("Namen van je eigen kolommen in de uitkomst"):
                 st.caption(LOCAL_NAMES_TEXT)

@@ -60,6 +60,8 @@ Sharing: an institution sends its result file to CEDA, CEDA adds it to `results/
 
 Shared names: `run_benchmark_on_data` returns `(result, local_names)`. The result holds only names from `metadata/variabelen.yaml` or `eigen_variabele_N`/`eigen_groep_N`; `local_names` maps those back to the institution's own names and is only shown in the app and the HTML report, never written to the JSON. Own variables are left out of the collective overview.
 
+Repeated splits: a random split runs `repeats` times (default 5, quick 1). The parameter search runs once on the first split; other splits refit clones with the found settings. `evaluation` and `variable_impact` hold the mean over splits plus `*_sd`. A cohort split is never repeated.
+
 Result format: `write_result` runs `check.check_result` and writes nothing if it fails. Changing the result structure means updating `metadata/result_schema.json`, and raising `check.FORMAT_VERSION` when old files can no longer be read the same way. CI checks every `results/*.json`.
 
 ## Data

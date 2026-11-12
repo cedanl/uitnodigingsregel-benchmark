@@ -9,6 +9,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import student_signal
+from sklearn.base import clone
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
 from student_signal.evaluate import get_stoplight_evaluation, prepare_model_predictions
 
@@ -101,6 +102,66 @@ def _fit_with_gridsearch(
     )
     search.fit(X_train, y_train)
     return search.best_estimator_, search.best_params_
+
+
+def _prepare(train: pd.DataFrame, test: pd.DataFrame, dropout_col: str, id_col: str):
+    return student_signal.prepare(train, test, target_col=dropout_col, id_col=id_col)
+
+
+def _curve(model: Any, prepared: Any, use_scaled: bool, dropout_col: str, name: str) -> list[dict]:
+    """Precision and recall of a fitted model at the standard invitation percentages."""
+    val_data = prepared.pred_df_scaled if use_scaled else prepared.pred_df
+    short = name.lower().replace(" ", "_")
+    eval_df = prepare_model_predictions(val_data, model, short, dropout_col)
+    return extract_precision_recall_curve(eval_df, short, BENCHMARK_PCTS)
+
+
+def _mean_sd(values: list[float]) -> tuple[float, float]:
+    """Mean and standard deviation over the splits; the deviation is 0 for one split."""
+    sd = float(np.std(values, ddof=1)) if len(values) > 1 else 0.0
+    return round(float(np.mean(values)), 1), round(sd, 1)
+
+
+def _mean_curve(curves: list[list[dict]]) -> list[dict]:
+    return [
+        {
+            "pct": points[0]["pct"],
+            "precision": round(float(np.mean([p["precision"] for p in points])), 1),
+            "recall": round(float(np.mean([p["recall"] for p in points])), 1),
+        }
+        for points in zip(*curves)
+    ]
+
+
+def _combine_impact(per_split: list[list[dict]]) -> list[dict]:
+    """Combine the impact of each variable over the splits into a mean and a spread.
+
+    Args:
+        per_split: For each split the output of measure_variable_impact() for one model.
+
+    Returns:
+        One entry per variable, largest mean precision difference first. A variable for
+        which retraining failed on any split keeps only the error.
+    """
+    by_variable: dict[str, list[dict]] = {}
+    for entries in per_split:
+        for entry in entries:
+            by_variable.setdefault(entry["variable"], []).append(entry)
+
+    combined = []
+    for variable, entries in by_variable.items():
+        entry = {"variable": variable, "columns": entries[0]["columns"]}
+        failed = next((e for e in entries if "error" in e), None)
+        if failed:
+            entry["error"] = failed["error"]
+        else:
+            for field in ("precision_without", "recall_without"):
+                entry[field] = _mean_sd([e[field] for e in entries])[0]
+            for field in ("precision_diff", "recall_diff"):
+                entry[field], entry[f"{field}_sd"] = _mean_sd([e[field] for e in entries])
+        combined.append(entry)
+    combined.sort(key=lambda e: e.get("precision_diff", float("-inf")), reverse=True)
+    return combined
 
 
 def select_models(names: list[str] | None) -> dict[str, dict[str, Any]]:
@@ -200,6 +261,7 @@ def run_benchmark_on_data(
     train_split, test_split, split_info = split_train_test(
         data, dropout_col, config["cohort_column"], test_size, RANDOM_STATE
     )
+    splits = [(train_split, test_split)]
     if split_info["type"] == SPLIT_COHORT:
         dropout_year = split_info["test_cohort"]
         training_years = split_info["train_cohorts"]
@@ -207,7 +269,22 @@ def run_benchmark_on_data(
     else:
         dropout_year = config["dropout_year"]
         training_years = config["training_years"]
-        print(f"Willekeurige splitsing ({round((1 - test_size) * 100)}/{round(test_size * 100)}).")
+        # A cohort split has one possible test cohort; a random split can be repeated
+        for repeat in range(1, config["repeats"]):
+            train, test, _ = split_train_test(
+                data,
+                dropout_col,
+                config["cohort_column"],
+                test_size,
+                RANDOM_STATE + repeat,
+                verbose=False,
+            )
+            splits.append((train, test))
+        print(
+            f"Willekeurige splitsing ({round((1 - test_size) * 100)}/{round(test_size * 100)}), "
+            f"{len(splits)} keer herhaald."
+        )
+    split_info["repeats"] = len(splits)
 
     feature_columns = [c for c in train_split.columns if c not in (dropout_col, id_col)]
     linked = match_columns(feature_columns, config["column_mapping"])
@@ -219,7 +296,7 @@ def run_benchmark_on_data(
             config["impact_variables"],
         )
 
-    n_steps = len(models) + (len(variables) if variables else 0) + 1
+    n_steps = 1 + len(models) + (len(splits) - 1) + len(variables or []) * len(splits)
     steps_done = 0
 
     def report(message: str) -> None:
@@ -230,12 +307,7 @@ def run_benchmark_on_data(
 
     report("Data voorbereiden")
     print("Data voorbereiden...")
-    prepared = student_signal.prepare(
-        train_split,
-        test_split,
-        target_col=dropout_col,
-        id_col=id_col,
-    )
+    prepared = _prepare(train_split, test_split, dropout_col, id_col)
 
     metadata = {
         "instelling_id": config["instelling_id"],
@@ -257,19 +329,10 @@ def run_benchmark_on_data(
         "n_iter_search": config["n_iter"],
     }
 
-    x_val = {
-        False: prepared.pred_df.drop(dropout_col, axis=1),
-        True: prepared.pred_df_scaled.drop(dropout_col, axis=1),
-    }
-    y_val = {
-        False: prepared.pred_df[dropout_col],
-        True: prepared.pred_df_scaled[dropout_col],
-    }
-
-    dropout_rate_pct = metadata["dropout_rate_train"] * 100
-
     model_results = {}
-    fitted_models = {}
+    # Per split: model name mapped to (fitted estimator, uses scaled data)
+    fitted: list[dict[str, tuple[Any, bool]]] = [{}]
+    curves: dict[str, list[list[dict]]] = {}
     for name, model_cfg in models.items():
         estimator = model_cfg["estimator"]
         use_scaled = model_cfg["use_scaled"]
@@ -287,51 +350,84 @@ def run_benchmark_on_data(
             estimator.fit(X_train, prepared.y_train)
             best_estimator, best_params = estimator, {}
 
-        val_data = prepared.pred_df_scaled if use_scaled else prepared.pred_df
-        short = name.lower().replace(" ", "_")
-        eval_df = prepare_model_predictions(val_data, best_estimator, short, dropout_col)
-        curve = extract_precision_recall_curve(eval_df, short, BENCHMARK_PCTS)
-
-        prec20, rec20 = _precision_at(curve, 20)
-        _, status, _ = get_stoplight_evaluation(prec20, rec20)
-
-        lift = round(prec20 / dropout_rate_pct, 2) if dropout_rate_pct > 0 else None
-
+        curves[name] = [_curve(best_estimator, prepared, use_scaled, dropout_col, name)]
+        X_val = (prepared.pred_df_scaled if use_scaled else prepared.pred_df).drop(
+            dropout_col, axis=1
+        )
         metrics = _compute_metrics(
-            best_estimator, X_train, prepared.y_train, x_val[use_scaled], y_val[use_scaled]
+            best_estimator, X_train, prepared.y_train, X_val, prepared.pred_df[dropout_col]
         )
 
         print(f"  Feature importance berekenen voor {name}...")
         importance = extract_feature_importance(best_estimator, prepared, use_scaled, dropout_col)
-
         model_results[name] = {
             "best_params": best_params,
-            "precision_recall_curve": curve,
             "feature_importance": importance,
-            "evaluation": {
-                "precision": prec20,
-                "recall": rec20,
-                "lift_over_baseline": lift,
-                "status": status,
-            },
             **metrics,
         }
-        fitted_models[name] = (best_estimator, use_scaled)
-        print(f"  Precisie@20%: {prec20:.1f}% | Recall@20%: {rec20:.1f}% | {status}")
+        fitted[0][name] = (best_estimator, use_scaled)
+
+    # The other splits reuse the settings found in the search on the first split
+    for number, (train, test) in enumerate(splits[1:], start=2):
+        report(f"Splitsing {number} van {len(splits)}: modellen opnieuw trainen")
+        print(f"Splitsing {number} van {len(splits)}: modellen opnieuw trainen...")
+        prepared_split = _prepare(train, test, dropout_col, id_col)
+        fitted.append({})
+        for name, (estimator, use_scaled) in fitted[0].items():
+            X_train = prepared_split.X_train_scaled if use_scaled else prepared_split.X_train
+            model = clone(estimator).fit(X_train, prepared_split.y_train)
+            curves[name].append(_curve(model, prepared_split, use_scaled, dropout_col, name))
+            fitted[-1][name] = (model, use_scaled)
+
+    dropout_rate_pct = metadata["dropout_rate_train"] * 100
+    for name, model_curves in curves.items():
+        per_split = [_precision_at(curve, 20) for curve in model_curves]
+        precision, precision_sd = _mean_sd([p for p, _ in per_split])
+        recall, recall_sd = _mean_sd([r for _, r in per_split])
+        _, status, _ = get_stoplight_evaluation(precision, recall)
+        model_results[name].update(
+            {
+                "precision_recall_curve": _mean_curve(model_curves),
+                "evaluation": {
+                    "precision": precision,
+                    "recall": recall,
+                    "precision_sd": precision_sd,
+                    "recall_sd": recall_sd,
+                    "lift_over_baseline": (
+                        round(precision / dropout_rate_pct, 2) if dropout_rate_pct > 0 else None
+                    ),
+                    "status": status,
+                },
+            }
+        )
+        spread = f" (± {precision_sd:.1f})" if len(splits) > 1 else ""
+        print(f"  {name}: precisie@20% {precision:.1f}%{spread} | recall@20% {recall:.1f}%")
 
     if variables:
         print(
-            f"Impact meten: elk model opnieuw trainen zonder één van {len(variables)} variabelen."
+            f"Impact meten: elk model opnieuw trainen zonder één van {len(variables)} variabelen"
+            f", op {len(splits)} splitsingen."
         )
-        baseline = {
-            name: (r["evaluation"]["precision"], r["evaluation"]["recall"])
-            for name, r in model_results.items()
-        }
-        impact = measure_variable_impact(
-            train_split, test_split, variables, fitted_models, baseline, dropout_col, id_col, report
-        )
-        for name, entries in impact.items():
-            model_results[name]["variable_impact"] = entries
+        impact_per_split = []
+        for number, ((train, test), models_split) in enumerate(zip(splits, fitted), start=1):
+            baseline = {name: _precision_at(curves[name][number - 1], 20) for name in models_split}
+            prefix = f"Splitsing {number} van {len(splits)}: " if len(splits) > 1 else ""
+            impact_per_split.append(
+                measure_variable_impact(
+                    train,
+                    test,
+                    variables,
+                    models_split,
+                    baseline,
+                    dropout_col,
+                    id_col,
+                    lambda message, prefix=prefix: report(prefix + message),
+                )
+            )
+        for name in model_results:
+            model_results[name]["variable_impact"] = _combine_impact(
+                [split_impact[name] for split_impact in impact_per_split]
+            )
 
     if on_progress:
         on_progress(1.0, "Klaar")

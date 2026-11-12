@@ -30,7 +30,7 @@ De app opent in je browser. Stoppen doe je met Ctrl+C in het terminalvenster.
 
 1. **Kies je data.** Upload een CSV met één rij per student, een kolom die aangeeft of de student is uitgevallen (1) of niet (0), en de kenmerken van de student. Een kolom met studentnummers is niet nodig. Of klik op de demo-data om de app eerst te proberen.
 2. **Controleer de kolommen.** De app herkent de uitvalkolom, het studentnummer en een cohortkolom, stelt voor welke kolommen samen één variabele vormen, en koppelt je kolommen aan de gedeelde variabelenlijst. Pas aan wat niet klopt. Kan de data niet worden gebruikt, dan staat er direct waarom.
-3. **Draai de benchmark.** Kies snel (een eerste controle, ongeveer een minuut) of volledig (alle modellen, voor een uitkomst om te delen), en of de impact per variabele wordt gemeten.
+3. **Draai de benchmark.** Kies snel (een eerste controle, ongeveer een minuut) of volledig (alle modellen, vijf keer met een andere splitsing van de data, voor een uitkomst om te delen), en of de impact per variabele wordt gemeten.
 4. **Lees de uitkomst.** Per model de precisie en recall als de 20% studenten met de hoogste voorspelde kans worden uitgenodigd, en een grafiek met de impact per variabele.
 5. **Download het rapport.** Eén HTML-bestand met de uitkomst en de grafieken, om te bewaren of door te sturen naar collega's. Het opent in elke browser, ook zonder internet.
 6. **Deel de uitkomst.** Download het resultaatbestand en lever het aan voor het gezamenlijke overzicht (zie hieronder). Het bestand bevat de uitkomsten per model en aantallen studenten. Het bevat geen namen van je eigen kolommen en geen gegevens van individuele studenten (zie [Gedeelde variabelen](#gedeelde-variabelen)).
@@ -102,7 +102,7 @@ Vóór het trainen controleert de benchmark de data. Ontbreekt er iets of klopt 
 | (geen) | Start de app |
 | `--train PAD` | Draai op je eigen CSV |
 | `--demo` | Draai op de demo-data; schrijft `results/benchmark_demo_*.json` |
-| `--quick` | Drie modellen en minder zoekrondes, voor een eerste controle. In het resultaatbestand staat `quick_mode: true`; deel een snelle uitkomst niet |
+| `--quick` | Drie modellen, minder zoekrondes en één splitsing, voor een eerste controle. In het resultaatbestand staat `quick_mode: true`; deel een snelle uitkomst niet |
 | `--cohort-column NAAM` | Toets op een later cohort (zie hieronder) |
 | `--impact` | Meet de impact per variabele (zie hieronder) |
 | `--config PAD` | Gebruik een ander instellingenbestand dan `config.yaml` |
@@ -123,6 +123,7 @@ Alle instellingen staan in `config.yaml`, met uitleg per regel. Er hoeven geen P
 | `models` | Modellen om te draaien | alle |
 | `n_iter`, `cv_folds` | Zoekrondes per model en aantal delen per ronde; lager is sneller | 20, 5 |
 | `test_size` | Aandeel van de data om op te toetsen bij een willekeurige splitsing | 0.2 |
+| `repeats` | Aantal keren dat de willekeurige splitsing wordt herhaald (zie hieronder) | 5 (snel: 1) |
 | `n_jobs` | Aantal processen tegelijk; zet op 2 als het geheugen volraakt | alle kernen |
 | `impact`, `impact_variables`, `variable_groups` | Impact per variabele (zie hieronder) | uit |
 | `column_mapping` | Eigen kolom gekoppeld aan een gedeelde variabele, bijvoorbeeld `{Leeftijd: StudentAge}`. Zonder deze instelling leest de commandoregel `koppeling.json` uit de app | geen |
@@ -170,7 +171,16 @@ variable_groups:
   Richting: [Economie, Landbouw, Techniek]
 ```
 
-Lees de verschillen met voorzichtigheid. Bij een kleine groep studenten kan een verschil van enkele procentpunten toeval zijn. Twee variabelen die dezelfde informatie dragen kunnen elk onbelangrijk lijken, omdat de ander het overneemt.
+Twee variabelen die dezelfde informatie dragen kunnen elk onbelangrijk lijken, omdat de ander het overneemt.
+
+## Spreiding over meerdere splitsingen
+
+Bij één willekeurige splitsing hangt de uitkomst af van welke studenten toevallig in de testgroep zitten. Bij een testgroep van 200 studenten kan de precisie daardoor enkele procentpunten verschuiven. Een volledige run herhaalt daarom de splitsing vijf keer (`repeats`), telkens met andere studenten in de testgroep. De uitkomst is het gemiddelde; de spreiding staat erachter als ±.
+
+- In het resultaatbestand staan `precision_sd` en `recall_sd` per model, en `precision_diff_sd` en `recall_diff_sd` per variabele. Het aantal herhalingen staat in `metadata.split.repeats`.
+- Valt een verschil binnen de spreiding, dan toont de app en het rapport dat: een grijze balk bij de impact, en bij de modellen een melding als het verschil met het beste model binnen de spreiding valt.
+- Het zoeken naar de beste instellingen per model gebeurt één keer, op de eerste splitsing. Bij de andere splitsingen worden de modellen met die instellingen opnieuw getraind. Dat scheelt veel tijd.
+- Bij toetsen op een later cohort is er maar één mogelijke testgroep; die wordt niet herhaald.
 
 ## Uitkomsten van verschillende versies vergelijken
 

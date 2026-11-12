@@ -16,7 +16,7 @@ from uitnodigingsregel_benchmark.detect import (
     detect_id_column,
     suggest_variable_groups,
 )
-from uitnodigingsregel_benchmark.report import build_html_report
+from uitnodigingsregel_benchmark.report import build_html_report, close_to_best, within_spread
 
 REPO_ROOT = Path(__file__).parent.parent
 DEMO_TRAIN = REPO_ROOT / "data/01-raw/demo/synth_data_train.csv"
@@ -169,3 +169,16 @@ def test_app_compares_with_shared_results(tmp_path, monkeypatch):
     compared = app.dataframe[-1].value
     assert "StudentAge" in set(compared["Variabele"])
     assert set(compared["Aantal instellingen"]) == {1}
+
+
+def test_spread_marks_differences_within_chance():
+    assert within_spread({"precision_diff": 1.0, "precision_diff_sd": 2.0})
+    assert not within_spread({"precision_diff": 3.0, "precision_diff_sd": 2.0})
+    assert not within_spread({"precision_diff": 1.0})
+    result = json.loads(EXAMPLE_RESULT.read_text(encoding="utf-8"))
+    best = result["recommendation"]["model"]
+    other = next(name for name in result["models"] if name != best)
+    result["models"][best]["evaluation"]["precision_sd"] = 100.0
+    assert other in close_to_best(result)
+    result["models"][best]["evaluation"]["precision_sd"] = 0.0
+    assert close_to_best(result) == []

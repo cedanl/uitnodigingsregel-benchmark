@@ -5,7 +5,8 @@
     "training_years": null,
     "split": {
       "type": "random",
-      "test_size": 0.2
+      "test_size": 0.2,
+      "repeats": 5
     },
     "quick_mode": false,
     "impact_measured": true,
@@ -58,48 +59,6 @@
         "max_depth": 3,
         "bootstrap": true
       },
-      "precision_recall_curve": [
-        {
-          "pct": 5,
-          "precision": 20.0,
-          "recall": 6.0
-        },
-        {
-          "pct": 10,
-          "precision": 15.0,
-          "recall": 9.0
-        },
-        {
-          "pct": 15,
-          "precision": 17.0,
-          "recall": 16.0
-        },
-        {
-          "pct": 20,
-          "precision": 15.0,
-          "recall": 19.0
-        },
-        {
-          "pct": 25,
-          "precision": 14.0,
-          "recall": 22.0
-        },
-        {
-          "pct": 30,
-          "precision": 15.0,
-          "recall": 28.0
-        },
-        {
-          "pct": 40,
-          "precision": 14.0,
-          "recall": 34.0
-        },
-        {
-          "pct": 50,
-          "precision": 13.0,
-          "recall": 41.0
-        }
-      ],
       "feature_importance": [
         {
           "feature": "absence_unauthorized",
@@ -202,66 +161,138 @@
           "importance": 0.0
         }
       ],
-      "evaluation": {
-        "precision": 15.0,
-        "recall": 19.0,
-        "lift_over_baseline": 0.93,
-        "status": "Niet bruikbaar"
-      },
       "r2_train": 0.031,
       "r2_val": -0.015,
       "mse_train": 0.131,
       "mse_val": 0.136,
+      "precision_recall_curve": [
+        {
+          "pct": 5,
+          "precision": 12.0,
+          "recall": 3.6
+        },
+        {
+          "pct": 10,
+          "precision": 11.0,
+          "recall": 6.6
+        },
+        {
+          "pct": 15,
+          "precision": 15.4,
+          "recall": 14.4
+        },
+        {
+          "pct": 20,
+          "precision": 15.0,
+          "recall": 18.8
+        },
+        {
+          "pct": 25,
+          "precision": 14.8,
+          "recall": 23.0
+        },
+        {
+          "pct": 30,
+          "precision": 14.2,
+          "recall": 26.8
+        },
+        {
+          "pct": 40,
+          "precision": 15.2,
+          "recall": 37.6
+        },
+        {
+          "pct": 50,
+          "precision": 15.4,
+          "recall": 48.0
+        }
+      ],
+      "evaluation": {
+        "precision": 15.0,
+        "recall": 18.8,
+        "precision_sd": 7.5,
+        "recall_sd": 9.2,
+        "lift_over_baseline": 0.93,
+        "status": "Niet bruikbaar"
+      },
       "variable_impact": [
         {
           "variable": "max1studie",
           "columns": [
             "max1studie"
           ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 5.0,
-          "recall_diff": 7.0
-        },
-        {
-          "variable": "eigen_variabele_1",
-          "columns": [
-            "eigen_variabele_1"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 5.0,
-          "recall_diff": 7.0
-        },
-        {
-          "variable": "StudentAge",
-          "columns": [
-            "StudentAge"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "Aanmel_aantal",
-          "columns": [
-            "Aanmel_aantal"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
+          "precision_without": 11.8,
+          "recall_without": 15.0,
+          "precision_diff": 3.2,
+          "precision_diff_sd": 4.1,
+          "recall_diff": 3.8,
+          "recall_diff_sd": 5.1
         },
         {
           "variable": "absence_unauthorized",
           "columns": [
             "absence_unauthorized"
           ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
+          "precision_without": 11.8,
+          "recall_without": 15.2,
+          "precision_diff": 3.2,
+          "precision_diff_sd": 2.0,
+          "recall_diff": 3.6,
+          "recall_diff_sd": 2.5
+        },
+        {
+          "variable": "Aanmel_aantal",
+          "columns": [
+            "Aanmel_aantal"
+          ],
+          "precision_without": 12.4,
+          "recall_without": 15.8,
+          "precision_diff": 2.6,
+          "precision_diff_sd": 3.3,
+          "recall_diff": 3.0,
+          "recall_diff_sd": 3.7
+        },
+        {
+          "variable": "StudentAge",
+          "columns": [
+            "StudentAge"
+          ],
+          "precision_without": 13.6,
+          "recall_without": 17.0,
+          "precision_diff": 1.4,
+          "precision_diff_sd": 1.3,
+          "recall_diff": 1.8,
+          "recall_diff_sd": 1.6
+        },
+        {
+          "variable": "eigen_variabele_1",
+          "columns": [
+            "eigen_variabele_1"
+          ],
+          "precision_without": 14.0,
+          "recall_without": 17.4,
+          "precision_diff": 1.0,
+          "precision_diff_sd": 2.6,
+          "recall_diff": 1.4,
+          "recall_diff_sd": 3.8
+        },
+        {
+          "variable": "Vooropleiding_richting",
+          "columns": [
+            "Economie",
+            "Landbouw",
+            "Techniek",
+            "DSV",
+            "Zorgenwelzijn",
+            "Anders",
+            "Richting_nan"
+          ],
+          "precision_without": 14.8,
+          "recall_without": 18.2,
+          "precision_diff": 0.2,
+          "precision_diff_sd": 2.0,
+          "recall_diff": 0.6,
+          "recall_diff_sd": 2.5
         },
         {
           "variable": "Vooropleiding_niveau",
@@ -280,45 +311,35 @@
             "VooroplNiveau_other"
           ],
           "precision_without": 15.0,
-          "recall_without": 19.0,
+          "recall_without": 18.8,
           "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Vooropleiding_richting",
-          "columns": [
-            "Economie",
-            "Landbouw",
-            "Techniek",
-            "DSV",
-            "Zorgenwelzijn",
-            "Anders",
-            "Richting_nan"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "StudentGender",
-          "columns": [
-            "StudentGender"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
+          "precision_diff_sd": 5.1,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 5.6
         },
         {
           "variable": "absence_authorized",
           "columns": [
             "absence_authorized"
           ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
+          "precision_without": 15.2,
+          "recall_without": 18.8,
+          "precision_diff": -0.2,
+          "precision_diff_sd": 1.8,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 2.1
+        },
+        {
+          "variable": "StudentGender",
+          "columns": [
+            "StudentGender"
+          ],
+          "precision_without": 15.4,
+          "recall_without": 19.4,
+          "precision_diff": -0.4,
+          "precision_diff_sd": 2.3,
+          "recall_diff": -0.6,
+          "recall_diff_sd": 2.5
         }
       ]
     },
@@ -326,48 +347,6 @@
       "best_params": {
         "alpha": 0.1
       },
-      "precision_recall_curve": [
-        {
-          "pct": 5,
-          "precision": 10.0,
-          "recall": 3.0
-        },
-        {
-          "pct": 10,
-          "precision": 5.0,
-          "recall": 3.0
-        },
-        {
-          "pct": 15,
-          "precision": 7.0,
-          "recall": 6.0
-        },
-        {
-          "pct": 20,
-          "precision": 10.0,
-          "recall": 12.0
-        },
-        {
-          "pct": 25,
-          "precision": 12.0,
-          "recall": 19.0
-        },
-        {
-          "pct": 30,
-          "precision": 15.0,
-          "recall": 28.0
-        },
-        {
-          "pct": 40,
-          "precision": 15.0,
-          "recall": 38.0
-        },
-        {
-          "pct": 50,
-          "precision": 16.0,
-          "recall": 50.0
-        }
-      ],
       "feature_importance": [
         {
           "feature": "StudentAge",
@@ -495,151 +474,30 @@
           "coefficient": 0.0
         }
       ],
-      "evaluation": {
-        "precision": 10.0,
-        "recall": 12.0,
-        "lift_over_baseline": 0.62,
-        "status": "Niet bruikbaar"
-      },
       "r2_train": 0.0,
       "r2_val": -0.0,
       "mse_train": 0.135,
       "mse_val": 0.134,
-      "variable_impact": [
-        {
-          "variable": "Vooropleiding_niveau",
-          "columns": [
-            "VooroplNiveau_HAVO",
-            "VooroplNiveau_MBO",
-            "VooroplNiveau_basis",
-            "VooroplNiveau_educatie",
-            "VooroplNiveau_prak",
-            "VooroplNiveau_VMBO_BB",
-            "VooroplNiveau_VMBO_GL",
-            "VooroplNiveau_VMBO_KB",
-            "VooroplNiveau_VMBO_TL",
-            "VooroplNiveau_nan",
-            "VooroplNiveau_VWOplus",
-            "VooroplNiveau_other"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Vooropleiding_richting",
-          "columns": [
-            "Economie",
-            "Landbouw",
-            "Techniek",
-            "DSV",
-            "Zorgenwelzijn",
-            "Anders",
-            "Richting_nan"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "StudentAge",
-          "columns": [
-            "StudentAge"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "Aanmel_aantal",
-          "columns": [
-            "Aanmel_aantal"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "max1studie",
-          "columns": [
-            "max1studie"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "eigen_variabele_1",
-          "columns": [
-            "eigen_variabele_1"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "StudentGender",
-          "columns": [
-            "StudentGender"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "absence_unauthorized",
-          "columns": [
-            "absence_unauthorized"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "absence_authorized",
-          "columns": [
-            "absence_authorized"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
-        }
-      ]
-    },
-    "Logistic Regression": {
-      "best_params": {
-        "l1_ratio": 1.0,
-        "C": 1
-      },
       "precision_recall_curve": [
         {
           "pct": 5,
-          "precision": 30.0,
-          "recall": 9.0
+          "precision": 12.0,
+          "recall": 3.6
         },
         {
           "pct": 10,
-          "precision": 20.0,
-          "recall": 12.0
+          "precision": 16.0,
+          "recall": 9.8
         },
         {
           "pct": 15,
-          "precision": 13.0,
-          "recall": 12.0
+          "precision": 17.2,
+          "recall": 16.2
         },
         {
           "pct": 20,
-          "precision": 18.0,
-          "recall": 22.0
+          "precision": 17.0,
+          "recall": 21.2
         },
         {
           "pct": 25,
@@ -648,100 +506,241 @@
         },
         {
           "pct": 30,
-          "precision": 17.0,
-          "recall": 31.0
+          "precision": 17.2,
+          "recall": 32.6
         },
         {
           "pct": 40,
-          "precision": 15.0,
-          "recall": 38.0
+          "precision": 17.4,
+          "recall": 43.4
         },
         {
           "pct": 50,
-          "precision": 13.0,
-          "recall": 41.0
+          "precision": 16.4,
+          "recall": 51.2
         }
       ],
+      "evaluation": {
+        "precision": 17.0,
+        "recall": 21.2,
+        "precision_sd": 6.1,
+        "recall_sd": 7.5,
+        "lift_over_baseline": 1.06,
+        "status": "Niet bruikbaar"
+      },
+      "variable_impact": [
+        {
+          "variable": "Vooropleiding_niveau",
+          "columns": [
+            "VooroplNiveau_HAVO",
+            "VooroplNiveau_MBO",
+            "VooroplNiveau_basis",
+            "VooroplNiveau_educatie",
+            "VooroplNiveau_prak",
+            "VooroplNiveau_VMBO_BB",
+            "VooroplNiveau_VMBO_GL",
+            "VooroplNiveau_VMBO_KB",
+            "VooroplNiveau_VMBO_TL",
+            "VooroplNiveau_nan",
+            "VooroplNiveau_VWOplus",
+            "VooroplNiveau_other"
+          ],
+          "precision_without": 17.0,
+          "recall_without": 21.2,
+          "precision_diff": 0.0,
+          "precision_diff_sd": 0.0,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 0.0
+        },
+        {
+          "variable": "Vooropleiding_richting",
+          "columns": [
+            "Economie",
+            "Landbouw",
+            "Techniek",
+            "DSV",
+            "Zorgenwelzijn",
+            "Anders",
+            "Richting_nan"
+          ],
+          "precision_without": 17.0,
+          "recall_without": 21.2,
+          "precision_diff": 0.0,
+          "precision_diff_sd": 0.0,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 0.0
+        },
+        {
+          "variable": "StudentAge",
+          "columns": [
+            "StudentAge"
+          ],
+          "precision_without": 17.0,
+          "recall_without": 21.2,
+          "precision_diff": 0.0,
+          "precision_diff_sd": 0.0,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 0.0
+        },
+        {
+          "variable": "Aanmel_aantal",
+          "columns": [
+            "Aanmel_aantal"
+          ],
+          "precision_without": 17.0,
+          "recall_without": 21.2,
+          "precision_diff": 0.0,
+          "precision_diff_sd": 0.0,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 0.0
+        },
+        {
+          "variable": "max1studie",
+          "columns": [
+            "max1studie"
+          ],
+          "precision_without": 17.0,
+          "recall_without": 21.2,
+          "precision_diff": 0.0,
+          "precision_diff_sd": 0.0,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 0.0
+        },
+        {
+          "variable": "eigen_variabele_1",
+          "columns": [
+            "eigen_variabele_1"
+          ],
+          "precision_without": 17.0,
+          "recall_without": 21.2,
+          "precision_diff": 0.0,
+          "precision_diff_sd": 0.0,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 0.0
+        },
+        {
+          "variable": "StudentGender",
+          "columns": [
+            "StudentGender"
+          ],
+          "precision_without": 17.0,
+          "recall_without": 21.2,
+          "precision_diff": 0.0,
+          "precision_diff_sd": 0.0,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 0.0
+        },
+        {
+          "variable": "absence_unauthorized",
+          "columns": [
+            "absence_unauthorized"
+          ],
+          "precision_without": 17.0,
+          "recall_without": 21.2,
+          "precision_diff": 0.0,
+          "precision_diff_sd": 0.0,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 0.0
+        },
+        {
+          "variable": "absence_authorized",
+          "columns": [
+            "absence_authorized"
+          ],
+          "precision_without": 17.0,
+          "recall_without": 21.2,
+          "precision_diff": 0.0,
+          "precision_diff_sd": 0.0,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 0.0
+        }
+      ]
+    },
+    "Logistic Regression": {
+      "best_params": {
+        "l1_ratio": 1.0,
+        "C": 1
+      },
       "feature_importance": [
         {
           "feature": "eigen_variabele_1",
-          "importance": 0.927346,
-          "coefficient": 0.927346
+          "importance": 0.927315,
+          "coefficient": 0.927315
         },
         {
           "feature": "VooroplNiveau_prak",
-          "importance": 0.8537,
-          "coefficient": -0.8537
+          "importance": 0.853701,
+          "coefficient": -0.853701
         },
         {
           "feature": "VooroplNiveau_other",
-          "importance": 0.758574,
-          "coefficient": -0.758574
+          "importance": 0.758586,
+          "coefficient": -0.758586
         },
         {
           "feature": "Aanmel_aantal",
-          "importance": 0.72678,
-          "coefficient": -0.72678
+          "importance": 0.726768,
+          "coefficient": -0.726768
         },
         {
           "feature": "VooroplNiveau_VMBO_GL",
-          "importance": 0.519989,
-          "coefficient": 0.519989
+          "importance": 0.519979,
+          "coefficient": 0.519979
         },
         {
           "feature": "absence_unauthorized",
-          "importance": 0.442286,
-          "coefficient": 0.442286
+          "importance": 0.442262,
+          "coefficient": 0.442262
         },
         {
           "feature": "Landbouw",
-          "importance": 0.352792,
-          "coefficient": 0.352792
+          "importance": 0.352603,
+          "coefficient": 0.352603
         },
         {
           "feature": "max1studie",
-          "importance": 0.313216,
-          "coefficient": -0.313216
+          "importance": 0.31322,
+          "coefficient": -0.31322
         },
         {
           "feature": "Richting_nan",
-          "importance": 0.287282,
-          "coefficient": -0.287282
+          "importance": 0.287403,
+          "coefficient": -0.287403
         },
         {
           "feature": "Zorgenwelzijn",
-          "importance": 0.247451,
-          "coefficient": 0.247451
+          "importance": 0.247344,
+          "coefficient": 0.247344
         },
         {
           "feature": "VooroplNiveau_VMBO_TL",
-          "importance": 0.187275,
-          "coefficient": 0.187275
+          "importance": 0.187274,
+          "coefficient": 0.187274
         },
         {
           "feature": "Economie",
-          "importance": 0.13677,
-          "coefficient": -0.13677
+          "importance": 0.13688,
+          "coefficient": -0.13688
         },
         {
           "feature": "StudentGender",
-          "importance": 0.081123,
-          "coefficient": -0.081123
+          "importance": 0.081128,
+          "coefficient": -0.081128
         },
         {
           "feature": "VooroplNiveau_MBO",
-          "importance": 0.079072,
-          "coefficient": -0.079072
+          "importance": 0.079069,
+          "coefficient": -0.079069
         },
         {
           "feature": "VooroplNiveau_VMBO_KB",
-          "importance": 0.047785,
-          "coefficient": -0.047785
+          "importance": 0.047801,
+          "coefficient": -0.047801
         },
         {
           "feature": "VooroplNiveau_HAVO",
-          "importance": 0.038211,
-          "coefficient": -0.038211
+          "importance": 0.038214,
+          "coefficient": -0.038214
         },
         {
           "feature": "StudentAge",
@@ -789,86 +788,132 @@
           "coefficient": 0.0
         }
       ],
-      "evaluation": {
-        "precision": 18.0,
-        "recall": 22.0,
-        "lift_over_baseline": 1.12,
-        "status": "Niet bruikbaar"
-      },
       "r2_train": 0.039,
       "r2_val": -0.038,
       "mse_train": 0.13,
       "mse_val": 0.139,
+      "precision_recall_curve": [
+        {
+          "pct": 5,
+          "precision": 28.0,
+          "recall": 8.6
+        },
+        {
+          "pct": 10,
+          "precision": 21.0,
+          "recall": 13.0
+        },
+        {
+          "pct": 15,
+          "precision": 17.2,
+          "recall": 16.2
+        },
+        {
+          "pct": 20,
+          "precision": 17.4,
+          "recall": 21.8
+        },
+        {
+          "pct": 25,
+          "precision": 16.8,
+          "recall": 26.0
+        },
+        {
+          "pct": 30,
+          "precision": 16.2,
+          "recall": 30.4
+        },
+        {
+          "pct": 40,
+          "precision": 15.4,
+          "recall": 38.2
+        },
+        {
+          "pct": 50,
+          "precision": 15.6,
+          "recall": 48.8
+        }
+      ],
+      "evaluation": {
+        "precision": 17.4,
+        "recall": 21.8,
+        "precision_sd": 7.1,
+        "recall_sd": 9.2,
+        "lift_over_baseline": 1.08,
+        "status": "Niet bruikbaar"
+      },
       "variable_impact": [
         {
           "variable": "Aanmel_aantal",
           "columns": [
             "Aanmel_aantal"
           ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 8.0,
-          "recall_diff": 10.0
+          "precision_without": 15.0,
+          "recall_without": 18.6,
+          "precision_diff": 2.4,
+          "precision_diff_sd": 4.3,
+          "recall_diff": 3.2,
+          "recall_diff_sd": 5.1
         },
         {
           "variable": "absence_unauthorized",
           "columns": [
             "absence_unauthorized"
           ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 6.0,
-          "recall_diff": 6.0
+          "precision_without": 16.8,
+          "recall_without": 21.2,
+          "precision_diff": 0.6,
+          "precision_diff_sd": 3.3,
+          "recall_diff": 0.6,
+          "recall_diff_sd": 3.3
         },
         {
           "variable": "max1studie",
           "columns": [
             "max1studie"
           ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "eigen_variabele_1",
-          "columns": [
-            "eigen_variabele_1"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
+          "precision_without": 16.8,
+          "recall_without": 21.2,
+          "precision_diff": 0.6,
+          "precision_diff_sd": 2.5,
+          "recall_diff": 0.6,
+          "recall_diff_sd": 2.5
         },
         {
           "variable": "StudentAge",
           "columns": [
             "StudentAge"
           ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
+          "precision_without": 17.4,
+          "recall_without": 21.8,
           "precision_diff": 0.0,
-          "recall_diff": 0.0
-        },
-        {
-          "variable": "StudentGender",
-          "columns": [
-            "StudentGender"
-          ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
+          "precision_diff_sd": 0.0,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 0.0
         },
         {
           "variable": "absence_authorized",
           "columns": [
             "absence_authorized"
           ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
+          "precision_without": 17.4,
+          "recall_without": 21.8,
           "precision_diff": 0.0,
-          "recall_diff": 0.0
+          "precision_diff_sd": 0.0,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 0.0
+        },
+        {
+          "variable": "eigen_variabele_1",
+          "columns": [
+            "eigen_variabele_1"
+          ],
+          "precision_without": 17.6,
+          "recall_without": 21.8,
+          "precision_diff": -0.2,
+          "precision_diff_sd": 2.8,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 3.0
         },
         {
           "variable": "Vooropleiding_richting",
@@ -881,10 +926,24 @@
             "Anders",
             "Richting_nan"
           ],
-          "precision_without": 20.0,
-          "recall_without": 25.0,
-          "precision_diff": -2.0,
-          "recall_diff": -3.0
+          "precision_without": 17.6,
+          "recall_without": 21.8,
+          "precision_diff": -0.2,
+          "precision_diff_sd": 2.3,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 3.0
+        },
+        {
+          "variable": "StudentGender",
+          "columns": [
+            "StudentGender"
+          ],
+          "precision_without": 18.0,
+          "recall_without": 22.4,
+          "precision_diff": -0.6,
+          "precision_diff_sd": 1.3,
+          "recall_diff": -0.6,
+          "recall_diff_sd": 1.3
         },
         {
           "variable": "Vooropleiding_niveau",
@@ -902,10 +961,12 @@
             "VooroplNiveau_VWOplus",
             "VooroplNiveau_other"
           ],
-          "precision_without": 22.0,
-          "recall_without": 28.0,
-          "precision_diff": -4.0,
-          "recall_diff": -6.0
+          "precision_without": 19.0,
+          "recall_without": 23.8,
+          "precision_diff": -1.6,
+          "precision_diff_sd": 5.6,
+          "recall_diff": -2.0,
+          "recall_diff_sd": 7.2
         }
       ]
     },
@@ -915,48 +976,6 @@
         "gamma": 0.0001,
         "C": 1000
       },
-      "precision_recall_curve": [
-        {
-          "pct": 5,
-          "precision": 10.0,
-          "recall": 3.0
-        },
-        {
-          "pct": 10,
-          "precision": 10.0,
-          "recall": 6.0
-        },
-        {
-          "pct": 15,
-          "precision": 7.0,
-          "recall": 6.0
-        },
-        {
-          "pct": 20,
-          "precision": 10.0,
-          "recall": 12.0
-        },
-        {
-          "pct": 25,
-          "precision": 10.0,
-          "recall": 16.0
-        },
-        {
-          "pct": 30,
-          "precision": 12.0,
-          "recall": 22.0
-        },
-        {
-          "pct": 40,
-          "precision": 12.0,
-          "recall": 31.0
-        },
-        {
-          "pct": 50,
-          "precision": 14.0,
-          "recall": 44.0
-        }
-      ],
       "feature_importance": [
         {
           "feature": "VooroplNiveau_HAVO",
@@ -1059,46 +1078,96 @@
           "importance": 2.7e-05
         }
       ],
-      "evaluation": {
-        "precision": 10.0,
-        "recall": 12.0,
-        "lift_over_baseline": 0.62,
-        "status": "Niet bruikbaar"
-      },
       "r2_train": 0.002,
       "r2_val": -0.0,
       "mse_train": 0.135,
       "mse_val": 0.134,
+      "precision_recall_curve": [
+        {
+          "pct": 5,
+          "precision": 14.0,
+          "recall": 4.2
+        },
+        {
+          "pct": 10,
+          "precision": 14.0,
+          "recall": 8.4
+        },
+        {
+          "pct": 15,
+          "precision": 14.0,
+          "recall": 13.0
+        },
+        {
+          "pct": 20,
+          "precision": 14.2,
+          "recall": 17.4
+        },
+        {
+          "pct": 25,
+          "precision": 14.4,
+          "recall": 22.4
+        },
+        {
+          "pct": 30,
+          "precision": 16.0,
+          "recall": 29.4
+        },
+        {
+          "pct": 40,
+          "precision": 14.4,
+          "recall": 36.4
+        },
+        {
+          "pct": 50,
+          "precision": 14.8,
+          "recall": 46.4
+        }
+      ],
+      "evaluation": {
+        "precision": 14.2,
+        "recall": 17.4,
+        "precision_sd": 5.1,
+        "recall_sd": 6.7,
+        "lift_over_baseline": 0.88,
+        "status": "Niet bruikbaar"
+      },
       "variable_impact": [
         {
           "variable": "Aanmel_aantal",
           "columns": [
             "Aanmel_aantal"
           ],
-          "precision_without": 8.0,
-          "recall_without": 9.0,
-          "precision_diff": 2.0,
-          "recall_diff": 3.0
+          "precision_without": 11.4,
+          "recall_without": 14.4,
+          "precision_diff": 2.8,
+          "precision_diff_sd": 4.4,
+          "recall_diff": 3.0,
+          "recall_diff_sd": 6.3
         },
         {
           "variable": "StudentAge",
           "columns": [
             "StudentAge"
           ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
+          "precision_without": 12.6,
+          "recall_without": 15.4,
+          "precision_diff": 1.6,
+          "precision_diff_sd": 4.8,
+          "recall_diff": 2.0,
+          "recall_diff_sd": 6.3
         },
         {
-          "variable": "eigen_variabele_1",
+          "variable": "absence_unauthorized",
           "columns": [
-            "eigen_variabele_1"
+            "absence_unauthorized"
           ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
+          "precision_without": 13.8,
+          "recall_without": 17.6,
+          "precision_diff": 0.4,
+          "precision_diff_sd": 7.3,
+          "recall_diff": -0.2,
+          "recall_diff_sd": 9.2
         },
         {
           "variable": "Vooropleiding_niveau",
@@ -1116,20 +1185,36 @@
             "VooroplNiveau_VWOplus",
             "VooroplNiveau_other"
           ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": -2.0,
-          "recall_diff": -4.0
+          "precision_without": 14.4,
+          "recall_without": 18.0,
+          "precision_diff": -0.2,
+          "precision_diff_sd": 6.3,
+          "recall_diff": -0.6,
+          "recall_diff_sd": 8.3
         },
         {
-          "variable": "absence_authorized",
+          "variable": "max1studie",
           "columns": [
-            "absence_authorized"
+            "max1studie"
           ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": -2.0,
-          "recall_diff": -4.0
+          "precision_without": 14.6,
+          "recall_without": 18.0,
+          "precision_diff": -0.4,
+          "precision_diff_sd": 7.3,
+          "recall_diff": -0.6,
+          "recall_diff_sd": 9.0
+        },
+        {
+          "variable": "StudentGender",
+          "columns": [
+            "StudentGender"
+          ],
+          "precision_without": 15.0,
+          "recall_without": 18.8,
+          "precision_diff": -0.8,
+          "precision_diff_sd": 8.1,
+          "recall_diff": -1.4,
+          "recall_diff_sd": 10.9
         },
         {
           "variable": "Vooropleiding_richting",
@@ -1142,40 +1227,36 @@
             "Anders",
             "Richting_nan"
           ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": -5.0,
-          "recall_diff": -7.0
+          "precision_without": 15.6,
+          "recall_without": 19.4,
+          "precision_diff": -1.4,
+          "precision_diff_sd": 2.2,
+          "recall_diff": -2.0,
+          "recall_diff_sd": 3.1
         },
         {
-          "variable": "max1studie",
+          "variable": "eigen_variabele_1",
           "columns": [
-            "max1studie"
+            "eigen_variabele_1"
           ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": -5.0,
-          "recall_diff": -7.0
+          "precision_without": 16.4,
+          "recall_without": 20.6,
+          "precision_diff": -2.2,
+          "precision_diff_sd": 4.5,
+          "recall_diff": -3.2,
+          "recall_diff_sd": 5.9
         },
         {
-          "variable": "StudentGender",
+          "variable": "absence_authorized",
           "columns": [
-            "StudentGender"
+            "absence_authorized"
           ],
-          "precision_without": 20.0,
-          "recall_without": 25.0,
-          "precision_diff": -10.0,
-          "recall_diff": -13.0
-        },
-        {
-          "variable": "absence_unauthorized",
-          "columns": [
-            "absence_unauthorized"
-          ],
-          "precision_without": 22.0,
-          "recall_without": 28.0,
-          "precision_diff": -12.0,
-          "recall_diff": -16.0
+          "precision_without": 16.4,
+          "recall_without": 20.6,
+          "precision_diff": -2.2,
+          "precision_diff_sd": 3.6,
+          "recall_diff": -3.2,
+          "recall_diff_sd": 4.3
         }
       ]
     },
@@ -1186,48 +1267,6 @@
         "max_depth": 7,
         "learning_rate": 0.05
       },
-      "precision_recall_curve": [
-        {
-          "pct": 5,
-          "precision": 30.0,
-          "recall": 9.0
-        },
-        {
-          "pct": 10,
-          "precision": 20.0,
-          "recall": 12.0
-        },
-        {
-          "pct": 15,
-          "precision": 17.0,
-          "recall": 16.0
-        },
-        {
-          "pct": 20,
-          "precision": 18.0,
-          "recall": 22.0
-        },
-        {
-          "pct": 25,
-          "precision": 18.0,
-          "recall": 28.0
-        },
-        {
-          "pct": 30,
-          "precision": 17.0,
-          "recall": 31.0
-        },
-        {
-          "pct": 40,
-          "precision": 14.0,
-          "recall": 34.0
-        },
-        {
-          "pct": 50,
-          "precision": 15.0,
-          "recall": 47.0
-        }
-      ],
       "feature_importance": [
         {
           "feature": "absence_authorized",
@@ -1330,16 +1369,60 @@
           "importance": 0.001408
         }
       ],
-      "evaluation": {
-        "precision": 18.0,
-        "recall": 22.0,
-        "lift_over_baseline": 1.12,
-        "status": "Niet bruikbaar"
-      },
       "r2_train": 0.811,
       "r2_val": -0.116,
       "mse_train": 0.026,
       "mse_val": 0.15,
+      "precision_recall_curve": [
+        {
+          "pct": 5,
+          "precision": 16.0,
+          "recall": 4.8
+        },
+        {
+          "pct": 10,
+          "precision": 13.0,
+          "recall": 7.8
+        },
+        {
+          "pct": 15,
+          "precision": 14.0,
+          "recall": 13.2
+        },
+        {
+          "pct": 20,
+          "precision": 14.2,
+          "recall": 17.6
+        },
+        {
+          "pct": 25,
+          "precision": 14.0,
+          "recall": 21.8
+        },
+        {
+          "pct": 30,
+          "precision": 15.0,
+          "recall": 28.0
+        },
+        {
+          "pct": 40,
+          "precision": 15.4,
+          "recall": 38.2
+        },
+        {
+          "pct": 50,
+          "precision": 15.4,
+          "recall": 48.2
+        }
+      ],
+      "evaluation": {
+        "precision": 14.2,
+        "recall": 17.6,
+        "precision_sd": 5.4,
+        "recall_sd": 6.7,
+        "lift_over_baseline": 0.88,
+        "status": "Niet bruikbaar"
+      },
       "variable_impact": [
         {
           "variable": "Vooropleiding_richting",
@@ -1352,60 +1435,60 @@
             "Anders",
             "Richting_nan"
           ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 6.0,
-          "recall_diff": 6.0
-        },
-        {
-          "variable": "StudentAge",
-          "columns": [
-            "StudentAge"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 6.0,
-          "recall_diff": 6.0
-        },
-        {
-          "variable": "Aanmel_aantal",
-          "columns": [
-            "Aanmel_aantal"
-          ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 6.0,
-          "recall_diff": 6.0
+          "precision_without": 10.2,
+          "recall_without": 13.2,
+          "precision_diff": 4.0,
+          "precision_diff_sd": 2.5,
+          "recall_diff": 4.4,
+          "recall_diff_sd": 2.9
         },
         {
           "variable": "max1studie",
           "columns": [
             "max1studie"
           ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 6.0,
-          "recall_diff": 6.0
+          "precision_without": 11.8,
+          "recall_without": 15.2,
+          "precision_diff": 2.4,
+          "precision_diff_sd": 6.4,
+          "recall_diff": 2.4,
+          "recall_diff_sd": 8.4
         },
         {
-          "variable": "eigen_variabele_1",
+          "variable": "StudentAge",
           "columns": [
-            "eigen_variabele_1"
+            "StudentAge"
           ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
+          "precision_without": 13.0,
+          "recall_without": 16.4,
+          "precision_diff": 1.2,
+          "precision_diff_sd": 3.4,
+          "recall_diff": 1.2,
+          "recall_diff_sd": 3.4
         },
         {
-          "variable": "StudentGender",
+          "variable": "Aanmel_aantal",
           "columns": [
-            "StudentGender"
+            "Aanmel_aantal"
           ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
+          "precision_without": 14.0,
+          "recall_without": 17.6,
+          "precision_diff": 0.2,
+          "precision_diff_sd": 4.4,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 4.7
+        },
+        {
+          "variable": "absence_unauthorized",
+          "columns": [
+            "absence_unauthorized"
+          ],
+          "precision_without": 14.0,
+          "recall_without": 17.4,
+          "precision_diff": 0.2,
+          "precision_diff_sd": 3.8,
+          "recall_diff": 0.2,
+          "recall_diff_sd": 5.1
         },
         {
           "variable": "absence_authorized",
@@ -1414,8 +1497,10 @@
           ],
           "precision_without": 15.0,
           "recall_without": 19.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
+          "precision_diff": -0.8,
+          "precision_diff_sd": 4.3,
+          "recall_diff": -1.4,
+          "recall_diff_sd": 5.4
         },
         {
           "variable": "Vooropleiding_niveau",
@@ -1433,20 +1518,36 @@
             "VooroplNiveau_VWOplus",
             "VooroplNiveau_other"
           ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
+          "precision_without": 15.4,
+          "recall_without": 19.4,
+          "precision_diff": -1.2,
+          "precision_diff_sd": 4.6,
+          "recall_diff": -1.8,
+          "recall_diff_sd": 5.4
         },
         {
-          "variable": "absence_unauthorized",
+          "variable": "eigen_variabele_1",
           "columns": [
-            "absence_unauthorized"
+            "eigen_variabele_1"
           ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
+          "precision_without": 16.0,
+          "recall_without": 20.0,
+          "precision_diff": -1.8,
+          "precision_diff_sd": 4.6,
+          "recall_diff": -2.4,
+          "recall_diff_sd": 5.4
+        },
+        {
+          "variable": "StudentGender",
+          "columns": [
+            "StudentGender"
+          ],
+          "precision_without": 16.0,
+          "recall_without": 20.0,
+          "precision_diff": -1.8,
+          "precision_diff_sd": 4.6,
+          "recall_diff": -2.4,
+          "recall_diff_sd": 5.4
         }
       ]
     },
@@ -1457,48 +1558,6 @@
         "max_depth": 7,
         "learning_rate": 0.2
       },
-      "precision_recall_curve": [
-        {
-          "pct": 5,
-          "precision": 10.0,
-          "recall": 3.0
-        },
-        {
-          "pct": 10,
-          "precision": 5.0,
-          "recall": 3.0
-        },
-        {
-          "pct": 15,
-          "precision": 10.0,
-          "recall": 9.0
-        },
-        {
-          "pct": 20,
-          "precision": 15.0,
-          "recall": 19.0
-        },
-        {
-          "pct": 25,
-          "precision": 16.0,
-          "recall": 25.0
-        },
-        {
-          "pct": 30,
-          "precision": 17.0,
-          "recall": 31.0
-        },
-        {
-          "pct": 40,
-          "precision": 15.0,
-          "recall": 38.0
-        },
-        {
-          "pct": 50,
-          "precision": 15.0,
-          "recall": 47.0
-        }
-      ],
       "feature_importance": [
         {
           "feature": "absence_authorized",
@@ -1601,16 +1660,60 @@
           "importance": 0.0
         }
       ],
-      "evaluation": {
-        "precision": 15.0,
-        "recall": 19.0,
-        "lift_over_baseline": 0.93,
-        "status": "Niet bruikbaar"
-      },
       "r2_train": 0.959,
       "r2_val": -0.343,
       "mse_train": 0.006,
       "mse_val": 0.181,
+      "precision_recall_curve": [
+        {
+          "pct": 5,
+          "precision": 14.0,
+          "recall": 4.2
+        },
+        {
+          "pct": 10,
+          "precision": 13.0,
+          "recall": 7.8
+        },
+        {
+          "pct": 15,
+          "precision": 14.6,
+          "recall": 13.6
+        },
+        {
+          "pct": 20,
+          "precision": 17.2,
+          "recall": 21.2
+        },
+        {
+          "pct": 25,
+          "precision": 16.8,
+          "recall": 26.4
+        },
+        {
+          "pct": 30,
+          "precision": 16.8,
+          "recall": 31.2
+        },
+        {
+          "pct": 40,
+          "precision": 17.4,
+          "recall": 43.8
+        },
+        {
+          "pct": 50,
+          "precision": 16.8,
+          "recall": 52.6
+        }
+      ],
+      "evaluation": {
+        "precision": 17.2,
+        "recall": 21.2,
+        "precision_sd": 5.4,
+        "recall_sd": 6.8,
+        "lift_over_baseline": 1.07,
+        "status": "Niet bruikbaar"
+      },
       "variable_impact": [
         {
           "variable": "Vooropleiding_richting",
@@ -1623,20 +1726,12 @@
             "Anders",
             "Richting_nan"
           ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 5.0,
-          "recall_diff": 7.0
-        },
-        {
-          "variable": "StudentAge",
-          "columns": [
-            "StudentAge"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": 5.0,
-          "recall_diff": 7.0
+          "precision_without": 12.4,
+          "recall_without": 15.6,
+          "precision_diff": 4.8,
+          "precision_diff_sd": 3.7,
+          "recall_diff": 5.6,
+          "recall_diff_sd": 4.5
         },
         {
           "variable": "Vooropleiding_niveau",
@@ -1654,70 +1749,96 @@
             "VooroplNiveau_VWOplus",
             "VooroplNiveau_other"
           ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
+          "precision_without": 13.8,
+          "recall_without": 17.6,
+          "precision_diff": 3.4,
+          "precision_diff_sd": 3.6,
+          "recall_diff": 3.6,
+          "recall_diff_sd": 5.1
         },
         {
           "variable": "Aanmel_aantal",
           "columns": [
             "Aanmel_aantal"
           ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
+          "precision_without": 15.0,
+          "recall_without": 18.8,
+          "precision_diff": 2.2,
+          "precision_diff_sd": 4.7,
+          "recall_diff": 2.4,
+          "recall_diff_sd": 5.8
+        },
+        {
+          "variable": "StudentAge",
+          "columns": [
+            "StudentAge"
+          ],
+          "precision_without": 16.4,
+          "recall_without": 20.6,
+          "precision_diff": 0.8,
+          "precision_diff_sd": 5.2,
+          "recall_diff": 0.6,
+          "recall_diff_sd": 6.9
         },
         {
           "variable": "max1studie",
           "columns": [
             "max1studie"
           ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": 3.0,
-          "recall_diff": 3.0
-        },
-        {
-          "variable": "eigen_variabele_1",
-          "columns": [
-            "eigen_variabele_1"
-          ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": 0.0,
-          "recall_diff": 0.0
+          "precision_without": 17.0,
+          "recall_without": 21.4,
+          "precision_diff": 0.2,
+          "precision_diff_sd": 5.3,
+          "recall_diff": -0.2,
+          "recall_diff_sd": 6.4
         },
         {
           "variable": "absence_unauthorized",
           "columns": [
             "absence_unauthorized"
           ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
+          "precision_without": 17.0,
+          "recall_without": 21.4,
+          "precision_diff": 0.2,
+          "precision_diff_sd": 3.5,
+          "recall_diff": -0.2,
+          "recall_diff_sd": 3.9
+        },
+        {
+          "variable": "eigen_variabele_1",
+          "columns": [
+            "eigen_variabele_1"
+          ],
+          "precision_without": 17.2,
+          "recall_without": 21.2,
           "precision_diff": 0.0,
-          "recall_diff": 0.0
+          "precision_diff_sd": 0.0,
+          "recall_diff": 0.0,
+          "recall_diff_sd": 0.0
         },
         {
           "variable": "StudentGender",
           "columns": [
             "StudentGender"
           ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": -3.0,
-          "recall_diff": -3.0
+          "precision_without": 18.2,
+          "recall_without": 22.4,
+          "precision_diff": -1.0,
+          "precision_diff_sd": 4.4,
+          "recall_diff": -1.2,
+          "recall_diff_sd": 5.4
         },
         {
           "variable": "absence_authorized",
           "columns": [
             "absence_authorized"
           ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": -3.0,
-          "recall_diff": -3.0
+          "precision_without": 18.6,
+          "recall_without": 23.0,
+          "precision_diff": -1.4,
+          "precision_diff_sd": 7.0,
+          "recall_diff": -1.8,
+          "recall_diff_sd": 8.6
         }
       ]
     },
@@ -1729,48 +1850,6 @@
         "learning_rate": 0.1,
         "colsample_bytree": 1.0
       },
-      "precision_recall_curve": [
-        {
-          "pct": 5,
-          "precision": 10.0,
-          "recall": 3.0
-        },
-        {
-          "pct": 10,
-          "precision": 10.0,
-          "recall": 6.0
-        },
-        {
-          "pct": 15,
-          "precision": 7.0,
-          "recall": 6.0
-        },
-        {
-          "pct": 20,
-          "precision": 8.0,
-          "recall": 9.0
-        },
-        {
-          "pct": 25,
-          "precision": 12.0,
-          "recall": 19.0
-        },
-        {
-          "pct": 30,
-          "precision": 12.0,
-          "recall": 22.0
-        },
-        {
-          "pct": 40,
-          "precision": 16.0,
-          "recall": 41.0
-        },
-        {
-          "pct": 50,
-          "precision": 16.0,
-          "recall": 50.0
-        }
-      ],
       "feature_importance": [
         {
           "feature": "eigen_variabele_1",
@@ -1873,16 +1952,60 @@
           "importance": 0.0
         }
       ],
-      "evaluation": {
-        "precision": 8.0,
-        "recall": 9.0,
-        "lift_over_baseline": 0.5,
-        "status": "Niet bruikbaar"
-      },
       "r2_train": 0.709,
       "r2_val": -0.183,
       "mse_train": 0.039,
       "mse_val": 0.159,
+      "precision_recall_curve": [
+        {
+          "pct": 5,
+          "precision": 12.0,
+          "recall": 3.6
+        },
+        {
+          "pct": 10,
+          "precision": 13.0,
+          "recall": 7.8
+        },
+        {
+          "pct": 15,
+          "precision": 12.0,
+          "recall": 11.0
+        },
+        {
+          "pct": 20,
+          "precision": 12.6,
+          "recall": 15.6
+        },
+        {
+          "pct": 25,
+          "precision": 13.6,
+          "recall": 21.4
+        },
+        {
+          "pct": 30,
+          "precision": 15.0,
+          "recall": 28.2
+        },
+        {
+          "pct": 40,
+          "precision": 17.6,
+          "recall": 44.0
+        },
+        {
+          "pct": 50,
+          "precision": 16.2,
+          "recall": 50.6
+        }
+      ],
+      "evaluation": {
+        "precision": 12.6,
+        "recall": 15.6,
+        "precision_sd": 4.0,
+        "recall_sd": 5.2,
+        "lift_over_baseline": 0.78,
+        "status": "Niet bruikbaar"
+      },
       "variable_impact": [
         {
           "variable": "Vooropleiding_richting",
@@ -1895,50 +2018,48 @@
             "Anders",
             "Richting_nan"
           ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": -2.0,
-          "recall_diff": -3.0
-        },
-        {
-          "variable": "StudentAge",
-          "columns": [
-            "StudentAge"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": -2.0,
-          "recall_diff": -3.0
-        },
-        {
-          "variable": "max1studie",
-          "columns": [
-            "max1studie"
-          ],
-          "precision_without": 10.0,
-          "recall_without": 12.0,
-          "precision_diff": -2.0,
-          "recall_diff": -3.0
+          "precision_without": 11.6,
+          "recall_without": 14.2,
+          "precision_diff": 1.0,
+          "precision_diff_sd": 3.9,
+          "recall_diff": 1.4,
+          "recall_diff_sd": 4.8
         },
         {
           "variable": "eigen_variabele_1",
           "columns": [
             "eigen_variabele_1"
           ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": -4.0,
-          "recall_diff": -7.0
+          "precision_without": 13.0,
+          "recall_without": 16.2,
+          "precision_diff": -0.4,
+          "precision_diff_sd": 4.0,
+          "recall_diff": -0.6,
+          "recall_diff_sd": 5.9
         },
         {
-          "variable": "StudentGender",
+          "variable": "max1studie",
           "columns": [
-            "StudentGender"
+            "max1studie"
           ],
-          "precision_without": 12.0,
-          "recall_without": 16.0,
-          "precision_diff": -4.0,
-          "recall_diff": -7.0
+          "precision_without": 13.4,
+          "recall_without": 17.0,
+          "precision_diff": -0.8,
+          "precision_diff_sd": 2.4,
+          "recall_diff": -1.4,
+          "recall_diff_sd": 2.9
+        },
+        {
+          "variable": "Aanmel_aantal",
+          "columns": [
+            "Aanmel_aantal"
+          ],
+          "precision_without": 13.8,
+          "recall_without": 17.8,
+          "precision_diff": -1.2,
+          "precision_diff_sd": 3.7,
+          "recall_diff": -2.2,
+          "recall_diff_sd": 5.0
         },
         {
           "variable": "Vooropleiding_niveau",
@@ -1956,49 +2077,69 @@
             "VooroplNiveau_VWOplus",
             "VooroplNiveau_other"
           ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": -7.0,
-          "recall_diff": -10.0
+          "precision_without": 14.0,
+          "recall_without": 17.4,
+          "precision_diff": -1.4,
+          "precision_diff_sd": 7.2,
+          "recall_diff": -1.8,
+          "recall_diff_sd": 9.2
         },
         {
-          "variable": "Aanmel_aantal",
+          "variable": "StudentAge",
           "columns": [
-            "Aanmel_aantal"
+            "StudentAge"
           ],
-          "precision_without": 15.0,
-          "recall_without": 19.0,
-          "precision_diff": -7.0,
-          "recall_diff": -10.0
+          "precision_without": 14.2,
+          "recall_without": 18.2,
+          "precision_diff": -1.6,
+          "precision_diff_sd": 3.2,
+          "recall_diff": -2.6,
+          "recall_diff_sd": 4.2
+        },
+        {
+          "variable": "StudentGender",
+          "columns": [
+            "StudentGender"
+          ],
+          "precision_without": 15.8,
+          "recall_without": 20.2,
+          "precision_diff": -3.2,
+          "precision_diff_sd": 2.2,
+          "recall_diff": -4.6,
+          "recall_diff_sd": 3.0
         },
         {
           "variable": "absence_unauthorized",
           "columns": [
             "absence_unauthorized"
           ],
-          "precision_without": 18.0,
-          "recall_without": 22.0,
-          "precision_diff": -10.0,
-          "recall_diff": -13.0
+          "precision_without": 16.4,
+          "recall_without": 20.6,
+          "precision_diff": -3.8,
+          "precision_diff_sd": 7.0,
+          "recall_diff": -5.0,
+          "recall_diff_sd": 9.2
         },
         {
           "variable": "absence_authorized",
           "columns": [
             "absence_authorized"
           ],
-          "precision_without": 20.0,
-          "recall_without": 25.0,
-          "precision_diff": -12.0,
-          "recall_diff": -16.0
+          "precision_without": 20.6,
+          "recall_without": 25.6,
+          "precision_diff": -8.0,
+          "precision_diff_sd": 5.1,
+          "recall_diff": -10.0,
+          "recall_diff_sd": 6.4
         }
       ]
     }
   },
   "recommendation": {
     "model": "Logistic Regression",
-    "precision_at_20": 18.0,
-    "recall_at_20": 22.0,
-    "lift_over_baseline": 1.12,
+    "precision_at_20": 17.4,
+    "recall_at_20": 21.8,
+    "lift_over_baseline": 1.08,
     "status": "Niet bruikbaar"
   }
 }

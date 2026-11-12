@@ -34,6 +34,7 @@
           "properties": {
             "type": {"enum": ["random", "cohort"]},
             "test_size": {"type": "number"},
+            "repeats": {"type": "integer", "minimum": 1},
             "train_cohorts": {"type": "array", "items": {"$ref": "#/$defs/cohort"}},
             "test_cohort": {"$ref": "#/$defs/cohort"}
           }
@@ -103,6 +104,8 @@
                 "recall_without": {"type": "number"},
                 "precision_diff": {"type": "number"},
                 "recall_diff": {"type": "number"},
+                "precision_diff_sd": {"type": "number", "minimum": 0},
+                "recall_diff_sd": {"type": "number", "minimum": 0},
                 "error": {"type": "string", "maxLength": 200}
               }
             }
@@ -114,6 +117,8 @@
             "properties": {
               "precision": {"type": "number"},
               "recall": {"type": "number"},
+              "precision_sd": {"type": "number", "minimum": 0},
+              "recall_sd": {"type": "number", "minimum": 0},
               "lift_over_baseline": {"$ref": "#/$defs/number_or_null"},
               "status": {"type": "string"}
             }

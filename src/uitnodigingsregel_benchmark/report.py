@@ -25,10 +25,16 @@ LOCAL_NAMES_TEXT = (
     "in staan hebben een neutrale naam. Deze tabel staat alleen in dit rapport en op je "
     "eigen scherm, niet in het resultaatbestand."
 )
+SPREAD_TEXT = (
+    "De getallen zijn gemiddelden over meerdere splitsingen van de data; achter ± staat hoeveel "
+    "ze per splitsing verschilden. Een grijze balk valt binnen die spreiding: het verschil is "
+    "niet te onderscheiden van toeval."
+)
 QUICK_TEXT = "Dit is een snelle run. Kies 'Volledig' voor een uitkomst om te delen."
 
 COLOR_HELPS = "#2a7f62"
 COLOR_HURTS = "#c8785a"
+COLOR_NOISE = "#9a9a9a"
 
 CSS = """
 body { font-family: -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; color: #1a1a1a;
@@ -49,7 +55,7 @@ th { font-weight: 600; background: #f6f6f6; }
 td.number, th.number { text-align: right; font-variant-numeric: tabular-nums; }
 .bars td { border-bottom: none; padding: 3px 8px; }
 .bars td.name { width: 30%; text-align: right; color: #333; }
-.bars td.value { width: 64px; text-align: right; font-variant-numeric: tabular-nums; }
+.bars td.value { width: 96px; text-align: right; font-variant-numeric: tabular-nums; }
 .track { display: flex; height: 18px; }
 .half { flex: 1; display: flex; }
 .half.left { justify-content: flex-end; border-right: 1px solid #888; }
@@ -69,6 +75,32 @@ def display_name(name: str, local_names: dict[str, str] | None) -> str:
     return name
 
 
+def within_spread(entry: dict) -> bool:
+    """Whether the impact of a variable is not distinguishable from chance over the splits."""
+    spread = entry.get("precision_diff_sd") or 0
+    return spread > 0 and abs(entry["precision_diff"]) <= spread
+
+
+def close_to_best(result: dict) -> list[str]:
+    """Models whose precision differs from the best model's by less than its spread."""
+    best = result["recommendation"]["model"]
+    evaluation = result["models"][best]["evaluation"]
+    spread = evaluation.get("precision_sd") or 0
+    return [
+        name
+        for name, model in result["models"].items()
+        if name != best
+        and spread > 0
+        and evaluation["precision"] - model["evaluation"]["precision"] <= spread
+    ]
+
+
+def with_spread(value: float, spread: float | None, unit: str = "%") -> str:
+    """Format a value with its spread over the splits, if there is one."""
+    text = f"{value:.0f}{unit}"
+    return f"{text} ± {spread:.0f}" if spread else text
+
+
 def _html(text: str) -> str:
     """Escape text for HTML and turn **bold** into <strong>."""
     return re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", escape(text))
@@ -82,6 +114,8 @@ def split_description(metadata: dict) -> str:
         how = f"Getraind op cohort {cohorts} en getoetst op cohort {split['test_cohort']}."
     else:
         how = "De data is willekeurig gesplitst in een deel om te trainen en te toetsen."
+        if split.get("repeats", 1) > 1:
+            how += f" Dat is {split['repeats']} keer herhaald met een andere splitsing."
     return f"{how} Getraind op {metadata['n_train']} studenten, getoetst op {metadata['n_test']}."
 
 
@@ -95,8 +129,10 @@ def _model_rows(result: dict) -> str:
         emoji = get_stoplight_evaluation(evaluation["precision"], evaluation["recall"])[0]
         rows.append(
             f"<tr><td>{escape(name)}</td><td>{emoji} {escape(evaluation['status'])}</td>"
-            f'<td class="number">{evaluation["precision"]:.0f}%</td>'
-            f'<td class="number">{evaluation["recall"]:.0f}%</td></tr>'
+            f'<td class="number">'
+            f"{with_spread(evaluation['precision'], evaluation.get('precision_sd'))}</td>"
+            f'<td class="number">{with_spread(evaluation["recall"], evaluation.get("recall_sd"))}'
+            "</td></tr>"
         )
     return "\n".join(rows)
 
@@ -109,15 +145,31 @@ def _impact_bars(entries: list[dict], local_names: dict[str, str] | None = None)
     for entry in measured:
         diff = entry["precision_diff"]
         width = abs(diff) / largest * 100
-        left = f'<div class="bar" style="width:{width:.1f}%;background:{COLOR_HURTS}"></div>'
-        right = f'<div class="bar" style="width:{width:.1f}%;background:{COLOR_HELPS}"></div>'
+        noise = within_spread(entry)
+        left_color = COLOR_NOISE if noise else COLOR_HURTS
+        right_color = COLOR_NOISE if noise else COLOR_HELPS
+        left = f'<div class="bar" style="width:{width:.1f}%;background:{left_color}"></div>'
+        right = f'<div class="bar" style="width:{width:.1f}%;background:{right_color}"></div>'
+        spread = entry.get("precision_diff_sd")
+        value = f"{diff:+.1f}" + (f" ± {spread:.1f}" if spread else "")
         rows.append(
             f'<tr><td class="name">{escape(display_name(entry["variable"], local_names))}</td>'
             f'<td><div class="track"><div class="half left">{left if diff < 0 else ""}</div>'
             f'<div class="half">{right if diff > 0 else ""}</div></div></td>'
-            f'<td class="value">{diff:+.1f}</td></tr>'
+            f'<td class="value">{value}</td></tr>'
         )
     return f'<table class="bars">{"".join(rows)}</table>'
+
+
+def _repeated(metadata: dict) -> bool:
+    return metadata["split"].get("repeats", 1) > 1
+
+
+def _close_note(result: dict) -> str:
+    close = close_to_best(result)
+    if not close:
+        return ""
+    return f". Het verschil met {', '.join(close)} valt binnen de spreiding."
 
 
 def build_html_report(result: dict, local_names: dict[str, str] | None = None) -> str:
@@ -135,6 +187,7 @@ def build_html_report(result: dict, local_names: dict[str, str] | None = None) -
     """
     metadata = result["metadata"]
     best = result["recommendation"]
+    best_eval = result["models"][best["model"]]["evaluation"]
     title = f"Uitnodigingsregel benchmark: {metadata['instelling_id']}"
     year = f", uitvaljaar {metadata['dropout_year']}" if metadata.get("dropout_year") else ""
 
@@ -148,12 +201,15 @@ def build_html_report(result: dict, local_names: dict[str, str] | None = None) -
 
     parts += [
         "<h2>Uitkomst</h2>",
-        f"<p>Best voorspellende model: <strong>{escape(best['model'])}</strong></p>",
+        f"<p>Best voorspellende model: <strong>{escape(best['model'])}</strong>"
+        f"{escape(_close_note(result))}</p>",
         '<div class="metrics">',
         f'<div class="metric"><div class="label">Precisie</div>'
-        f'<div class="value">{best["precision_at_20"]:.0f}%</div></div>',
+        f'<div class="value">{with_spread(best["precision_at_20"], best_eval.get("precision_sd"))}'
+        "</div></div>",
         f'<div class="metric"><div class="label">Recall</div>'
-        f'<div class="value">{best["recall_at_20"]:.0f}%</div></div>',
+        f'<div class="value">{with_spread(best["recall_at_20"], best_eval.get("recall_sd"))}'
+        "</div></div>",
         f'<div class="metric"><div class="label">Uitval in de data</div>'
         f'<div class="value">{metadata["dropout_rate_test"] * 100:.0f}%</div></div>',
         "</div>",
@@ -166,6 +222,7 @@ def build_html_report(result: dict, local_names: dict[str, str] | None = None) -
         parts += [
             "<h2>Impact per variabele</h2>",
             f'<p class="note">{_html(IMPACT_TEXT)} De getallen zijn procentpunten.</p>',
+            *([f'<p class="note">{_html(SPREAD_TEXT)}</p>'] if _repeated(metadata) else []),
             f"<h3>{escape(best['model'])} (best voorspellend)</h3>",
             _impact_bars(result["models"][best["model"]]["variable_impact"], local_names),
         ]
