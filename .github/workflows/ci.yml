@@ -21,3 +21,9 @@ jobs:
 
       - name: Test
         run: uv run pytest
+
+      - name: Check shared results
+        run: |
+          shopt -s nullglob
+          files=(results/*.json)
+          if [ ${#files[@]} -gt 0 ]; then uv run python -m uitnodigingsregel_benchmark.check "${files[@]}"; fi

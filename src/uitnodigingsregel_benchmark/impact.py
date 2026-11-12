@@ -13,6 +13,7 @@ from uitnodigingsregel_benchmark.export import extract_precision_recall_curve
 from uitnodigingsregel_benchmark.settings import SettingsError
 
 INVITE_PCT = 20
+RETRAIN_FAILED = "Het model kon niet opnieuw worden getraind zonder deze variabele."
 
 
 def precision_recall_at_invite_pct(
@@ -125,8 +126,10 @@ def measure_variable_impact(
             try:
                 model = clone(estimator).fit(X_train, prepared.y_train)
             except ValueError as error:
-                # For example a model setting that needs more columns than are left
-                entry["error"] = str(error)
+                # For example a model setting that needs more columns than are left. The
+                # message may name columns, so it is printed here and not stored.
+                print(f"    {name} kon niet opnieuw worden getraind: {error}")
+                entry["error"] = RETRAIN_FAILED
             else:
                 precision, recall = precision_recall_at_invite_pct(model, val_data, dropout_col)
                 entry.update(

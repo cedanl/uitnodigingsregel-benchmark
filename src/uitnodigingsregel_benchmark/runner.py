@@ -12,6 +12,7 @@ import student_signal
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
 from student_signal.evaluate import get_stoplight_evaluation, prepare_model_predictions
 
+from uitnodigingsregel_benchmark.check import FORMAT_VERSION, check_result
 from uitnodigingsregel_benchmark.dataset import (
     ensure_id_column,
     read_student_data,
@@ -156,6 +157,8 @@ def run_benchmark(
             f"\n{len(own)} kolommen of groepen staan niet in de gedeelde variabelenlijst en "
             f"komen onder een neutrale naam in het resultaatbestand: {', '.join(own)}."
         )
+    for warning in check_result(result):
+        print(f"\nLet op: {warning}")
     path = write_result(result, results_dir)
     report_path = path.with_suffix(".html")
     report_path.write_text(build_html_report(result, local_names), encoding="utf-8")
@@ -248,6 +251,8 @@ def run_benchmark_on_data(
         "features_available": list(prepared.X_train.columns),
         "run_date": datetime.now().strftime("%Y-%m-%d"),
         "student_signal_version": version("student_signal"),
+        "benchmark_version": version("uitnodigingsregel-benchmark"),
+        "format_version": FORMAT_VERSION,
         "cv_folds": config["cv_folds"],
         "n_iter_search": config["n_iter"],
     }

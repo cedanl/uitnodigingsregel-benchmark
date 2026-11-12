@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from uitnodigingsregel_benchmark.check import check_result
+
 
 def sanitize(obj):
     """Recursively replace float NaN/Inf with None for valid JSON."""
@@ -101,7 +103,12 @@ def write_result(result: dict, results_dir: str | Path = "results") -> Path:
 
     Returns:
         Path to the written file.
+
+    Raises:
+        ResultError: If the result cannot be shared; nothing is written then.
     """
+    result = sanitize(result)
+    check_result(result)
     results_dir = Path(results_dir)
     results_dir.mkdir(exist_ok=True)
     meta = result["metadata"]
@@ -111,5 +118,5 @@ def write_result(result: dict, results_dir: str | Path = "results") -> Path:
     name = re.sub(r"[^\w.-]+", "-", f"benchmark_{instelling_id}_{dropout_year}")
     path = results_dir / f"{name}.json"
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(sanitize(result), f, indent=2, ensure_ascii=False)
+        json.dump(result, f, indent=2, ensure_ascii=False)
     return path

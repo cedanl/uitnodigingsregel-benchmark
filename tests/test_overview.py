@@ -5,6 +5,8 @@ import json
 from datetime import date
 from pathlib import Path
 
+from conftest import make_result
+
 from uitnodigingsregel_benchmark.aggregate import (
     build_shared_data,
     is_shareable,
@@ -17,26 +19,7 @@ EXAMPLE_RESULT = Path(__file__).parent.parent / "results/voorbeeld/benchmark_dem
 
 
 def _result(instelling: str, diff: float, split: str = "random", n: int = 1000) -> dict:
-    return {
-        "metadata": {
-            "instelling_id": instelling,
-            "dropout_year": 2023,
-            "quick_mode": False,
-            "split": {"type": split},
-            "n_train": n - 200,
-            "n_test": 200,
-            "dropout_rate_test": 0.2,
-        },
-        "models": {
-            "Lasso": {
-                "evaluation": {"precision": 40.0, "recall": 35.0, "status": "Betrouwbaar"},
-                "variable_impact": [
-                    {"variable": "Verzuim", "columns": ["Verzuim"], "precision_diff": diff},
-                    {"variable": "Leeftijd", "columns": ["Leeftijd"], "error": "mislukt"},
-                ],
-            }
-        },
-    }
+    return make_result(instelling, diff, split={"type": split}, n_train=n - 200, n_test=200)
 
 
 def test_demo_and_quick_results_do_not_count():
@@ -64,7 +47,7 @@ def test_variable_impact_is_combined_per_institution():
     rows = variable_impact_table(results)
     assert rows == [
         {
-            "variable": "Verzuim",
+            "variable": "StudentAge",
             "n_institutions": 2,
             "mean": 1.0,
             "median": 1.0,
@@ -87,7 +70,7 @@ def test_overview_page_shows_results_per_kind_of_split():
     assert "Getoetst op een later cohort" in page
     assert "Willekeurig gesplitst" in page
     assert "Variabelen met de grootste bijdrage" in page
-    assert "Verzuim" in page
+    assert "StudentAge" in page
     assert "<b>" not in page
     assert "2026-01-02" in page
 

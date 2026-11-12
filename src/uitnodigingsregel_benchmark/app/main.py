@@ -10,6 +10,7 @@ from student_signal.evaluate import get_stoplight_evaluation
 
 from uitnodigingsregel_benchmark import sharing
 from uitnodigingsregel_benchmark.app.styles import APP_CSS
+from uitnodigingsregel_benchmark.check import ResultError, check_result
 from uitnodigingsregel_benchmark.dataset import (
     DataValidationError,
     read_student_data,
@@ -51,7 +52,16 @@ OWN = "(eigen variabele, niet in de lijst)"
 st.set_page_config(page_title="Uitnodigingsregel benchmark", page_icon="📊", layout="centered")
 st.markdown(APP_CSS, unsafe_allow_html=True)
 
-for key in ("data", "data_label", "upload_seen", "result", "result_path", "shared", "local_names"):
+for key in (
+    "data",
+    "data_label",
+    "upload_seen",
+    "result",
+    "result_path",
+    "shared",
+    "local_names",
+    "warnings",
+):
     st.session_state.setdefault(key, None)
 st.session_state.setdefault("own_groups", {})
 
@@ -329,13 +339,19 @@ if start:
         st.error(str(error))
     else:
         progress.empty()
-        st.session_state.result = result
-        st.session_state.local_names = local_names
-        st.session_state.shared = sharing.fetch_shared_data()
-        st.session_state.result_path = write_result(result, RESULTS_DIR)
-        st.session_state.result_path.with_suffix(".html").write_text(
-            build_html_report(result, local_names), encoding="utf-8"
-        )
+        try:
+            st.session_state.warnings = check_result(result)
+            st.session_state.result_path = write_result(result, RESULTS_DIR)
+        except ResultError as error:
+            st.session_state.result = None
+            st.error(f"Het resultaatbestand kan niet worden gemaakt. {error}")
+        else:
+            st.session_state.result = result
+            st.session_state.local_names = local_names
+            st.session_state.shared = sharing.fetch_shared_data()
+            st.session_state.result_path.with_suffix(".html").write_text(
+                build_html_report(result, local_names), encoding="utf-8"
+            )
 
 result = st.session_state.result
 if result is None:
@@ -350,6 +366,8 @@ with st.container(border=True):
     st.caption(split_description(metadata))
     if metadata["quick_mode"]:
         st.info(QUICK_TEXT)
+    for warning in st.session_state.warnings or []:
+        st.warning(warning)
 
     st.write(f"Best voorspellende model: **{best['model']}**")
     left, middle, right = st.columns(3)

@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from statistics import mean, median
 
+from uitnodigingsregel_benchmark.check import ResultError, check_result
 from uitnodigingsregel_benchmark.shared_variables import is_own_name
 
 DEMO_INSTELLING_ID = "demo"
@@ -22,12 +23,18 @@ def load_shared_results(results_dir: str | Path = "results") -> list[dict]:
         results_dir: Folder with benchmark_*.json files; subfolders are not read.
 
     Returns:
-        The results of full runs on own data, ordered by file name.
+        The results of full runs on own data, ordered by file name. A file that fails
+        the check is left out and named in the output.
     """
     results = []
     for path in sorted(Path(results_dir).glob("benchmark_*.json")):
         with open(path, encoding="utf-8") as f:
             result = json.load(f)
+        try:
+            check_result(result)
+        except ResultError as error:
+            print(f"Overgeslagen: {path.name}. {error}")
+            continue
         if is_shareable(result):
             results.append(result)
     return results

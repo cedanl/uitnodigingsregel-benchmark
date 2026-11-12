@@ -1255,6 +1255,7 @@ name = "uitnodigingsregel-benchmark"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "jsonschema" },
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "pandas" },
@@ -1273,6 +1274,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "jsonschema", specifier = ">=4.23" },
     { name = "matplotlib", specifier = ">=3.8.0" },
     { name = "numpy", specifier = ">=2.2.2" },
     { name = "pandas", specifier = ">=2.2.3" },
