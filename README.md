@@ -1,4 +1,4 @@
-# uitnodigingsregel-benchmark
+# <img src="https://raw.githubusercontent.com/cedanl/Uitnodigingsregel/main/references/logo-uitnodigingsregel.png" alt="Logo van de Uitnodigingsregel" height="40" align="right"> uitnodigingsregel-benchmark
 
 Meet hoe goed modellen uitval voorspellen op de data van je eigen instelling, en welke variabelen daaraan bijdragen. De benchmark draait op je eigen computer; er gaat geen studentdata naar buiten. De uitkomst kun je delen. De gedeelde uitkomsten vormen samen een [gezamenlijk overzicht](https://cedanl.github.io/uitnodigingsregel-benchmark/) van welke variabelen ertoe doen en hoe goed de modellen voorspellen.
 
